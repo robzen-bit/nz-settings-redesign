@@ -4101,11 +4101,17 @@
                               <MultiRoleSettingsBlock
                                 feature={feature} roles={roles} perRole={perRole}
                                 onUpdate={(rId, sId, v) => updateValue(feature.id, rId, sId, v)}
-                                onUpdateShared={(sId, v) => updateSharedValue(feature.id, sId, v)}
+                                onUpdateShared={(sId, v) => {
+                                  updateSharedValue(feature.id, sId, v);
+                                  if (sId === 'watermark-source' && v === 'None') setFeatureOpen(feature.id, false);
+                                }}
                               />
                             ) : (
                               <SimpleSettingsBlock feature={feature} role={roles[0]} perRole={perRole}
-                                onUpdate={(rId, sId, v) => updateValue(feature.id, rId, sId, v)} />
+                                onUpdate={(rId, sId, v) => {
+                                  updateValue(feature.id, rId, sId, v);
+                                  if (sId === 'watermark-source' && v === 'None') setFeatureOpen(feature.id, false);
+                                }} />
                             )
                           )}
                         </React.Fragment>
