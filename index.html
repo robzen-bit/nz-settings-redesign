@@ -2650,6 +2650,7 @@
               })()
             ) : feature.appliesToAll ? (
               (() => {
+                if (isOpen) return null;
                 const watermarkSetting = feature.settings.find(s => s.id === 'watermark-source');
                 const options = watermarkSetting ? watermarkSetting.options : ['None'];
                 const sharedSource = getSharedValue(perRole, roles, feature.id, 'watermark-source') || 'None';
