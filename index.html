@@ -2654,25 +2654,18 @@
                 const options = watermarkSetting ? watermarkSetting.options : ['None'];
                 const sharedSource = getSharedValue(perRole, roles, feature.id, 'watermark-source') || 'None';
                 return (
-                  <div className="flex items-center justify-center"
-                    style={{ gridColumn: `${roles.length + 1}` }}
+                  <div className="flex items-center justify-end pr-4"
+                    style={{ gridColumn: `2 / span ${roles.length}` }}
                     onClick={e => e.stopPropagation()}>
-                    <select
+                    <V5Select
                       value={sharedSource}
-                      onChange={e => {
-                        const v = e.target.value;
+                      options={options}
+                      onChange={v => {
                         onUpdateShared && onUpdateShared('watermark-source', v);
                         onSetOpen && onSetOpen(v !== 'None');
                       }}
-                      className="text-[12px] font-semibold rounded-md border px-2 py-1"
-                      style={{
-                        color: sharedSource !== 'None' ? 'var(--brand)' : 'var(--text-secondary)',
-                        borderColor: 'var(--card-border)',
-                        background: 'var(--bg)',
-                        cursor: 'pointer',
-                      }}>
-                      {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                    </select>
+                      minWidth={160}
+                    />
                   </div>
                 );
               })()
