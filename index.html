@@ -1926,6 +1926,66 @@
       );
     };
 
+    // ===== Watermark Position Picker =====
+    const WATERMARK_POSITIONS = [['tl','tc','tr'],['ml','mc','mr'],['bl','bc','br']];
+    const watermarkPositionStyle = (pos) => {
+      const map = {
+        tl: { top: 12, left: 16, textAlign: 'left' },
+        tc: { top: 12, left: '50%', transform: 'translateX(-50%)', textAlign: 'center' },
+        tr: { top: 12, right: 16, textAlign: 'right' },
+        ml: { top: '50%', left: 16, transform: 'translateY(-50%)', textAlign: 'left' },
+        mc: { top: '50%', left: '50%', transform: 'translate(-50%,-50%)', textAlign: 'center' },
+        mr: { top: '50%', right: 16, transform: 'translateY(-50%)', textAlign: 'right' },
+        bl: { bottom: 12, left: 16, textAlign: 'left' },
+        bc: { bottom: 12, left: '50%', transform: 'translateX(-50%)', textAlign: 'center' },
+        br: { bottom: 12, right: 16, textAlign: 'right' },
+      };
+      return map[pos] || map.mc;
+    };
+    const WatermarkPositionPicker = ({ value, onChange, disabled }) => (
+      <div className="watermark-picker w-full flex flex-col items-center"
+        style={{ pointerEvents: disabled ? 'none' : 'auto', opacity: disabled ? 0.6 : 1 }}>
+        <div className="text-[12px] font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Edit Position</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 30px)', gridTemplateRows: 'repeat(3, 30px)', gap: 2, marginBottom: 16 }}>
+          {WATERMARK_POSITIONS.flat().map(pos => {
+            const selected = value === pos;
+            return (
+              <button key={pos} type="button" onClick={() => onChange(pos)}
+                style={{ width: 30, height: 30, background: selected ? 'var(--brand)' : '#fff',
+                  border: '1px solid ' + (selected ? 'var(--brand)' : 'var(--card-border)'),
+                  cursor: 'pointer', transition: 'background 0.12s, border-color 0.12s', padding: 0 }} />
+            );
+          })}
+        </div>
+        <div style={{ width: '100%', maxWidth: 480, position: 'relative', aspectRatio: '16 / 10',
+          borderRadius: 8, overflow: 'hidden',
+          background: 'linear-gradient(135deg, #3a2f24 0%, #5c4a37 35%, #7e6a52 60%, #6a563f 100%)' }}>
+          <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
+            <defs>
+              <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#6b563f"/><stop offset="100%" stopColor="#3a2f24"/>
+              </linearGradient>
+              <linearGradient id="board" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#f0e3c2"/><stop offset="50%" stopColor="#fff7e2"/><stop offset="100%" stopColor="#e0d2b0"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="200" fill="url(#sand)"/>
+            <ellipse cx="160" cy="115" rx="120" ry="32" fill="url(#board)" opacity="0.9"/>
+          </svg>
+          <div style={{ position: 'absolute', ...watermarkPositionStyle(value),
+            color: 'rgba(255,255,255,0.78)', fontSize: 14, fontWeight: 500,
+            textShadow: '0 1px 3px rgba(0,0,0,0.4)', pointerEvents: 'none',
+            whiteSpace: 'nowrap', fontStyle: 'italic' }}>
+            My Watermark
+          </div>
+        </div>
+        <div className="text-[11px] mt-2 text-center" style={{ color: 'var(--text-tertiary)', lineHeight: 1.45 }}>
+          Image shown is for preview purposes only.<br/>This setting only applies to Photos.
+        </div>
+      </div>
+    );
+
     // ===== Setting Control =====
     const SettingControl = ({ s, value, onChange, disabled, compact }) => {
       if (s.type === 'check') {
@@ -2013,6 +2073,180 @@
                 </label>
               );
             })}
+          </div>
+        );
+      }
+      if (s.type === 'position') {
+        return <WatermarkPositionPicker value={value || 'mc'} onChange={onChange} disabled={disabled} />;
+      }
+      if (s.type === 'video-preview-config') {
+        const start    = (value && value.start    != null) ? value.start    : '00';
+        const duration = (value && value.duration != null) ? value.duration : '15';
+        return (
+          <div style={{ width: '100%', maxWidth: 520 }}>
+            <p className="text-[13px] mb-2" style={{ color: 'var(--text-primary)' }}>
+              Set your default for creating previews for <strong>ALL videos</strong> uploaded to this gallery.
+            </p>
+            <p className="text-[13px] font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
+              Set the start time and duration for the video as your preview.
+            </p>
+            <div className="flex items-end gap-3 mb-5">
+              <div>
+                <div className="text-[12px] mb-1.5" style={{ color: 'var(--text-secondary)' }}>Start Time (in sec)</div>
+                <V5Select value={start} options={['00','05','10','15','30','45']} disabled={disabled}
+                  onChange={(v) => onChange({ start: v, duration })} minWidth={110} />
+              </div>
+              <span className="text-[13px] pb-2" style={{ color: 'var(--text-secondary)' }}>and</span>
+              <div>
+                <div className="text-[12px] mb-1.5" style={{ color: 'var(--text-secondary)' }}>Duration (in sec)</div>
+                <V5Select value={duration} options={['15','30']} disabled={disabled}
+                  onChange={(v) => onChange({ start, duration: v })} minWidth={110} />
+              </div>
+            </div>
+            <p className="text-[12px] leading-relaxed" style={{ color: 'var(--text-tertiary)' }}>
+              <strong>NOTE:</strong> Enabling or changing this feature will only affect new videos uploaded to your account.
+            </p>
+          </div>
+        );
+      }
+      if (s.type === 'radio') {
+        return (
+          <div className="flex items-center gap-5 flex-wrap">
+            {s.options.map(opt => {
+              const checked = value === opt;
+              return (
+                <label key={opt} className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
+                  <span className={`radio-dot ${checked ? 'is-on' : ''}`} />
+                  <input type="radio" checked={checked} disabled={disabled}
+                    onChange={() => onChange(opt)} className="sr-only" />
+                  <span style={{ color: 'var(--text-primary)' }}>{opt}</span>
+                </label>
+              );
+            })}
+          </div>
+        );
+      }
+      if (s.type === 'screenshot-config') {
+        const cfg = value || {};
+        if (disabled) {
+          return (
+            <div style={{ width: '100%' }}>
+              {[{ label: 'Desktop Deterrence' }, { label: 'Mobile Deterrence' }].map((item, i) => (
+                <div key={item.label} className="flex items-center gap-3 px-4 py-3 rounded-lg"
+                  style={{ border: '1px solid var(--card-border)', background: '#fff', marginBottom: i === 0 ? 8 : 0 }}>
+                  <Toggle size="sm" checked={false} onChange={() => {}} />
+                  <span className="text-[13px] font-semibold" style={{ color: 'var(--text-tertiary)' }}>{item.label}</span>
+                </div>
+              ))}
+            </div>
+          );
+        }
+        const desktopOn = !!cfg.desktop;
+        const mobileOn  = !!cfg.mobile;
+        const desktopTitle   = cfg.desktopTitle   !== undefined ? cfg.desktopTitle   : 'Do Not Screenshot.';
+        const desktopMessage = cfg.desktopMessage !== undefined ? cfg.desktopMessage : 'Unauthorized reproduction, distribution, or copying of these images by any means, including screenshots, is strictly prohibited.';
+        const mobileScope    = cfg.mobileScope    || 'full';
+        const mobileBlurType = cfg.mobileBlurType || 'diagonal';
+        const mobileBanner   = !!cfg.mobileBanner;
+        const update = (patch) => { if (!disabled) onChange({ ...cfg, ...patch }); };
+        const blurOverlay = {
+          radial:   { background: 'radial-gradient(circle at 50% 40%, transparent 22%, rgba(190,170,145,0.85) 62%)', backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)' },
+          diagonal: { backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', clipPath: 'polygon(0 0, 72% 0, 100% 28%, 100% 100%, 28% 100%, 0 72%)', background: 'rgba(190,170,145,0.25)' },
+          vertical: { top: '15%', bottom: '15%', left: 0, right: 0, backdropFilter: 'blur(10px)', WebkitBackdropFilter: 'blur(10px)', background: 'rgba(190,170,145,0.2)' },
+        };
+        return (
+          <div style={{ width: '100%' }}>
+            <div className="flex items-start gap-2 mb-4 rounded-md px-3 py-2.5"
+              style={{ background: '#fef2f2', border: '1px solid #fecaca' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#dc2626" style={{ flexShrink: 0, marginTop: 1 }}>
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                <line x1="12" y1="9" x2="12" y2="13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                <line x1="12" y1="17" x2="12.01" y2="17" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+              <span className="text-[12px]" style={{ color: '#dc2626' }}>
+                <strong>Notice:</strong> This is deterrence only and does not completely prevent screenshots.
+              </span>
+            </div>
+            {/* Desktop Deterrence */}
+            <div className="rounded-lg mb-3" style={{ border: '1px solid var(--card-border)', overflow: 'hidden' }}>
+              <div className="flex items-center gap-3 px-4 py-3"
+                style={{ borderBottom: desktopOn ? '1px solid var(--card-border)' : 'none' }}>
+                <Toggle size="sm" checked={desktopOn} onChange={() => update({ desktop: !desktopOn })} />
+                <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Desktop Deterrence</span>
+              </div>
+              {desktopOn && (
+                <div className="px-4 pt-4 pb-4">
+                  <div className="mb-4">
+                    <label className="block text-[12px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Title</label>
+                    <input type="text" value={desktopTitle} onChange={e => update({ desktopTitle: e.target.value })}
+                      className="rounded-md px-3 py-2 text-[13px] w-full outline-none"
+                      style={{ border: '1px solid var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
+                  </div>
+                  <div>
+                    <label className="block text-[12px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Protection Message</label>
+                    <textarea value={desktopMessage} onChange={e => update({ desktopMessage: e.target.value })} rows={4}
+                      style={{ width: '100%', border: '1px solid var(--card-border)', borderRadius: 8, outline: 'none',
+                        padding: '10px 12px', fontSize: 12, color: 'var(--text-primary)', lineHeight: 1.6,
+                        background: '#fff', fontFamily: 'inherit', resize: 'none', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Mobile Deterrence */}
+            <div className="rounded-lg" style={{ border: '1px solid var(--card-border)', overflow: 'hidden' }}>
+              <div className="flex items-center gap-3 px-4 py-3"
+                style={{ borderBottom: mobileOn ? '1px solid var(--card-border)' : 'none' }}>
+                <Toggle size="sm" checked={mobileOn} onChange={() => update({ mobile: !mobileOn })} />
+                <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Mobile Deterrence</span>
+              </div>
+              {mobileOn && (
+                <div className="px-4 pt-4 pb-4 flex flex-col gap-4">
+                  <div>
+                    <div className="text-[12px] font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Enable blur deterrence:</div>
+                    {[{ value: 'full', label: 'On full gallery' }, { value: 'lightbox', label: 'On lightbox only' }].map(opt => (
+                      <label key={opt.value} className="flex items-center gap-2 mb-2 cursor-pointer">
+                        <span className={`radio-dot ${mobileScope === opt.value ? 'is-on' : ''}`} />
+                        <input type="radio" className="sr-only" checked={mobileScope === opt.value}
+                          onChange={() => update({ mobileScope: opt.value })} />
+                        <span className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div>
+                    <div className="text-[12px] font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Select blur type:</div>
+                    {[{ value: 'radial', label: 'Radial blur' }, { value: 'diagonal', label: 'Diagonal blur' }, { value: 'vertical', label: 'Vertical blur' }].map(opt => (
+                      <label key={opt.value} className="flex items-center gap-2 mb-2 cursor-pointer">
+                        <span className={`radio-dot ${mobileBlurType === opt.value ? 'is-on' : ''}`} />
+                        <input type="radio" className="sr-only" checked={mobileBlurType === opt.value}
+                          onChange={() => update({ mobileBlurType: opt.value })} />
+                        <span className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{opt.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-bold tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>MOBILE BLUR PREVIEW</div>
+                    <div className="rounded-lg overflow-hidden" style={{ position: 'relative', height: 160, maxWidth: 260 }}>
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #7a6245 0%, #b8956a 25%, #e0c9a0 50%, #9b8260 72%, #5e4430 100%)' }} />
+                      <div style={{ position: 'absolute', inset: 0, ...blurOverlay[mobileBlurType] }} />
+                    </div>
+                    <div className="mt-1.5 text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+                      {mobileBlurType === 'radial' ? 'Radial' : mobileBlurType === 'diagonal' ? 'Diagonal' : 'Vertical'} Blur Effect
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-[12px] font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Show banner:</div>
+                    <label className="flex items-center gap-2 mb-1 cursor-pointer">
+                      <span className={`check-box ${mobileBanner ? 'is-on' : ''}`} />
+                      <input type="checkbox" className="sr-only" checked={mobileBanner}
+                        onChange={e => update({ mobileBanner: e.target.checked })} />
+                      <span className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                        Banner Message <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>(optional)</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         );
       }
@@ -3560,6 +3794,27 @@
       };
 
       const toggleEnabled = (featureId, roleId) => {
+        // Screenshot Protection: turning ON auto-enables both desktop + mobile deterrence.
+        if (featureId === 'screenshot-protection') {
+          const wasEnabled = !!perRole[roleId]?.['screenshot-protection']?.enabled;
+          if (!wasEnabled) {
+            const currentConfig = perRole[roleId]?.['screenshot-protection']?.values?.['screenshot-config'] || {};
+            const featureDef = features.find(f => f.id === 'screenshot-protection');
+            const defConfig = featureDef?.settings[0]?.def || {};
+            const newConfig = { ...defConfig, ...currentConfig, desktop: true, mobile: true };
+            setPerRole({
+              ...perRole,
+              [roleId]: {
+                ...perRole[roleId],
+                ['screenshot-protection']: { enabled: true, values: { 'screenshot-config': newConfig } },
+              },
+            });
+            setOpenFeatures(prev => { if (prev.has(featureId)) return prev; const s = new Set(prev); s.add(featureId); return s; });
+          } else {
+            setPerRole({ ...perRole, [roleId]: { ...perRole[roleId], ['screenshot-protection']: { ...perRole[roleId]['screenshot-protection'], enabled: false } } });
+          }
+          return;
+        }
         const wasEnabled = !!perRole[roleId]?.[featureId]?.enabled;
         setPerRole({
           ...perRole,
@@ -3568,9 +3823,6 @@
             [featureId]: { ...perRole[roleId][featureId], enabled: !wasEnabled },
           },
         });
-        // Flipping a role ON for a feature that has its own settings auto-expands
-        // the accordion in the main view, so the just-enabled role's configuration
-        // becomes immediately visible without an extra click.
         if (!wasEnabled) {
           const feature = features.find(f => f.id === featureId);
           if (feature && feature.settings && feature.settings.length > 0) {
