@@ -1946,41 +1946,72 @@
       <div className="watermark-picker w-full flex flex-col items-center"
         style={{ pointerEvents: disabled ? 'none' : 'auto', opacity: disabled ? 0.6 : 1 }}>
         <div className="text-[12px] font-medium mb-2" style={{ color: 'var(--text-primary)' }}>Edit Position</div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 30px)', gridTemplateRows: 'repeat(3, 30px)', gap: 2, marginBottom: 16 }}>
+        <div className="watermark-grid" role="radiogroup" aria-label="Watermark position"
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 30px)', gridTemplateRows: 'repeat(3, 30px)', gap: 2, marginBottom: 16 }}>
           {WATERMARK_POSITIONS.flat().map(pos => {
             const selected = value === pos;
             return (
-              <button key={pos} type="button" onClick={() => onChange(pos)}
-                style={{ width: 30, height: 30, background: selected ? 'var(--brand)' : '#fff',
+              <button key={pos} type="button" role="radio" aria-checked={selected}
+                onClick={() => onChange(pos)}
+                className="watermark-cell"
+                style={{ width: 30, height: 30,
+                  background: selected ? 'var(--brand)' : '#fff',
                   border: '1px solid ' + (selected ? 'var(--brand)' : 'var(--card-border)'),
-                  cursor: 'pointer', transition: 'background 0.12s, border-color 0.12s', padding: 0 }} />
+                  cursor: 'pointer', transition: 'background 0.12s, border-color 0.12s', padding: 0 }}
+                title={`Position: ${pos}`}
+              />
             );
           })}
         </div>
-        <div style={{ width: '100%', maxWidth: 480, position: 'relative', aspectRatio: '16 / 10',
-          borderRadius: 8, overflow: 'hidden',
-          background: 'linear-gradient(135deg, #3a2f24 0%, #5c4a37 35%, #7e6a52 60%, #6a563f 100%)' }}>
+        <div className="watermark-preview" style={{
+          width: '100%', maxWidth: 480,
+          position: 'relative',
+          aspectRatio: '16 / 10',
+          borderRadius: 8,
+          overflow: 'hidden',
+          background: 'linear-gradient(135deg, #3a2f24 0%, #5c4a37 35%, #7e6a52 60%, #6a563f 100%)',
+          boxShadow: 'inset 0 0 80px rgba(0,0,0,0.25)',
+        }}>
           <svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice"
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
             <defs>
               <linearGradient id="sand" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#6b563f"/><stop offset="100%" stopColor="#3a2f24"/>
+                <stop offset="0%" stopColor="#6b563f"/>
+                <stop offset="100%" stopColor="#3a2f24"/>
               </linearGradient>
               <linearGradient id="board" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#f0e3c2"/><stop offset="50%" stopColor="#fff7e2"/><stop offset="100%" stopColor="#e0d2b0"/>
+                <stop offset="0%" stopColor="#f0e3c2"/>
+                <stop offset="50%" stopColor="#fff7e2"/>
+                <stop offset="100%" stopColor="#e0d2b0"/>
               </linearGradient>
             </defs>
             <rect width="320" height="200" fill="url(#sand)"/>
+            {Array.from({ length: 60 }).map((_, i) => (
+              <circle key={i} cx={(i * 53) % 320} cy={(i * 31) % 200} r={0.6} fill="rgba(255,255,255,0.05)" />
+            ))}
             <ellipse cx="160" cy="115" rx="120" ry="32" fill="url(#board)" opacity="0.9"/>
+            <path d="M 50 113 Q 160 95 270 113 Q 160 132 50 113 Z" fill="none" stroke="#9c1f1f" strokeWidth="0.6" opacity="0.6"/>
+            <path d="M 60 117 Q 160 100 260 117" fill="none" stroke="#1f3a8c" strokeWidth="0.5" opacity="0.4"/>
           </svg>
-          <div style={{ position: 'absolute', ...watermarkPositionStyle(value),
-            color: 'rgba(255,255,255,0.78)', fontSize: 14, fontWeight: 500,
-            textShadow: '0 1px 3px rgba(0,0,0,0.4)', pointerEvents: 'none',
-            whiteSpace: 'nowrap', fontStyle: 'italic' }}>
+          <div style={{
+            position: 'absolute',
+            ...watermarkPositionStyle(value),
+            color: 'rgba(255,255,255,0.78)',
+            fontSize: 14, fontWeight: 500,
+            letterSpacing: '0.02em',
+            textShadow: '0 1px 3px rgba(0,0,0,0.4)',
+            pointerEvents: 'none',
+            whiteSpace: 'nowrap',
+            fontStyle: 'italic',
+          }}>
             My Watermark
           </div>
         </div>
-        <div className="text-[11px] mt-2 text-center" style={{ color: 'var(--text-tertiary)', lineHeight: 1.45 }}>
+        <div className="flex gap-1.5 mt-3 mb-1">
+          <span style={{ width: 22, height: 14, background: '#7a7a7e', borderRadius: 2 }} />
+          <span style={{ width: 22, height: 14, background: '#c7c7cc', borderRadius: 2 }} />
+        </div>
+        <div className="text-[11px] mt-1 text-center" style={{ color: 'var(--text-tertiary)', lineHeight: 1.45 }}>
           Image shown is for preview purposes only.<br/>This setting only applies to Photos.
         </div>
       </div>
