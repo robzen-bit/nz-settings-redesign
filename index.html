@@ -2357,6 +2357,13 @@
     const SharedRowFlat = ({ s, value, onChangeAll, isFirst, children = [], childValues = {}, onChildShared }) => {
       const isToggle = s.type === 'toggle';
       const showDivider = !!s.optional && !isFirst;
+      if (s.fullWidth) {
+        return (
+          <div style={{ padding: '14px 16px' }}>
+            <SettingControl s={s} value={value} onChange={onChangeAll} compact />
+          </div>
+        );
+      }
       return (
         <div style={{
           borderTop: showDivider ? '1px solid var(--card-border)' : 'none',
@@ -2379,22 +2386,28 @@
             </div>
           </div>
           {children.map(c => (
-            <div key={c.id}
-              className="shared-flat-row grid gap-3"
-              style={{
-                gridTemplateColumns: '1fr auto',
-                padding: '6px 0 12px 22px',
-                marginTop: -8,
-                alignItems: 'center',
-              }}>
-              <div className="flex items-center gap-1.5 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
-                <span aria-hidden="true" style={{ color: 'var(--brand)', opacity: 0.7 }}>↳</span>
-                <span>{c.label}</span>
-              </div>
-              <div className="control-end flex">
+            c.fullWidth ? (
+              <div key={c.id} style={{ borderTop: '1px solid var(--card-border)', padding: '14px 16px' }}>
                 <SettingControl s={c} value={childValues[c.id]} onChange={(v) => onChildShared && onChildShared(c.id, v)} compact />
               </div>
-            </div>
+            ) : (
+              <div key={c.id}
+                className="shared-flat-row grid gap-3"
+                style={{
+                  gridTemplateColumns: '1fr auto',
+                  padding: '6px 0 12px 22px',
+                  marginTop: -8,
+                  alignItems: 'center',
+                }}>
+                <div className="flex items-center gap-1.5 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+                  <span aria-hidden="true" style={{ color: 'var(--brand)', opacity: 0.7 }}>↳</span>
+                  <span>{c.label}</span>
+                </div>
+                <div className="control-end flex">
+                  <SettingControl s={c} value={childValues[c.id]} onChange={(v) => onChildShared && onChildShared(c.id, v)} compact />
+                </div>
+              </div>
+            )
           ))}
         </div>
       );
@@ -2533,16 +2546,35 @@
               ));
             })()}
 
-            {optionalSettings.length > 0 && (
-              <div style={{ borderTop: '1px solid var(--card-border)', marginTop: 6, paddingTop: 4 }}>
-                {optionalSettings.map((s) => (
+            {optionalSettings.length > 0 && (() => {
+              const topLevelOptional = optionalSettings.filter(s => !s.dependsOn);
+              const renderSharedRow = (s) => {
+                const curVal = perRole[refRoleId]?.[feature.id]?.values?.[s.id];
+                const visibleChildren = optionalSettings.filter(c =>
+                  c.dependsOn?.settingId === s.id &&
+                  (c.dependsOn.values || []).includes(curVal)
+                );
+                const childValues = Object.fromEntries(
+                  visibleChildren.map(c => [c.id, perRole[refRoleId]?.[feature.id]?.values?.[c.id]])
+                );
+                return (
                   <SharedRowFlat key={s.id} s={s}
-                    value={perRole[refRoleId]?.[feature.id]?.values?.[s.id]}
+                    value={curVal}
                     onChangeAll={(v) => onUpdateShared(s.id, v)}
-                    isFirst />
-                ))}
-              </div>
-            )}
+                    isFirst
+                    children={visibleChildren}
+                    childValues={childValues}
+                    onChildShared={(cId, v) => onUpdateShared(cId, v)} />
+                );
+              };
+              return (
+                <div style={{ borderTop: '1px solid var(--card-border)', marginTop: 6, paddingTop: 4 }}>
+                  <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)', background: '#fff' }}>
+                    {topLevelOptional.map(renderSharedRow)}
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
       );
