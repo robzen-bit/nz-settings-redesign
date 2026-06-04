@@ -2527,7 +2527,7 @@
     };
 
     // on top (clickable to expand settings), and each role rendered as a label/toggle row.
-    const MatrixRow = ({ feature, roles, perRole, isOpen, onToggleOpen, onToggleEnabled, gridCols, hasSettings, isMobile, onEditSettings }) => {
+    const MatrixRow = ({ feature, roles, perRole, isOpen, onToggleOpen, onToggleEnabled, onUpdateShared, onSetOpen, gridCols, hasSettings, isMobile, onEditSettings }) => {
       if (isMobile) {
         return (
           <div className="border-t" style={{ borderColor: 'var(--card-border)' }}>
@@ -2650,15 +2650,29 @@
               })()
             ) : feature.appliesToAll ? (
               (() => {
-                const sharedSource = getSharedValue(perRole, roles, feature.id, 'watermark-source');
-                const enabled = sharedSource && sharedSource !== 'None';
+                const watermarkSetting = feature.settings.find(s => s.id === 'watermark-source');
+                const options = watermarkSetting ? watermarkSetting.options : ['None'];
+                const sharedSource = getSharedValue(perRole, roles, feature.id, 'watermark-source') || 'None';
                 return (
                   <div className="flex items-center justify-center"
-                    style={{ gridColumn: `span ${roles.length}` }}>
-                    <span className="text-[12px] font-semibold"
-                      style={{ color: enabled ? 'var(--brand)' : '#bbb' }}>
-                      {enabled ? 'Enabled' : 'Disabled'}
-                    </span>
+                    style={{ gridColumn: `span ${roles.length}` }}
+                    onClick={e => e.stopPropagation()}>
+                    <select
+                      value={sharedSource}
+                      onChange={e => {
+                        const v = e.target.value;
+                        onUpdateShared && onUpdateShared('watermark-source', v);
+                        onSetOpen && onSetOpen(v !== 'None');
+                      }}
+                      className="text-[12px] font-semibold rounded-md border px-2 py-1"
+                      style={{
+                        color: sharedSource !== 'None' ? 'var(--brand)' : 'var(--text-secondary)',
+                        borderColor: 'var(--card-border)',
+                        background: 'var(--bg)',
+                        cursor: 'pointer',
+                      }}>
+                      {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    </select>
                   </div>
                 );
               })()
@@ -3872,6 +3886,13 @@
           return next;
         });
       };
+      const setFeatureOpen = (fId, open) => {
+        setOpenFeatures(prev => {
+          const next = new Set(prev);
+          if (open) next.add(fId); else next.delete(fId);
+          return next;
+        });
+      };
 
       const existingNames = roles.map(r => r.name.toLowerCase());
       const isMultiRole = roles.length > 1;
@@ -4006,6 +4027,8 @@
                             feature={feature} roles={roles} perRole={perRole}
                             isOpen={isOpen} onToggleOpen={() => toggleOpen(feature.id)}
                             onToggleEnabled={(rId) => toggleEnabled(feature.id, rId)}
+                            onUpdateShared={(sId, v) => updateSharedValue(feature.id, sId, v)}
+                            onSetOpen={(open) => setFeatureOpen(feature.id, open)}
                             gridCols={gridCols} hasSettings={hasSettings} isMobile={isMobile}
                             onEditSettings={() => setMobileEditFeatureId(feature.id)}
                           />
