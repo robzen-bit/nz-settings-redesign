@@ -2591,15 +2591,15 @@
       const statusLines = showSummary ? buildFeatureStatusLines(feature, roles, perRole) : [];
       return (
         <div className="border-t" style={{ borderColor: 'var(--card-border)' }}>
-          <div onClick={() => hasSettings && !feature.sharedToggle && !feature.appliesToAll && onToggleOpen()}
-            className={`feature-row grid items-center${hasSettings && !feature.sharedToggle && !feature.appliesToAll ? ' is-collapsible' : ''}${isOpen ? ' is-open' : ''}`}
+          <div onClick={() => hasSettings && onToggleOpen()}
+            className={`feature-row grid items-center${hasSettings ? ' is-collapsible' : ''}${isOpen ? ' is-open' : ''}`}
             style={{ gridTemplateColumns: gridCols, minHeight: 58, padding: '16px 0',
-              cursor: hasSettings && !feature.sharedToggle && !feature.appliesToAll ? 'pointer' : 'default',
+              cursor: hasSettings ? 'pointer' : 'default',
               background: isOpen ? 'var(--soft-bg)' : undefined }}>
             <div className="pl-6">
               <div className="flex items-center gap-2">
                 <span style={{ color: 'var(--text-tertiary)',
-                  visibility: hasSettings && !feature.sharedToggle && !feature.appliesToAll ? 'visible' : 'hidden',
+                  visibility: hasSettings ? 'visible' : 'hidden',
                   transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s' }}><ChevronRight /></span>
                 {feature.icon && (
                   <span className="flex items-center justify-center" style={{ width: 20, height: 20 }}>
