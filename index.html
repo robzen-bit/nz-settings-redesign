@@ -2287,6 +2287,11 @@
     // Renders one feature in the matrix. On desktop this is a horizontal grid:
     // feature label on the left + a toggle column for every role.
     // On mobile we flip it to a stacked card so it fits a narrow viewport: feature header
+    const getSharedValue = (perRole, roles, featureId, settingId) => {
+      const refRoleId = roles[0]?.id;
+      return refRoleId ? perRole[refRoleId]?.[featureId]?.values?.[settingId] : undefined;
+    };
+
     // on top (clickable to expand settings), and each role rendered as a label/toggle row.
     const MatrixRow = ({ feature, roles, perRole, isOpen, onToggleOpen, onToggleEnabled, gridCols, hasSettings, isMobile, onEditSettings }) => {
       if (isMobile) {
