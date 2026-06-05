@@ -141,8 +141,9 @@
     .add-role-btn:hover { background: var(--brand-hover); }
     .feature-row { transition: background-color 0.15s; }
     .feature-row.is-collapsible:not(.is-open):hover { background: var(--row-hover); }
+    .info-tooltip-box { opacity: 0; visibility: hidden; transition: opacity 0.12s; }
     .info-tooltip-wrap:hover .info-tooltip-box { opacity: 1; visibility: visible; }
-    .info-tooltip-icon:hover { color: var(--brand); }
+    .info-tooltip-wrap:hover .info-tooltip-icon { color: var(--brand); }
     .kebab-btn:hover { background: rgba(0,0,0,0.06); color: var(--text-secondary); }
     /* Matrix horizontal scroll — kicks in once total grid width exceeds the panel width
        (e.g. advanced setups with many roles). Thin, subtle scrollbar so it doesn't dominate. */
@@ -2049,9 +2050,6 @@
           boxShadow: '0 4px 16px rgba(0,0,0,0.22)',
           pointerEvents: 'none',
           whiteSpace: 'pre-wrap',
-          opacity: 0,
-          visibility: 'hidden',
-          transition: 'opacity 0.12s',
         }}>
           {content}
         </span>
