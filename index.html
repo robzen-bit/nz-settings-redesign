@@ -641,7 +641,7 @@
     const FEATURE_DEFS = [
       { id: 'photo-downloads', name: 'Photo Downloads', icon: 'image',
         settings: [
-          { id: 'download-type', type: 'select', label: 'Download Type Allowed',
+          { id: 'download-type', type: 'select', label: 'Download Type Allowed', subRow: true,
             options: ['All photos and individual download', 'All photos', 'Specific amount download', 'Individual download only'],
             def: 'All photos and individual download',
             tooltip: 'Below are the following download types and how they function.\n\nAll photos — The all photo download mode will allow a download of the entire gallery that will be downloaded as a ZIP file.\n\nIndividual download — Allows photos to be downloaded one at a time rather than in bulk.\n\nSpecific amount download — Allows you to set how many photos are allowed to be downloaded per person in a specific role.' },
@@ -663,7 +663,7 @@
       },
       { id: 'video-downloads', name: 'Video Downloads', icon: 'video',
         settings: [
-          { id: 'video-download-type', type: 'select', label: 'Video Download Type',
+          { id: 'video-download-type', type: 'select', label: 'Video Download Type', subRow: true,
             options: ['All videos and individual download', 'All videos', 'Specific amount download', 'Individual download only'],
             def: 'All videos and individual download',
             tooltip: 'Below are the following download types and how they function.\n\nAll videos — The all video download mode will allow a download of the entire gallery that will be downloaded as a ZIP file.\n\nIndividual download — Allows videos to be downloaded one at a time rather than in bulk.\n\nSpecific amount download — Allows you to set how many videos are allowed to be downloaded per person in a specific role.' },
@@ -3072,7 +3072,7 @@
 
                       {/* Per-setting rows */}
                       {hasSettings && !isCollapsed && settings.map((s, sIdx) => {
-                        const isChild = !!s.dependsOn;
+                        const isChild = !!s.dependsOn || !!s.subRow;
                         const isLast = sIdx === settings.length - 1;
                         if (s.optional) {
                           if (s.dependsOn) {
