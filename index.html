@@ -654,9 +654,9 @@
           { id: 'individual-resolution', type: 'select', label: 'Individual Allowed Resolution',
             options: ['Original','High','Medium','Low'], def: 'Original',
             dependsOn: { settingId: 'download-type', values: ['All photos and individual download', 'Individual download only'] } },
-          { id: 'license', type: 'toggle', optional: true,
-            label: 'Digital photo license agreement (OPTIONAL)',
-            meta: 'Apply a license to all digital photos downloaded from this gallery.\nManage license in Selling Settings.',
+          { id: 'license', type: 'toggle',
+            label: 'Digital license agreement',
+            tooltip: 'Apply a license to all digital photos downloaded from this gallery.\nManage license in Selling Settings.',
             def: false },
         ],
       },
@@ -2488,7 +2488,9 @@
         paddingTop: isFirst ? 14 : 18,
         paddingBottom: 14,
       }}>
-        <div className="text-[13px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>{s.label}</div>
+        <div className="flex items-center text-[13px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+          {s.label}{s.tooltip && <InfoTooltip content={s.tooltip} />}
+        </div>
         <div className="rounded-lg overflow-hidden bg-white" style={{ border: '1px solid var(--card-border)' }}>
           {visibleRoles.map((r, idx) => {
             const value = perRole[r.id]?.[featureId]?.values?.[s.id];
