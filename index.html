@@ -141,9 +141,7 @@
     .add-role-btn:hover { background: var(--brand-hover); }
     .feature-row { transition: background-color 0.15s; }
     .feature-row.is-collapsible:not(.is-open):hover { background: var(--row-hover); }
-    .info-tooltip-box { opacity: 0; visibility: hidden; transition: opacity 0.12s; }
-    .info-tooltip-wrap:hover .info-tooltip-box { opacity: 1; visibility: visible; }
-    .info-tooltip-wrap:hover .info-tooltip-icon { color: var(--brand); }
+    .info-tooltip-icon:hover { color: var(--brand); }
     .kebab-btn:hover { background: rgba(0,0,0,0.06); color: var(--text-secondary); }
     /* Matrix horizontal scroll — kicks in once total grid width exceeds the panel width
        (e.g. advanced setups with many roles). Thin, subtle scrollbar so it doesn't dominate. */
@@ -2026,35 +2024,52 @@
     );
 
     // ===== Info Tooltip =====
-    const InfoTooltip = ({ content }) => (
-      <span className="info-tooltip-wrap" style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 5 }}>
-        <span className="info-tooltip-icon" style={{ display: 'inline-flex', alignItems: 'center', cursor: 'default', color: 'var(--text-tertiary)' }}>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
-            <text x="8" y="12" textAnchor="middle" fontSize="9" fontWeight="700" fill="currentColor" fontFamily="sans-serif">i</text>
-          </svg>
+    const InfoTooltip = ({ content }) => {
+      const [coords, setCoords] = React.useState(null);
+      const iconRef = React.useRef(null);
+      const handleEnter = () => {
+        if (iconRef.current) {
+          const r = iconRef.current.getBoundingClientRect();
+          setCoords({ top: r.top - 8, left: r.left + r.width / 2 });
+        }
+      };
+      return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', marginLeft: 5 }}>
+          <span ref={iconRef}
+            className="info-tooltip-icon"
+            onMouseEnter={handleEnter}
+            onMouseLeave={() => setCoords(null)}
+            style={{ display: 'inline-flex', alignItems: 'center', cursor: 'default', color: 'var(--text-tertiary)' }}>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+              <text x="8" y="12" textAnchor="middle" fontSize="9" fontWeight="700" fill="currentColor" fontFamily="sans-serif">i</text>
+            </svg>
+          </span>
+          {coords && ReactDOM.createPortal(
+            <div style={{
+              position: 'fixed',
+              top: coords.top,
+              left: coords.left,
+              transform: 'translate(-50%, -100%)',
+              zIndex: 2147483647,
+              background: '#1e1e1e',
+              color: '#fff',
+              borderRadius: 8,
+              padding: '10px 14px',
+              width: 300,
+              fontSize: 12,
+              lineHeight: 1.55,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.45)',
+              pointerEvents: 'none',
+              whiteSpace: 'pre-wrap',
+            }}>
+              {content}
+            </div>,
+            document.body
+          )}
         </span>
-        <span className="info-tooltip-box" style={{
-          position: 'absolute',
-          bottom: 'calc(100% + 8px)',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          zIndex: 9999,
-          background: '#1e1e1e',
-          color: '#fff',
-          borderRadius: 8,
-          padding: '10px 14px',
-          width: 300,
-          fontSize: 12,
-          lineHeight: 1.55,
-          boxShadow: '0 4px 16px rgba(0,0,0,0.22)',
-          pointerEvents: 'none',
-          whiteSpace: 'pre-wrap',
-        }}>
-          {content}
-        </span>
-      </span>
-    );
+      );
+    };
 
     // ===== Setting Control =====
     const SettingControl = ({ s, value, onChange, disabled, compact }) => {
