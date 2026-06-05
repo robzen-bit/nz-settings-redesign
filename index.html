@@ -141,6 +141,8 @@
     .add-role-btn:hover { background: var(--brand-hover); }
     .feature-row { transition: background-color 0.15s; }
     .feature-row.is-collapsible:not(.is-open):hover { background: var(--row-hover); }
+    .info-tooltip-wrap:hover .info-tooltip-box { opacity: 1; visibility: visible; }
+    .info-tooltip-icon:hover { color: var(--brand); }
     .kebab-btn:hover { background: rgba(0,0,0,0.06); color: var(--text-secondary); }
     /* Matrix horizontal scroll — kicks in once total grid width exceeds the panel width
        (e.g. advanced setups with many roles). Thin, subtle scrollbar so it doesn't dominate. */
@@ -642,7 +644,8 @@
         settings: [
           { id: 'download-type', type: 'select', label: 'Download Type Allowed',
             options: ['All photos and individual download', 'All photos', 'Specific amount download', 'Individual download only'],
-            def: 'All photos and individual download' },
+            def: 'All photos and individual download',
+            tooltip: 'Below are the following download types and how they function.\n\nAll photos — The all photo download mode will allow a download of the entire gallery that will be downloaded as a ZIP file.\n\nIndividual download — Allows photos to be downloaded one at a time rather than in bulk.\n\nSpecific amount download — Allows you to set how many photos are allowed to be downloaded per person in a specific role.' },
           { id: 'specific-amount', type: 'number', label: 'Number of images allowed',
             placeholder: 'e.g. 25', def: 10, min: 1,
             dependsOn: { settingId: 'download-type', values: ['Specific amount download'] } },
@@ -662,7 +665,8 @@
         settings: [
           { id: 'video-download-type', type: 'select', label: 'Video Download Type',
             options: ['All videos and individual download', 'All videos', 'Specific amount download', 'Individual download only'],
-            def: 'All videos and individual download' },
+            def: 'All videos and individual download',
+            tooltip: 'Below are the following download types and how they function.\n\nAll videos — The all video download mode will allow a download of the entire gallery that will be downloaded as a ZIP file.\n\nIndividual download — Allows videos to be downloaded one at a time rather than in bulk.\n\nSpecific amount download — Allows you to set how many videos are allowed to be downloaded per person in a specific role.' },
           { id: 'video-specific-amount', type: 'number', label: 'Number of videos allowed',
             placeholder: 'e.g. 5', def: 5, min: 1,
             dependsOn: { settingId: 'video-download-type', values: ['Specific amount download'] } },
@@ -2020,6 +2024,40 @@
       </div>
     );
 
+    // ===== Info Tooltip =====
+    const InfoTooltip = ({ content }) => (
+      <span className="info-tooltip-wrap" style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', marginLeft: 5 }}>
+        <span className="info-tooltip-icon" style={{ display: 'inline-flex', alignItems: 'center', cursor: 'default', color: 'var(--text-tertiary)' }}>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="8" r="7" stroke="currentColor" strokeWidth="1.5"/>
+            <text x="8" y="12" textAnchor="middle" fontSize="9" fontWeight="700" fill="currentColor" fontFamily="sans-serif">i</text>
+          </svg>
+        </span>
+        <span className="info-tooltip-box" style={{
+          position: 'absolute',
+          bottom: 'calc(100% + 8px)',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 9999,
+          background: '#1e1e1e',
+          color: '#fff',
+          borderRadius: 8,
+          padding: '10px 14px',
+          width: 300,
+          fontSize: 12,
+          lineHeight: 1.55,
+          boxShadow: '0 4px 16px rgba(0,0,0,0.22)',
+          pointerEvents: 'none',
+          whiteSpace: 'pre-wrap',
+          opacity: 0,
+          visibility: 'hidden',
+          transition: 'opacity 0.12s',
+        }}>
+          {content}
+        </span>
+      </span>
+    );
+
     // ===== Setting Control =====
     const SettingControl = ({ s, value, onChange, disabled, compact }) => {
       if (s.type === 'check') {
@@ -2318,7 +2356,9 @@
                     alignItems: isToggle ? 'flex-start' : 'center',
                   }}>
                   <div style={{ opacity: roleEnabled ? 1 : 0.6 }}>
-                    <div className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>{s.label}</div>
+                    <div className="flex items-center text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                      {s.label}{s.tooltip && <InfoTooltip content={s.tooltip} />}
+                    </div>
                     {s.meta && (
                       <div className="text-[12px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)', whiteSpace: 'pre-line' }}>
                         {s.meta}
@@ -2383,7 +2423,9 @@
                      padding: '14px 0',
                      alignItems: isToggle ? 'flex-start' : 'center' }}>
             <div>
-              <div className="text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>{s.label}</div>
+              <div className="flex items-center text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                {s.label}{s.tooltip && <InfoTooltip content={s.tooltip} />}
+              </div>
               {s.meta && (
                 <div className="text-[12px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)', whiteSpace: 'pre-line' }}>
                   {s.meta}
