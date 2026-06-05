@@ -2491,10 +2491,11 @@
         paddingTop: isFirst ? 14 : 18,
         paddingBottom: 14,
       }}>
-        <div className="flex items-center text-[13px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-          {s.label}{s.tooltip && <InfoTooltip content={s.tooltip} />}
-        </div>
         <div className="rounded-lg overflow-hidden bg-white" style={{ border: '1px solid var(--card-border)' }}>
+          <div className="flex items-center px-4 py-3" style={{ borderBottom: '1px solid var(--card-border)' }}>
+            <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>{s.label}</span>
+            {s.tooltip && <InfoTooltip content={s.tooltip} />}
+          </div>
           {visibleRoles.map((r, idx) => {
             const value = perRole[r.id]?.[featureId]?.values?.[s.id];
             const roleEnabled = !!perRole[r.id]?.[featureId]?.enabled;
