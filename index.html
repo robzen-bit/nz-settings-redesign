@@ -2491,53 +2491,59 @@
         paddingTop: isFirst ? 14 : 18,
         paddingBottom: 14,
       }}>
-        <div className="flex items-center text-[13px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
-          {s.label}{s.tooltip && <InfoTooltip content={s.tooltip} />}
-        </div>
         <div className="rounded-lg overflow-hidden bg-white" style={{ border: '1px solid var(--card-border)' }}>
           {visibleRoles.map((r, idx) => {
             const value = perRole[r.id]?.[featureId]?.values?.[s.id];
             const roleEnabled = !!perRole[r.id]?.[featureId]?.enabled;
             const visibleChildren = childSettings.filter(c => isSettingVisibleForRole(c, r.id, featureId, perRole));
-            // When the feature is off for this role, dim its setting controls and
-            // disable interaction so they're clearly inactive without removing context.
             const disabledStyle = roleEnabled ? null : { opacity: 0.5, pointerEvents: 'none' };
             return (
               <React.Fragment key={r.id}>
-                <div
-                  className="role-row per-role-row grid items-center"
+                {/* Role name — card section header */}
+                <div className="flex items-center gap-2 px-4 py-2.5"
                   style={{
-                    gridTemplateColumns: '160px 1fr',
-                    padding: '10px 14px',
                     borderTop: idx > 0 ? '1px solid var(--card-border)' : 'none',
                     background: '#fff',
                   }}>
-                  <div className="flex items-center gap-2 text-[11px] font-bold tracking-wider uppercase" style={{ color: 'var(--text-secondary)', opacity: roleEnabled ? 1 : 0.6 }}>
-                    <span className="rounded-full shrink-0"
-                      style={{ width: 7, height: 7, background: 'var(--green)', opacity: roleEnabled ? 1 : 0.3 }} />
-                    <span className="truncate" title={r.name}>{r.name}</span>
+                  <span className="rounded-full shrink-0"
+                    style={{ width: 7, height: 7, background: 'var(--green)', opacity: roleEnabled ? 1 : 0.3 }} />
+                  <span className="text-[11px] font-bold tracking-wider uppercase"
+                    style={{ color: 'var(--text-secondary)', opacity: roleEnabled ? 1 : 0.6 }}>{r.name}</span>
+                </div>
+                {/* Main setting as a sub-row */}
+                <div className="role-row per-role-row grid items-center child-row"
+                  style={{
+                    gridTemplateColumns: '1fr auto',
+                    padding: '8px 14px 8px 28px',
+                    background: 'var(--soft-bg)',
+                    minHeight: 0,
+                  }}>
+                  <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--text-secondary)', opacity: roleEnabled ? 1 : 0.6 }}>
+                    <span aria-hidden="true" style={{ color: 'var(--brand)', opacity: 0.7 }}>↳</span>
+                    <span className="truncate" title={s.label}>{s.label}</span>
+                    {s.tooltip && <InfoTooltip content={s.tooltip} />}
                   </div>
-                  <div className="control-cell flex justify-end" style={disabledStyle}
-                    aria-disabled={!roleEnabled}>
+                  <div className="control-cell flex justify-end" style={disabledStyle} aria-disabled={!roleEnabled}>
                     <SettingControl s={s} value={value} onChange={(v) => onUpdate(r.id, s.id, v)} compact />
                   </div>
                 </div>
+                {/* Child settings as sub-rows */}
                 {visibleChildren.map(c => (
                   <div key={c.id}
                     className="role-row per-role-row grid items-center child-row"
                     style={{
-                      gridTemplateColumns: '160px 1fr',
-                      padding: '8px 14px 10px 32px',
+                      gridTemplateColumns: '1fr auto',
+                      padding: '8px 14px 8px 28px',
                       background: 'var(--soft-bg)',
                       minHeight: 0,
+                      borderTop: '1px solid var(--card-border)',
                     }}>
                     <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--text-secondary)', opacity: roleEnabled ? 1 : 0.6 }}>
                       <span aria-hidden="true" style={{ color: 'var(--brand)', opacity: 0.7 }}>↳</span>
                       <span className="truncate" title={c.label}>{c.label}</span>
                       {c.tooltip && <InfoTooltip content={c.tooltip} />}
                     </div>
-                    <div className="control-cell flex justify-end" style={disabledStyle}
-                      aria-disabled={!roleEnabled}>
+                    <div className="control-cell flex justify-end" style={disabledStyle} aria-disabled={!roleEnabled}>
                       <SettingControl s={c}
                         value={perRole[r.id]?.[featureId]?.values?.[c.id]}
                         onChange={(v) => onUpdate(r.id, c.id, v)} compact />
