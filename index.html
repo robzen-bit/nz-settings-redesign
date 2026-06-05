@@ -657,7 +657,8 @@
           { id: 'license', type: 'toggle',
             label: 'Digital license agreement',
             tooltip: 'Apply a license to all digital photos downloaded from this gallery.\nManage license in Selling Settings.',
-            def: false },
+            def: false,
+            dependsOn: { settingId: 'download-type' } },
         ],
       },
       { id: 'video-downloads', name: 'Video Downloads', icon: 'video',
@@ -2531,6 +2532,7 @@
                     <div className="flex items-center gap-1.5 text-[11px] font-medium" style={{ color: 'var(--text-secondary)', opacity: roleEnabled ? 1 : 0.6 }}>
                       <span aria-hidden="true" style={{ color: 'var(--brand)', opacity: 0.7 }}>↳</span>
                       <span className="truncate" title={c.label}>{c.label}</span>
+                      {c.tooltip && <InfoTooltip content={c.tooltip} />}
                     </div>
                     <div className="control-cell flex justify-end" style={disabledStyle}
                       aria-disabled={!roleEnabled}>
