@@ -1999,13 +1999,13 @@
             <>
             <FloatingTooltip text={`${role.name} — click to add a contact in this role to the gallery.`} x={tipPos.x} y={tipPos.y} visible={tipVisible} />
             <button type="button" ref={headerRef} onClick={(e) => { e.stopPropagation(); onAddContact && onAddContact(); }}
-              className="text-[11px] font-bold uppercase tracking-wider truncate rounded px-1 py-0.5 hover:bg-black/5 transition-colors"
+              className="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1 min-w-0 rounded px-1 py-0.5 hover:bg-black/5 transition-colors"
               style={{ maxWidth: 'calc(var(--role-header-max-w, 110px) - 32px)', color: 'var(--text-secondary)' }}
               onMouseEnter={(e) => { const bottom = headerRef.current ? headerRef.current.getBoundingClientRect().bottom : e.clientY; setTipPos({ x: e.clientX, y: bottom }); setTipVisible(true); }}
               onMouseMove={(e) => setTipPos(prev => ({ ...prev, x: e.clientX }))}
               onMouseLeave={() => setTipVisible(false)}>
-              {role.name}
-              <span className="ml-1" style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>({contactCount})</span>
+              <span className="truncate min-w-0">{role.name}</span>
+              <span className="shrink-0" style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>({contactCount})</span>
             </button>
             </>
           )}
