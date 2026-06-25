@@ -5136,22 +5136,48 @@
       const [customTitle, setCustomTitle] = useState('');
       const [description, setDescription] = useState('Please fill out the form below to complete registration.');
       const [submitLabel, setSubmitLabel] = useState('Submit');
+      const [submitBehavior, setSubmitBehavior] = useState('message');
+      const [redirectUrl, setRedirectUrl] = useState('');
+      const [submitMessage, setSubmitMessage] = useState('Thank you for registering.');
       const [fieldEnabled, setFieldEnabled] = useState({ first_name: true, last_name: true, email: true, phone_number: true });
       const [fieldRequired, setFieldRequired] = useState({ first_name: false, last_name: false, email: true, phone_number: false });
       const [customFields, setCustomFields] = useState([]);
+      const [addFieldMenuOpen, setAddFieldMenuOpen] = useState(false);
+      const [addFieldModal, setAddFieldModal] = useState(null); // 'text' | 'dropdown' | 'date'
+      const [modalLabel, setModalLabel] = useState('');
+      const [modalOptions, setModalOptions] = useState('');
+      const [modalRequired, setModalRequired] = useState(false);
+      const addFieldBtnRef = React.useRef(null);
+
       const galleryName = 'Sample Gallery';
       const displayTitle = useCustomTitle && customTitle.trim() ? customTitle.trim() : galleryName;
-      const visibleFields = CORE_FIELDS.filter(f => fieldEnabled[f.id]);
 
-      const addCustomField = () => {
-        if (customFields.length >= 15) return;
-        setCustomFields(prev => [...prev, { id: `cf-${Date.now()}`, label: '', required: false }]);
+      const openAddModal = (type) => {
+        setAddFieldMenuOpen(false);
+        setModalLabel('');
+        setModalOptions('');
+        setModalRequired(false);
+        setAddFieldModal(type);
+      };
+      const closeModal = () => setAddFieldModal(null);
+      const confirmAddField = () => {
+        if (!modalLabel.trim() || customFields.length >= 15) return;
+        const newField = { id: `cf-${modalLabel}-${customFields.length}`, label: modalLabel.trim(), type: addFieldModal, options: modalOptions, required: modalRequired };
+        setCustomFields(prev => [...prev, newField]);
+        closeModal();
       };
       const removeCustomField = (id) => setCustomFields(prev => prev.filter(f => f.id !== id));
-      const updateCustomField = (id, label) => setCustomFields(prev => prev.map(f => f.id === id ? { ...f, label } : f));
+
+      const typeIcons = {
+        text: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4,7 4,4 20,4 20,7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>,
+        dropdown: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="8,10 12,14 16,10"/></svg>,
+        date: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
+      };
+
+      const modalTitle = { text: 'ADD TEXT', dropdown: 'ADD DROPDOWN', date: 'ADD DATE PICKER' };
 
       return (
-        <div className="flex flex-col min-h-screen" style={{ background: '#fff' }}>
+        <div className="flex flex-col min-h-screen" style={{ background: '#fff' }} onClick={() => addFieldMenuOpen && setAddFieldMenuOpen(false)}>
           {/* Header */}
           <div className="flex items-center justify-center px-6 py-4 border-b shrink-0" style={{ borderColor: 'var(--card-border)', position: 'relative' }}>
             <button onClick={onBack} className="absolute left-6 flex items-center gap-1.5 text-[13px] font-semibold"
@@ -5217,15 +5243,12 @@
                       </div>
                     );
                   })}
-                  {customFields.map((cf, i) => (
-                    <div key={cf.id} className="flex items-center px-4 py-3 gap-3" style={{ borderTop: '1px solid var(--card-border)' }}>
-                      <div className="flex-1">
-                        <input value={cf.label} onChange={e => updateCustomField(cf.id, e.target.value)}
-                          placeholder="Field label" maxLength={50}
-                          className="w-full px-2 py-1 rounded border text-[13px] outline-none"
-                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
-                      </div>
-                      <button onClick={() => removeCustomField(cf.id)} className="shrink-0 p-1 rounded hover:bg-red-50 transition-colors"
+                  {customFields.map((cf) => (
+                    <div key={cf.id} className="flex items-center px-4 py-3 gap-3" style={{ borderTop: '1px solid var(--card-border)', background: '#fff' }}>
+                      <span style={{ color: 'var(--text-tertiary)', flexShrink: 0 }}>{typeIcons[cf.type]}</span>
+                      <span className="flex-1 text-[13px] truncate" style={{ color: 'var(--text-primary)' }}>{cf.label}</span>
+                      {cf.required && <span className="text-[11px] shrink-0" style={{ color: 'var(--text-tertiary)' }}>Required</span>}
+                      <button onClick={() => removeCustomField(cf.id)} className="shrink-0 p-1 rounded transition-colors"
                         style={{ color: 'var(--text-tertiary)' }}
                         onMouseEnter={e => e.currentTarget.style.color = '#e53935'}
                         onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
@@ -5235,22 +5258,89 @@
                       </button>
                     </div>
                   ))}
-                  <div className="px-4 py-3 flex items-center justify-between" style={{ borderTop: (CORE_FIELDS.length + customFields.length) > 0 ? '1px solid var(--card-border)' : 'none', background: 'var(--soft-bg)' }}>
+                  {/* Add custom field footer */}
+                  <div className="px-4 py-3 flex items-center justify-between" style={{ borderTop: '1px solid var(--card-border)', background: 'var(--soft-bg)' }}>
                     <span className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>Custom Fields ({customFields.length}/15 max)</span>
-                    <button onClick={addCustomField} disabled={customFields.length >= 15}
-                      className="text-[12px] font-semibold disabled:opacity-40"
-                      style={{ color: 'var(--brand)' }}>+ Add Custom Field</button>
+                    <div style={{ position: 'relative' }}>
+                      <button ref={addFieldBtnRef}
+                        onClick={e => { e.stopPropagation(); setAddFieldMenuOpen(v => !v); }}
+                        disabled={customFields.length >= 15}
+                        className="text-[12px] font-semibold px-3 py-1.5 rounded-full border disabled:opacity-40 transition-colors"
+                        style={{ color: 'var(--brand)', borderColor: 'var(--brand)', background: '#fff' }}
+                        onMouseEnter={e => { if (customFields.length < 15) e.currentTarget.style.background = 'var(--soft-bg)'; }}
+                        onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                        + Add Custom Field
+                      </button>
+                      {addFieldMenuOpen && (
+                        <div onClick={e => e.stopPropagation()} className="rounded-lg border shadow-lg"
+                          style={{ position: 'absolute', bottom: '100%', right: 0, marginBottom: 6, background: '#fff', borderColor: 'var(--card-border)', minWidth: 160, zIndex: 100 }}>
+                          {[
+                            { type: 'text', label: 'Text', icon: typeIcons.text },
+                            { type: 'dropdown', label: 'Dropdown', icon: typeIcons.dropdown },
+                            { type: 'date', label: 'Date', icon: typeIcons.date },
+                          ].map((opt, i) => (
+                            <button key={opt.type} onClick={() => openAddModal(opt.type)}
+                              className="w-full flex items-center gap-3 px-4 py-2.5 text-[13px] text-left transition-colors"
+                              style={{ borderTop: i > 0 ? '1px solid var(--card-border)' : 'none', color: 'var(--text-primary)', background: '#fff' }}
+                              onMouseEnter={e => e.currentTarget.style.background = 'var(--soft-bg)'}
+                              onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                              <span style={{ color: 'var(--text-secondary)' }}>{opt.icon}</span>
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Submit Label */}
-              <div>
+              {/* Submit Button Label */}
+              <div className="mb-5">
                 <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Submit Button Label</label>
                 <input value={submitLabel} onChange={e => setSubmitLabel(e.target.value.slice(0, 50))}
                   className="w-full px-3 py-2 rounded border text-[14px] outline-none"
                   style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
                 <div className="text-[11px] mt-1" style={{ color: 'var(--text-tertiary)' }}>{submitLabel.length}/50</div>
+              </div>
+
+              {/* Submit Behavior */}
+              <div>
+                <label className="block text-[12px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Submit Behavior</label>
+                {[
+                  { value: 'access', label: 'Access the Gallery' },
+                  { value: 'redirect', label: 'Redirect to a Custom URL' },
+                  { value: 'message', label: 'Show Message' },
+                ].map(opt => (
+                  <label key={opt.value} className="flex items-start gap-2.5 mb-2 cursor-pointer">
+                    <button type="button" onClick={() => setSubmitBehavior(opt.value)}
+                      className="shrink-0 flex items-center justify-center rounded-full border-2 transition-all mt-0.5"
+                      style={{ width: 16, height: 16, borderColor: submitBehavior === opt.value ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
+                      {submitBehavior === opt.value && <div style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--brand)' }} />}
+                    </button>
+                    <span className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{opt.label}</span>
+                  </label>
+                ))}
+                {submitBehavior === 'redirect' && (
+                  <div className="mt-2 mb-3">
+                    <input value={redirectUrl} onChange={e => setRedirectUrl(e.target.value)}
+                      placeholder="https://example.com/thank-you"
+                      className="w-full px-3 py-2 rounded border text-[13px] outline-none"
+                      style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+                  </div>
+                )}
+                {submitBehavior === 'message' && (
+                  <div className="mt-2 mb-3">
+                    <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Message</label>
+                    <input value={submitMessage} onChange={e => setSubmitMessage(e.target.value.slice(0, 250))}
+                      className="w-full px-3 py-2 rounded border text-[13px] outline-none"
+                      style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+                    <div className="text-[11px] mt-1" style={{ color: 'var(--text-tertiary)' }}>{submitMessage.length}/250</div>
+                  </div>
+                )}
+                <p className="mt-3 text-[13px]" style={{ color: 'var(--text-secondary)' }}>
+                  <strong>Note:</strong> Registrants will be added to the Gallery as visitors.
+                </p>
               </div>
             </div>
 
@@ -5266,10 +5356,10 @@
                   {(fieldEnabled.first_name || fieldEnabled.last_name) && (
                     <div className="flex gap-2 mb-3">
                       {fieldEnabled.first_name && (
-                        <input readOnly placeholder="First Name" className="flex-1 px-3 py-2 rounded border text-[13px]" style={{ borderColor: 'var(--card-border)' }} />
+                        <input readOnly placeholder={`First Name${fieldRequired.first_name ? '*' : ''}`} className="flex-1 px-3 py-2 rounded border text-[13px]" style={{ borderColor: 'var(--card-border)' }} />
                       )}
                       {fieldEnabled.last_name && (
-                        <input readOnly placeholder="Last Name" className="flex-1 px-3 py-2 rounded border text-[13px]" style={{ borderColor: 'var(--card-border)' }} />
+                        <input readOnly placeholder={`Last Name${fieldRequired.last_name ? '*' : ''}`} className="flex-1 px-3 py-2 rounded border text-[13px]" style={{ borderColor: 'var(--card-border)' }} />
                       )}
                     </div>
                   )}
@@ -5277,17 +5367,33 @@
                   <input readOnly placeholder="Email*" className="w-full px-3 py-2 rounded border text-[13px] mb-3" style={{ borderColor: 'var(--card-border)' }} />
                   {/* Phone */}
                   {fieldEnabled.phone_number && (
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-3">
                       <div className="flex items-center gap-1 px-2 py-2 rounded border text-[12px]" style={{ borderColor: 'var(--card-border)' }}>
                         <span>🇺🇸</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6,9 12,15 18,9"/></svg>
                       </div>
-                      <input readOnly placeholder="Mobile (optional)" className="flex-1 px-3 py-2 rounded border text-[13px]" style={{ borderColor: 'var(--card-border)' }} />
+                      <input readOnly placeholder={`Mobile${fieldRequired.phone_number ? '*' : ' (optional)'}`} className="flex-1 px-3 py-2 rounded border text-[13px]" style={{ borderColor: 'var(--card-border)' }} />
                     </div>
                   )}
                   {/* Custom fields preview */}
-                  {customFields.filter(f => f.label.trim()).map(cf => (
-                    <input key={cf.id} readOnly placeholder={cf.label} className="w-full px-3 py-2 rounded border text-[13px] mb-3" style={{ borderColor: 'var(--card-border)' }} />
-                  ))}
+                  {customFields.map(cf => {
+                    if (cf.type === 'dropdown') {
+                      return (
+                        <div key={cf.id} className="w-full px-3 py-2 rounded border text-[13px] mb-3 flex items-center justify-between" style={{ borderColor: 'var(--card-border)', color: 'var(--text-tertiary)' }}>
+                          <span>{cf.label || 'Dropdown'}{cf.required ? '*' : ''}</span>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6,9 12,15 18,9"/></svg>
+                        </div>
+                      );
+                    }
+                    if (cf.type === 'date') {
+                      return (
+                        <div key={cf.id} className="w-full px-3 py-2 rounded border text-[13px] mb-3 flex items-center justify-between" style={{ borderColor: 'var(--card-border)', color: 'var(--text-tertiary)' }}>
+                          <span>{cf.label || 'Date'}{cf.required ? '*' : ''}</span>
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                      );
+                    }
+                    return <input key={cf.id} readOnly placeholder={`${cf.label}${cf.required ? '*' : ''}`} className="w-full px-3 py-2 rounded border text-[13px] mb-3" style={{ borderColor: 'var(--card-border)' }} />;
+                  })}
                   {/* Access fee note */}
                   {accessFeeEnabled && (
                     <div className="text-center mt-3 mb-2">
@@ -5304,6 +5410,68 @@
               </div>
             </div>
           </div>
+
+          {/* Add Field Modal */}
+          {addFieldModal && ReactDOM.createPortal(
+            <div className="modal-overlay" onClick={closeModal} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="bg-white rounded-2xl border shadow-xl flex flex-col" onClick={e => e.stopPropagation()}
+                style={{ borderColor: 'var(--card-border)', width: '100%', maxWidth: 480 }}>
+                {/* Modal header */}
+                <div className="flex items-center justify-between px-6 py-5 border-b shrink-0" style={{ borderColor: 'var(--card-border)' }}>
+                  <h3 className="text-[15px] font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>{modalTitle[addFieldModal]}</h3>
+                  <button onClick={closeModal} className="w-7 h-7 flex items-center justify-center rounded-full transition-colors"
+                    style={{ color: 'var(--text-secondary)' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--soft-bg)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                {/* Modal body */}
+                <div className="px-6 py-5">
+                  <label className="block text-[13px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Label Text (Question)</label>
+                  <input value={modalLabel} onChange={e => setModalLabel(e.target.value.slice(0, 250))}
+                    placeholder={addFieldModal === 'date' ? 'Example: Shoot Date' : addFieldModal === 'dropdown' ? "Example: What's your team?" : "Example: What's your age?"}
+                    autoFocus
+                    className="w-full px-3 py-2 rounded border text-[14px] outline-none"
+                    style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+                  <div className="text-[11px] mt-1 mb-4 text-right" style={{ color: 'var(--text-tertiary)' }}>{modalLabel.length}/250</div>
+                  {addFieldModal === 'dropdown' && (
+                    <div className="mb-4">
+                      <label className="block text-[13px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Dropdown Options</label>
+                      <input value={modalOptions} onChange={e => setModalOptions(e.target.value)}
+                        placeholder="Example: Red, Green, Blue"
+                        className="w-full px-3 py-2 rounded border text-[13px] outline-none"
+                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+                      <p className="text-[12px] mt-1.5" style={{ color: 'var(--text-secondary)' }}>Enter your options separated by a comma ( , )</p>
+                    </div>
+                  )}
+                  <label className="flex items-center gap-2.5 cursor-pointer">
+                    <button type="button" onClick={() => setModalRequired(v => !v)}
+                      className="flex items-center justify-center rounded border-2 transition-all shrink-0"
+                      style={{ width: 18, height: 18, borderColor: modalRequired ? 'var(--brand)' : 'var(--line)', background: modalRequired ? 'var(--brand)' : '#fff' }}>
+                      {modalRequired && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
+                    </button>
+                    <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>Required</span>
+                  </label>
+                </div>
+                {/* Modal footer */}
+                <div className="px-6 py-4 border-t flex items-center justify-end gap-3 shrink-0" style={{ borderColor: 'var(--card-border)' }}>
+                  <button onClick={closeModal} className="px-5 py-2 text-[14px] font-semibold rounded-full border transition-colors"
+                    style={{ borderColor: 'var(--card-border)', color: 'var(--text-secondary)', background: '#fff' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--soft-bg)'}
+                    onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                    Cancel
+                  </button>
+                  <button onClick={confirmAddField} disabled={!modalLabel.trim() || customFields.length >= 15}
+                    className="px-5 py-2 text-[14px] font-semibold rounded-full transition-colors disabled:opacity-40"
+                    style={{ background: modalLabel.trim() ? 'var(--brand)' : 'var(--soft-bg)', color: modalLabel.trim() ? '#fff' : 'var(--text-tertiary)', border: 'none' }}>
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>,
+            document.body
+          )}
         </div>
       );
     };
