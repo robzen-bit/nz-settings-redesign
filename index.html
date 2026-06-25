@@ -6232,14 +6232,14 @@
                 ) : activeSection === 'access' ? (
                   <AccessSection
                     mode={accessMode} onSelectMode={setAccessMode}
-                    showRegistration={showGalleryRegistration} onToggleRegistration={() => setShowGalleryRegistration(v => !v)}
+                    showRegistration={showGalleryRegistration} onToggleRegistration={() => { const next = !showGalleryRegistration; setShowGalleryRegistration(next); if (next) setCollectEmailEnabled(true); }}
                     accessFeeEnabled={accessFeeEnabled} onToggleAccessFee={() => setAccessFeeEnabled(v => !v)}
                     accessFeeAmount={accessFeeAmount} onChangeAccessFeeAmount={setAccessFeeAmount}
                     accessFeeRole={accessFeeRole} onChangeAccessFeeRole={setAccessFeeRole}
                     roles={roles} savedRoles={savedRoles} viewMode={viewMode}
-                    collectEmailEnabled={collectEmailEnabled} onToggleCollectEmail={() => setCollectEmailEnabled(v => !v)}
+                    collectEmailEnabled={collectEmailEnabled} onToggleCollectEmail={() => { setCollectEmailEnabled(true); setCustomFormEnabled(false); }}
                     collectEmailOptional={collectEmailOptional} onToggleCollectEmailOptional={() => setCollectEmailOptional(v => !v)}
-                    customFormEnabled={customFormEnabled} onToggleCustomForm={() => setCustomFormEnabled(v => !v)}
+                    customFormEnabled={customFormEnabled} onToggleCustomForm={() => { setCustomFormEnabled(true); setCollectEmailEnabled(false); }}
                     customFormOptional={customFormOptional} onToggleCustomFormOptional={() => setCustomFormOptional(v => !v)}
                     onEditCustomForm={() => setShowEditCustomForm(true)}
                     allowSearch={allowSearchResults} onToggleSearch={() => setAllowSearchResults(v => !v)}
