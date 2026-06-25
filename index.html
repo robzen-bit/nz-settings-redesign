@@ -5131,7 +5131,7 @@
       { id: 'phone_number', label: 'Phone Number', canDisable: true,  canMakeOptional: true  },
     ];
 
-    const EditCustomFormView = ({ onBack, accessFeeEnabled }) => {
+    const EditCustomFormView = ({ onBack, accessFeeEnabled, roles = [], savedRoles = [], viewMode = 'basic' }) => {
       const [useCustomTitle, setUseCustomTitle] = useState(false);
       const [customTitle, setCustomTitle] = useState('');
       const [description, setDescription] = useState('Please fill out the form below to complete registration.');
@@ -5147,7 +5147,19 @@
       const [modalLabel, setModalLabel] = useState('');
       const [modalOptions, setModalOptions] = useState('');
       const [modalRequired, setModalRequired] = useState(false);
+      const [accessFeeRole, setAccessFeeRole] = useState('everyone');
       const addFieldBtnRef = React.useRef(null);
+
+      const isElevated = viewMode === 'professional' || viewMode === 'advanced';
+      const systemRoles = [
+        { id: 'everyone', name: 'General' },
+        { id: '__guest__', name: 'Guest' },
+        { id: '__client__', name: 'Client' },
+      ];
+      const galleryCustomRoles = isElevated ? roles.filter(r => r.isCustom) : [];
+      const savedNotInGallery = isElevated ? savedRoles.filter(s =>
+        !roles.some(r => r.name.toLowerCase() === s.name.toLowerCase())
+      ) : [];
 
       const galleryName = 'Sample Gallery';
       const displayTitle = useCustomTitle && customTitle.trim() ? customTitle.trim() : galleryName;
@@ -5342,6 +5354,41 @@
                   <strong>Note:</strong> Registrants will be added to the Gallery as visitors.
                 </p>
               </div>
+
+              {/* Access Fee Role — only shown when access fee is enabled */}
+              {accessFeeEnabled && (
+                <div className="mt-5 pt-5 border-t" style={{ borderColor: 'var(--card-border)' }}>
+                  <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>
+                    Access Fee Role
+                  </label>
+                  <p className="text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
+                    When someone pays the access fee, what role should they be added to the gallery as?
+                  </p>
+                  <select value={accessFeeRole} onChange={e => setAccessFeeRole(e.target.value)}
+                    className="w-full border rounded px-3 py-2 text-[13px] outline-none"
+                    style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }}>
+                    {!isElevated ? (
+                      systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
+                    ) : (
+                      <>
+                        <optgroup label="System Roles">
+                          {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                        </optgroup>
+                        {galleryCustomRoles.length > 0 && (
+                          <optgroup label="Gallery Custom Roles">
+                            {galleryCustomRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                          </optgroup>
+                        )}
+                        {savedNotInGallery.length > 0 && (
+                          <optgroup label="Saved Custom Roles">
+                            {savedNotInGallery.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                          </optgroup>
+                        )}
+                      </>
+                    )}
+                  </select>
+                </div>
+              )}
             </div>
 
             {/* Right — live preview */}
@@ -6171,7 +6218,7 @@
           <div className="flex flex-1">
             <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
             {showEditCustomForm ? (
-              <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} />
+              <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} roles={roles} savedRoles={savedRoles} viewMode={viewMode} />
             ) : activeView === 'booking' ? (
               <BookingView onBack={() => setActiveView('gallery')} viewMode={viewMode} savedRoles={savedRoles} />
             ) : (
