@@ -2693,68 +2693,100 @@
       const mainSettings = feature.settings.filter(s => !s.optional);
       const optionalSettings = feature.settings.filter(s => s.optional);
       const refRoleId = roles[0].id;
+      const topLevel = mainSettings.filter(s => !s.dependsOn);
+      const childrenOf = (id) => mainSettings.filter(s => s.dependsOn?.settingId === id);
+
+      const renderable = topLevel
+        .map(s => ({ s, children: childrenOf(s.id) }))
+        .filter(({ s }) => roles.some(r => isSettingVisibleForRole(s, r.id, feature.id, perRole)));
+
+      const renderRoleControls = (s) => (
+        <div className="flex flex-col gap-2 items-end">
+          {roles.map(r => {
+            if (!isSettingVisibleForRole(s, r.id, feature.id, perRole)) return null;
+            const enabled = !!perRole[r.id]?.[feature.id]?.enabled;
+            const value = perRole[r.id]?.[feature.id]?.values?.[s.id];
+            return (
+              <div key={r.id} className="flex items-center gap-2"
+                style={{ opacity: enabled ? 1 : 0.5, pointerEvents: enabled ? 'auto' : 'none' }}>
+                <span className="text-[10px] font-bold uppercase tracking-wider shrink-0 truncate"
+                  style={{ color: 'var(--text-secondary)', maxWidth: 80 }} title={r.name}>
+                  {r.name}
+                </span>
+                <SettingControl s={s} value={value} onChange={(v) => onUpdate(r.id, s.id, v)} compact />
+              </div>
+            );
+          })}
+        </div>
+      );
 
       return (
-        <div style={{ background: 'var(--soft-bg)', borderTop: '1px solid var(--card-border)' }}>
-          <div className="multi-panel-body px-8 pt-4 pb-5" style={{ maxWidth: 540 }}>
-            {(() => {
-              // Render only top-level settings; dependent ones are nested inline
-              // inside their parent group's role row (e.g. "Number of images allowed"
-              // appears under the role whose Download Type is "Specific Amount Download").
-              const topLevel = mainSettings.filter(s => !s.dependsOn);
-              const childrenOf = (id) => mainSettings.filter(s => s.dependsOn?.settingId === id);
-              const renderable = topLevel
-                .map(s => ({
-                  s,
-                  visibleRoles: roles.filter(r => isSettingVisibleForRole(s, r.id, feature.id, perRole)),
-                  childSettings: childrenOf(s.id),
-                }))
-                .filter(({ visibleRoles }) => visibleRoles.length > 0);
-              if (renderable.length === 0 && optionalSettings.length === 0) {
+        <div className="multi-panel-body px-8 py-2" style={{ background: 'var(--soft-bg)', borderTop: '1px solid var(--card-border)' }}>
+          {renderable.length === 0 && optionalSettings.length === 0 ? (
+            <div className="text-[12px] italic py-3" style={{ color: 'var(--text-tertiary)' }}>
+              No settings to configure for this feature.
+            </div>
+          ) : renderable.map(({ s, children }, i) => (
+            <React.Fragment key={s.id}>
+              <div className="shared-flat-row grid items-start gap-4"
+                style={{
+                  gridTemplateColumns: '1fr auto',
+                  padding: '14px 0',
+                  borderTop: i > 0 ? '1px solid var(--card-border)' : 'none',
+                }}>
+                <div>
+                  <div className="flex items-center text-[13px] font-medium" style={{ color: 'var(--text-primary)' }}>
+                    {s.label}{s.tooltip && <InfoTooltip content={s.tooltip} />}
+                  </div>
+                  {s.meta && <div className="text-[12px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)', whiteSpace: 'pre-line' }}>{s.meta}</div>}
+                </div>
+                <div className="control-end flex">{renderRoleControls(s)}</div>
+              </div>
+              {children.map(c => {
+                if (!roles.some(r => isSettingVisibleForRole(c, r.id, feature.id, perRole))) return null;
                 return (
-                  <div className="text-[12px] italic py-3" style={{ color: 'var(--text-tertiary)' }}>
-                    No settings to configure for this feature.
+                  <div key={c.id} className="shared-flat-row grid items-start gap-4"
+                    style={{ gridTemplateColumns: '1fr auto', padding: '6px 0 12px 22px', marginTop: -8 }}>
+                    <div className="flex items-center gap-1.5 text-[12px]" style={{ color: 'var(--text-secondary)' }}>
+                      <span aria-hidden="true" style={{ color: 'var(--brand)', opacity: 0.7 }}>↳</span>
+                      <span>{c.label}</span>
+                      {c.tooltip && <InfoTooltip content={c.tooltip} />}
+                    </div>
+                    <div className="control-end flex">{renderRoleControls(c)}</div>
                   </div>
                 );
-              }
-              if (renderable.length === 0) return null;
-              return renderable.map(({ s, visibleRoles, childSettings }, i) => (
-                <PerRoleGroup key={s.id} s={s} visibleRoles={visibleRoles} perRole={perRole}
-                  featureId={feature.id}
-                  onUpdate={(rId, sId, v) => onUpdate(rId, sId, v)}
-                  isFirst={i === 0} childSettings={childSettings} />
-              ));
-            })()}
+              })}
+            </React.Fragment>
+          ))}
 
-            {optionalSettings.length > 0 && (() => {
-              const topLevelOptional = optionalSettings.filter(s => !s.dependsOn);
-              const dependentOptional = optionalSettings.filter(s => s.dependsOn);
-              return (
-                <div style={{ borderTop: '1px solid var(--card-border)', marginTop: 6, paddingTop: 4 }}>
-                  <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)', background: '#fff' }}>
-                    {topLevelOptional.map(s => (
-                      <SharedRowFlat key={s.id} s={s}
-                        value={perRole[refRoleId]?.[feature.id]?.values?.[s.id]}
-                        onChangeAll={(v) => onUpdateShared(s.id, v)}
-                        isFirst />
-                    ))}
-                    {dependentOptional.map(s => {
-                      const dep = s.dependsOn;
-                      const depVal = perRole[refRoleId]?.[feature.id]?.values?.[dep.settingId];
-                      const visible = dep.values ? dep.values.includes(depVal) : true;
-                      if (!visible) return null;
-                      const val = perRole[refRoleId]?.[feature.id]?.values?.[s.id];
-                      return (
-                        <div key={s.id} style={{ borderTop: '1px solid var(--card-border)', padding: '14px 16px' }}>
-                          <SettingControl s={s} value={val} onChange={(v) => onUpdateShared(s.id, v)} compact />
-                        </div>
-                      );
-                    })}
-                  </div>
+          {optionalSettings.length > 0 && (() => {
+            const topLevelOptional = optionalSettings.filter(s => !s.dependsOn);
+            const dependentOptional = optionalSettings.filter(s => s.dependsOn);
+            return (
+              <div style={{ borderTop: '1px solid var(--card-border)', marginTop: 6, paddingTop: 4 }}>
+                <div className="rounded-lg overflow-hidden" style={{ border: '1px solid var(--card-border)', background: '#fff' }}>
+                  {topLevelOptional.map(s => (
+                    <SharedRowFlat key={s.id} s={s}
+                      value={perRole[refRoleId]?.[feature.id]?.values?.[s.id]}
+                      onChangeAll={(v) => onUpdateShared(s.id, v)}
+                      isFirst />
+                  ))}
+                  {dependentOptional.map(s => {
+                    const dep = s.dependsOn;
+                    const depVal = perRole[refRoleId]?.[feature.id]?.values?.[dep.settingId];
+                    const visible = dep.values ? dep.values.includes(depVal) : true;
+                    if (!visible) return null;
+                    const val = perRole[refRoleId]?.[feature.id]?.values?.[s.id];
+                    return (
+                      <div key={s.id} style={{ borderTop: '1px solid var(--card-border)', padding: '14px 16px' }}>
+                        <SettingControl s={s} value={val} onChange={(v) => onUpdateShared(s.id, v)} compact />
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })()}
-          </div>
+              </div>
+            );
+          })()}
         </div>
       );
     };
