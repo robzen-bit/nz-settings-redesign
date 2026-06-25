@@ -3394,18 +3394,54 @@
     const AccessSection = ({
       mode, onSelectMode,
       showRegistration, onToggleRegistration,
+      accessFeeEnabled, onToggleAccessFee,
+      accessFeeAmount, onChangeAccessFeeAmount,
+      collectEmailEnabled, onToggleCollectEmail,
+      collectEmailOptional, onToggleCollectEmailOptional,
+      customFormEnabled, onToggleCustomForm,
+      customFormOptional, onToggleCustomFormOptional,
+      onEditCustomForm,
       allowSearch, onToggleSearch,
       activeSection, onSelectSection, contactsCount,
     }) => {
       const [showAdvanced, setShowAdvanced] = useState(false);
+
+      // Row component for registration sub-options
+      const RegRow = ({ checked, onToggle, label, description, optionalLabel, optionalChecked, onToggleOptional, optionalDisabled, children }) => (
+        <div className="flex gap-3 py-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
+          <button type="button" onClick={onToggle}
+            className="mt-0.5 shrink-0 flex items-center justify-center rounded-full border-2 transition-all"
+            style={{ width: 20, height: 20, borderColor: checked ? 'var(--brand)' : 'var(--line)', background: checked ? 'var(--brand)' : '#fff' }}>
+            {checked && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff' }} />}
+          </button>
+          <div className="flex-1 min-w-0">
+            <div className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>{label}</div>
+            <div className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{description}</div>
+            {checked && children}
+          </div>
+          {onToggleOptional && (
+            <div className="flex items-start gap-2 shrink-0 pt-0.5" style={{ minWidth: 220 }}>
+              <button type="button" onClick={!optionalDisabled ? onToggleOptional : undefined}
+                className="mt-1 shrink-0 flex items-center justify-center rounded border-2 transition-all"
+                style={{ width: 18, height: 18, borderColor: optionalDisabled ? 'var(--line)' : optionalChecked ? 'var(--brand)' : 'var(--line)', background: optionalDisabled ? 'var(--soft-bg)' : optionalChecked ? 'var(--brand)' : '#fff', cursor: optionalDisabled ? 'default' : 'pointer' }}>
+                {!optionalDisabled && optionalChecked && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
+              </button>
+              <span className="text-[13px]" style={{ color: optionalDisabled ? 'var(--text-tertiary)' : 'var(--text-secondary)' }}>{optionalLabel}</span>
+            </div>
+          )}
+        </div>
+      );
+
       return (
-        <main className="main-pane flex-1 px-6 pt-6 pb-12" style={{ maxWidth: 1150 }}>
+        <main className="main-pane flex-1 px-6 pt-6 pb-12" style={{ maxWidth: 920 }}>
           <MobileSectionNav activeSection={activeSection}
             onSelectSection={onSelectSection} contactsCount={contactsCount} />
           <header className="gallery-features-header mb-5">
             <h1 className="features-header-h1 text-[18px] font-extrabold tracking-tight uppercase" style={{ color: 'var(--brand)', letterSpacing: '0.02em' }}>Gallery Access</h1>
             <p className="text-[13px] mt-1" style={{ color: 'var(--text-secondary)' }}>Set the level of access for Gallery</p>
           </header>
+
+          {/* Access mode tiles */}
           <div className="grid gap-3 mb-6 access-grid"
             style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
             {ACCESS_MODES.map(m => (
@@ -3414,21 +3450,93 @@
                 onSelect={() => onSelectMode(m.id)} />
             ))}
           </div>
-          <div className="flex items-center justify-between py-3"
-            style={{ borderBottom: '1px solid var(--card-border)' }}>
-            <div className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Show Gallery Registration
+
+          {/* Show Gallery Registration */}
+          <div className="flex items-start justify-between py-3"
+            style={{ borderTop: '1px solid var(--card-border)', borderBottom: showRegistration ? 'none' : '1px solid var(--card-border)' }}>
+            <div>
+              <div className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>Show Gallery Registration</div>
+              <div className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>Configure payment collection, email capture and custom form fields.</div>
             </div>
             <Toggle size="sm" checked={showRegistration} onChange={onToggleRegistration} />
           </div>
-          <div className="flex items-center justify-between py-3">
+
+          {showRegistration && (
+            <div className="mb-2" style={{ borderBottom: '1px solid var(--card-border)' }}>
+              {/* Access Fee — checkbox style */}
+              <div className="flex gap-3 py-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
+                <button type="button" onClick={onToggleAccessFee}
+                  className="mt-0.5 shrink-0 flex items-center justify-center rounded border-2 transition-all"
+                  style={{ width: 20, height: 20, borderColor: accessFeeEnabled ? 'var(--brand)' : 'var(--line)', background: accessFeeEnabled ? 'var(--brand)' : '#fff' }}>
+                  {accessFeeEnabled && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
+                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M9 9h4.5a1.5 1.5 0 0 1 0 3H9m0 0h4.5a1.5 1.5 0 0 1 0 3H9"/></svg>
+                    <div className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>Enable Registration/Access Fee</div>
+                  </div>
+                  <div className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>Charge a registration/access fee for this gallery.</div>
+                  {accessFeeEnabled && (
+                    <div className="mt-3">
+                      <div className="text-[13px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Access Fee Amount (£GBP)</div>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center rounded-md border px-3 py-2 bg-white" style={{ borderColor: 'var(--brand)', width: 160 }}>
+                          <span className="text-[14px] mr-1" style={{ color: 'var(--text-secondary)' }}>£</span>
+                          <input type="number" min="0" step="0.01"
+                            value={accessFeeAmount}
+                            onChange={e => onChangeAccessFeeAmount(e.target.value)}
+                            className="flex-1 outline-none text-[14px] bg-transparent"
+                            style={{ color: 'var(--text-primary)' }} />
+                        </div>
+                      </div>
+                      <button type="button" className="mt-3 px-4 py-1.5 rounded border text-[13px] font-semibold"
+                        style={{ borderColor: 'var(--brand)', color: 'var(--brand)', background: '#fff' }}>
+                        Edit Details
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Collect Email */}
+              <RegRow
+                checked={collectEmailEnabled} onToggle={onToggleCollectEmail}
+                label="Collect Email"
+                description="Collect visitor's email address before they enter."
+                optionalLabel={accessFeeEnabled ? 'Optional (not available with Access Fee)' : 'Optional (allow visitors to skip)'}
+                optionalChecked={collectEmailOptional}
+                onToggleOptional={onToggleCollectEmailOptional}
+                optionalDisabled={accessFeeEnabled}
+              />
+
+              {/* Custom Form */}
+              <RegRow
+                checked={customFormEnabled} onToggle={onToggleCustomForm}
+                label="Custom Form"
+                description="Design your own form to collect additional information."
+                optionalLabel={accessFeeEnabled ? 'Optional (not available with Access Fee)' : 'Optional (allow visitors to skip)'}
+                optionalChecked={customFormOptional}
+                onToggleOptional={onToggleCustomFormOptional}
+                optionalDisabled={accessFeeEnabled}>
+                <button type="button" onClick={onEditCustomForm}
+                  className="mt-3 px-4 py-1.5 rounded border text-[13px] font-semibold"
+                  style={{ borderColor: 'var(--brand)', color: 'var(--brand)', background: '#fff' }}>
+                  Edit Form
+                </button>
+              </RegRow>
+            </div>
+          )}
+
+          {/* Search results toggle */}
+          <div className="flex items-center justify-between py-3" style={{ borderBottom: '1px solid var(--card-border)' }}>
             <div className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
               Allow gallery to appear in search results: <span style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>{allowSearch ? 'On' : 'Off'}</span>
             </div>
             <Toggle size="sm" checked={allowSearch} onChange={onToggleSearch} />
           </div>
+
           <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center gap-1 text-[13px] font-semibold mt-2"
+            className="flex items-center gap-1 text-[13px] font-semibold mt-4"
             style={{ color: 'var(--brand)' }}>
             {showAdvanced ? 'Hide' : 'Show'} Advanced Settings
             <span style={{ display: 'inline-block', transform: showAdvanced ? 'rotate(180deg)' : 'none', transition: 'transform 0.15s' }}>
@@ -5398,6 +5506,13 @@
       // Access tab — gallery-wide access mode + a couple of toggles. Defaults to public.
       const [accessMode, setAccessMode] = useState('public');
       const [showGalleryRegistration, setShowGalleryRegistration] = useState(false);
+      const [accessFeeEnabled, setAccessFeeEnabled] = useState(false);
+      const [accessFeeAmount, setAccessFeeAmount] = useState('0.00');
+      const [collectEmailEnabled, setCollectEmailEnabled] = useState(false);
+      const [collectEmailOptional, setCollectEmailOptional] = useState(false);
+      const [customFormEnabled, setCustomFormEnabled] = useState(false);
+      const [customFormOptional, setCustomFormOptional] = useState(false);
+      const [showEditCustomForm, setShowEditCustomForm] = useState(false);
       const [allowSearchResults, setAllowSearchResults] = useState(false);
       const [activeView, setActiveView] = useState('gallery');
 
@@ -5722,6 +5837,13 @@
                   <AccessSection
                     mode={accessMode} onSelectMode={setAccessMode}
                     showRegistration={showGalleryRegistration} onToggleRegistration={() => setShowGalleryRegistration(v => !v)}
+                    accessFeeEnabled={accessFeeEnabled} onToggleAccessFee={() => setAccessFeeEnabled(v => !v)}
+                    accessFeeAmount={accessFeeAmount} onChangeAccessFeeAmount={setAccessFeeAmount}
+                    collectEmailEnabled={collectEmailEnabled} onToggleCollectEmail={() => setCollectEmailEnabled(v => !v)}
+                    collectEmailOptional={collectEmailOptional} onToggleCollectEmailOptional={() => setCollectEmailOptional(v => !v)}
+                    customFormEnabled={customFormEnabled} onToggleCustomForm={() => setCustomFormEnabled(v => !v)}
+                    customFormOptional={customFormOptional} onToggleCustomFormOptional={() => setCustomFormOptional(v => !v)}
+                    onEditCustomForm={() => setShowEditCustomForm(true)}
                     allowSearch={allowSearchResults} onToggleSearch={() => setAllowSearchResults(v => !v)}
                     activeSection={activeSection} onSelectSection={setActiveSection}
                     contactsCount={contacts.length} />
