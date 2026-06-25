@@ -5170,7 +5170,7 @@
       { id: 'phone_number', label: 'Phone Number', canDisable: true,  canMakeOptional: true  },
     ];
 
-    const EditCustomFormView = ({ onBack, accessFeeEnabled, roles = [], savedRoles = [], viewMode = 'basic' }) => {
+    const EditCustomFormView = ({ onBack, accessFeeEnabled, accessFeeRole = 'everyone', roles = [], savedRoles = [], viewMode = 'basic' }) => {
       const [useCustomTitle, setUseCustomTitle] = useState(false);
       const [customTitle, setCustomTitle] = useState('');
       const [description, setDescription] = useState('Please fill out the form below to complete registration.');
@@ -5181,12 +5181,35 @@
       const [fieldEnabled, setFieldEnabled] = useState({ first_name: true, last_name: true, email: true, phone_number: true });
       const [fieldRequired, setFieldRequired] = useState({ first_name: false, last_name: false, email: true, phone_number: false });
       const [customFields, setCustomFields] = useState([]);
+      const [emailRole, setEmailRole] = useState('everyone');
       const [addFieldMenuOpen, setAddFieldMenuOpen] = useState(false);
       const [addFieldModal, setAddFieldModal] = useState(null); // 'text' | 'dropdown' | 'date'
       const [modalLabel, setModalLabel] = useState('');
       const [modalOptions, setModalOptions] = useState('');
       const [modalRequired, setModalRequired] = useState(false);
       const addFieldBtnRef = React.useRef(null);
+
+      const isElevated = viewMode === 'professional' || viewMode === 'advanced';
+      const systemRoles = [
+        { id: 'everyone', name: 'General' },
+        { id: '__guest__', name: 'Guest' },
+        { id: '__client__', name: 'Client' },
+      ];
+      const galleryCustomRoles = isElevated ? roles.filter(r => r.isCustom) : [];
+      const savedNotInGallery = isElevated ? savedRoles.filter(s =>
+        !roles.some(r => r.name.toLowerCase() === s.name.toLowerCase())
+      ) : [];
+
+      // Resolve an ID to a display name for the locked state
+      const resolveRoleName = (id) => {
+        const sys = systemRoles.find(r => r.id === id);
+        if (sys) return sys.name;
+        const custom = roles.find(r => r.id === id);
+        if (custom) return custom.name;
+        const saved = savedRoles.find(s => s.id === id);
+        if (saved) return saved.name;
+        return 'General';
+      };
 
       const galleryName = 'Sample Gallery';
       const displayTitle = useCustomTitle && customTitle.trim() ? customTitle.trim() : galleryName;
@@ -5265,7 +5288,7 @@
                     const enabled = fieldEnabled[f.id];
                     const required = fieldRequired[f.id];
                     const isDisabledField = !f.canDisable;
-                    return (
+                    const row = (
                       <div key={f.id} className="flex items-center px-4 py-3 gap-4"
                         style={{ borderTop: i > 0 ? '1px solid var(--card-border)' : 'none', background: enabled ? '#fff' : 'var(--soft-bg)', opacity: isDisabledField && !enabled ? 0.5 : 1 }}>
                         <Toggle size="sm" checked={enabled} onChange={isDisabledField ? undefined : () => setFieldEnabled(prev => ({ ...prev, [f.id]: !prev[f.id] }))} />
@@ -5280,6 +5303,52 @@
                           <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>Required</span>
                         </label>
                       </div>
+                    );
+                    if (f.id !== 'email') return row;
+                    const activeRole = accessFeeEnabled ? accessFeeRole : emailRole;
+                    return (
+                      <React.Fragment key={f.id}>
+                        {row}
+                        <div className="px-4 py-3" style={{ borderTop: '1px solid var(--card-border)', background: '#fafafa' }}>
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Role</span>
+                            {accessFeeEnabled && (
+                              <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--soft-bg)', color: 'var(--text-tertiary)', border: '1px solid var(--card-border)' }}>
+                                Set by Access Fee
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[12px] mb-2" style={{ color: 'var(--text-secondary)' }}>
+                            When someone submits this form, what role should they be added to the gallery as?
+                          </p>
+                          <select
+                            value={activeRole}
+                            onChange={accessFeeEnabled ? undefined : e => setEmailRole(e.target.value)}
+                            disabled={accessFeeEnabled}
+                            className="border rounded px-3 py-1.5 text-[13px] outline-none"
+                            style={{ borderColor: 'var(--card-border)', color: accessFeeEnabled ? 'var(--text-tertiary)' : 'var(--text-primary)', background: accessFeeEnabled ? 'var(--soft-bg)' : '#fff', maxWidth: 280, cursor: accessFeeEnabled ? 'not-allowed' : 'pointer' }}>
+                            {!isElevated ? (
+                              systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
+                            ) : (
+                              <>
+                                <optgroup label="System Roles">
+                                  {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                </optgroup>
+                                {galleryCustomRoles.length > 0 && (
+                                  <optgroup label="Gallery Custom Roles">
+                                    {galleryCustomRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                  </optgroup>
+                                )}
+                                {savedNotInGallery.length > 0 && (
+                                  <optgroup label="Saved Custom Roles">
+                                    {savedNotInGallery.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                  </optgroup>
+                                )}
+                              </>
+                            )}
+                          </select>
+                        </div>
+                      </React.Fragment>
                     );
                   })}
                   {customFields.map((cf) => (
@@ -6212,7 +6281,7 @@
           <div className="flex flex-1">
             <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
             {showEditCustomForm ? (
-              <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} roles={roles} savedRoles={savedRoles} viewMode={viewMode} />
+              <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} accessFeeRole={accessFeeRole} roles={roles} savedRoles={savedRoles} viewMode={viewMode} />
             ) : activeView === 'booking' ? (
               <BookingView onBack={() => setActiveView('gallery')} viewMode={viewMode} savedRoles={savedRoles} />
             ) : (
