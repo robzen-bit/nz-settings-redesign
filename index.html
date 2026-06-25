@@ -2696,7 +2696,7 @@
 
       return (
         <div style={{ background: 'var(--soft-bg)', borderTop: '1px solid var(--card-border)' }}>
-          <div className="multi-panel-body px-8 pt-4 pb-5">
+          <div className="multi-panel-body px-8 pt-4 pb-5" style={{ maxWidth: 540 }}>
             {(() => {
               // Render only top-level settings; dependent ones are nested inline
               // inside their parent group's role row (e.g. "Number of images allowed"
@@ -3213,10 +3213,8 @@
                         }
                         const rowBg = isChild ? 'var(--soft-bg)' : '#fff';
                         return (
-                          <div key={s.id} style={{
-                            display: 'grid',
-                            gridTemplateColumns: `${SETTING_COL_WIDTH}px ${ROLE_COL_WIDTH}px`,
-                            width: `${SETTING_COL_WIDTH + ROLE_COL_WIDTH}px`,
+                          <div key={s.id} className="grid" style={{
+                            gridTemplateColumns: `${SETTING_COL_WIDTH}px repeat(${roles.length}, ${ROLE_COL_WIDTH}px)`,
                             borderBottom: isLast ? 'none' : '1px solid var(--card-border)',
                             background: rowBg,
                             alignItems: 'stretch',
@@ -3232,35 +3230,28 @@
                               {isChild && <span aria-hidden="true" style={{ color: 'var(--brand)', opacity: 0.7 }}>↳</span>}
                               <span className="truncate" title={s.label}>{s.label}</span>
                             </div>
-                            <div style={{ minWidth: 0 }}>
-                              {roles.map((r, i) => {
-                                const enabled = !!perRole[r.id]?.[feature.id]?.enabled;
-                                const visible = isSettingVisibleForRole(s, r.id, feature.id, perRole);
-                                const value = perRole[r.id]?.[feature.id]?.values?.[s.id];
-                                return (
-                                  <div key={r.id} className="per-role-row flex items-center gap-2"
-                                    style={{
-                                      borderTop: i > 0 ? '1px solid var(--card-border)' : 'none',
-                                      padding: '8px 12px',
-                                      opacity: enabled ? 1 : 0.5,
-                                      pointerEvents: enabled ? 'auto' : 'none',
-                                    }}>
-                                    <span className="text-[10px] font-bold uppercase tracking-wider shrink-0 truncate"
-                                      style={{ color: 'var(--text-secondary)', maxWidth: 90 }}
-                                      title={r.name}>
-                                      {r.name}
-                                    </span>
-                                    {visible ? (
-                                      <CompareCellControl s={s} value={value}
-                                        onChange={(v) => onUpdate(feature.id, r.id, s.id, v)}
-                                        name={`cmp-${feature.id}-${s.id}-${r.id}`} />
-                                    ) : (
-                                      <span className="text-[11px] italic" style={{ color: 'var(--text-tertiary)' }}>—</span>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
+                            {roles.map((r, i) => {
+                              const enabled = !!perRole[r.id]?.[feature.id]?.enabled;
+                              const visible = isSettingVisibleForRole(s, r.id, feature.id, perRole);
+                              const disabledStyle = enabled ? null : { opacity: 0.5, pointerEvents: 'none' };
+                              const value = perRole[r.id]?.[feature.id]?.values?.[s.id];
+                              return (
+                                <div key={r.id} className="compare-cell flex justify-start items-start"
+                                  style={{
+                                    ...disabledStyle,
+                                    borderRight: i === roles.length - 1 ? 'none' : '1px solid var(--card-border)',
+                                    padding: '10px 16px',
+                                  }}>
+                                  {visible ? (
+                                    <CompareCellControl s={s} value={value}
+                                      onChange={(v) => onUpdate(feature.id, r.id, s.id, v)}
+                                      name={`cmp-${feature.id}-${s.id}-${r.id}`} />
+                                  ) : (
+                                    <span className="text-[11px] italic" style={{ color: 'var(--text-tertiary)' }}>—</span>
+                                  )}
+                                </div>
+                              );
+                            })}
                           </div>
                         );
                       })}
