@@ -1988,7 +1988,7 @@
       useEffect(() => { if (isRenaming) setTempName(role.name); }, [isRenaming, role.name]);
 
       return (
-        <div className="relative flex items-center justify-center gap-1" style={{ color: 'var(--text-secondary)' }}>
+        <div className="relative w-full flex items-center justify-center" style={{ color: 'var(--text-secondary)' }}>
           {isRenaming ? (
             <input autoFocus value={tempName}
               onChange={(e) => setTempName(e.target.value)}
@@ -2018,7 +2018,7 @@
           {!isRenaming && role.removable && (
             <button onClick={(e) => { e.stopPropagation(); onMenuToggle(); }}
               className="kebab-btn rounded p-1"
-              style={{ color: 'var(--text-tertiary)' }}>
+              style={{ color: 'var(--text-tertiary)', position: 'absolute', right: 0 }}>
               <KebabIcon size={14} />
             </button>
           )}
@@ -3155,7 +3155,7 @@
                           roles.map((r, i) => {
                             const enabled = !!perRole[r.id]?.[feature.id]?.enabled;
                             return (
-                              <div key={r.id} className="flex items-center gap-2"
+                              <div key={r.id} className="flex items-center justify-center gap-2"
                                 style={{
                                   borderRight: i === roles.length - 1 ? 'none' : '1px solid var(--card-border)',
                                   padding: '10px 16px',
