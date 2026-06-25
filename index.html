@@ -5309,18 +5309,18 @@
                     return (
                       <React.Fragment key={f.id}>
                         {row}
-                        <div className="px-4 py-3" style={{ borderTop: '1px solid var(--card-border)', background: '#fafafa' }}>
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <span className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Role</span>
-                            {accessFeeEnabled && (
-                              <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--soft-bg)', color: 'var(--text-tertiary)', border: '1px solid var(--card-border)' }}>
-                                Set by Access Fee
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-[12px] mb-2" style={{ color: 'var(--text-secondary)' }}>
-                            When someone submits this form, what role should they be added to the gallery as?
-                          </p>
+                        <div className="px-4 py-2.5" style={{ borderTop: '1px solid var(--card-border)', background: '#fafafa' }}>
+                          {accessFeeEnabled ? (
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Role</span>
+                              <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--soft-bg)', color: 'var(--text-tertiary)', border: '1px solid var(--card-border)' }}>Set by Access Fee</span>
+                            </div>
+                          ) : (
+                            <div className="mb-2">
+                              <span className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Role — </span>
+                              <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>When someone submits this form, what role should they be added to the gallery as?</span>
+                            </div>
+                          )}
                           <select
                             value={activeRole}
                             onChange={accessFeeEnabled ? undefined : e => setEmailRole(e.target.value)}
