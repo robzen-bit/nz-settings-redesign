@@ -3396,6 +3396,8 @@
       showRegistration, onToggleRegistration,
       accessFeeEnabled, onToggleAccessFee,
       accessFeeAmount, onChangeAccessFeeAmount,
+      accessFeeRole, onChangeAccessFeeRole,
+      roles, savedRoles, viewMode,
       collectEmailEnabled, onToggleCollectEmail,
       collectEmailOptional, onToggleCollectEmailOptional,
       customFormEnabled, onToggleCustomForm,
@@ -3404,6 +3406,16 @@
       allowSearch, onToggleSearch,
       activeSection, onSelectSection, contactsCount,
     }) => {
+      const isElevated = viewMode === 'professional' || viewMode === 'advanced';
+      const systemRoles = [
+        { id: 'everyone', name: 'General' },
+        { id: '__guest__', name: 'Guest' },
+        { id: '__client__', name: 'Client' },
+      ];
+      const galleryCustomRoles = isElevated ? (roles || []).filter(r => r.isCustom) : [];
+      const savedNotInGallery = isElevated ? (savedRoles || []).filter(s =>
+        !(roles || []).some(r => r.name.toLowerCase() === s.name.toLowerCase())
+      ) : [];
       const [showAdvanced, setShowAdvanced] = useState(false);
 
       // Row component for registration sub-options
@@ -3493,6 +3505,33 @@
                         style={{ borderColor: 'var(--brand)', color: 'var(--brand)', background: '#fff' }}>
                         Edit Details
                       </button>
+                      <div className="mt-4">
+                        <div className="text-[13px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Access Fee Role</div>
+                        <p className="text-[12px] mb-2" style={{ color: 'var(--text-secondary)' }}>When someone pays the access fee, what role should they be added to the gallery as?</p>
+                        <select value={accessFeeRole || 'everyone'} onChange={e => onChangeAccessFeeRole && onChangeAccessFeeRole(e.target.value)}
+                          className="w-full border rounded px-3 py-2 text-[13px] outline-none"
+                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', maxWidth: 320 }}>
+                          {!isElevated ? (
+                            systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
+                          ) : (
+                            <>
+                              <optgroup label="System Roles">
+                                {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                              </optgroup>
+                              {galleryCustomRoles.length > 0 && (
+                                <optgroup label="Gallery Custom Roles">
+                                  {galleryCustomRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                </optgroup>
+                              )}
+                              {savedNotInGallery.length > 0 && (
+                                <optgroup label="Saved Custom Roles">
+                                  {savedNotInGallery.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                                </optgroup>
+                              )}
+                            </>
+                          )}
+                        </select>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -5147,19 +5186,7 @@
       const [modalLabel, setModalLabel] = useState('');
       const [modalOptions, setModalOptions] = useState('');
       const [modalRequired, setModalRequired] = useState(false);
-      const [accessFeeRole, setAccessFeeRole] = useState('everyone');
       const addFieldBtnRef = React.useRef(null);
-
-      const isElevated = viewMode === 'professional' || viewMode === 'advanced';
-      const systemRoles = [
-        { id: 'everyone', name: 'General' },
-        { id: '__guest__', name: 'Guest' },
-        { id: '__client__', name: 'Client' },
-      ];
-      const galleryCustomRoles = isElevated ? roles.filter(r => r.isCustom) : [];
-      const savedNotInGallery = isElevated ? savedRoles.filter(s =>
-        !roles.some(r => r.name.toLowerCase() === s.name.toLowerCase())
-      ) : [];
 
       const galleryName = 'Sample Gallery';
       const displayTitle = useCustomTitle && customTitle.trim() ? customTitle.trim() : galleryName;
@@ -5355,40 +5382,6 @@
                 </p>
               </div>
 
-              {/* Access Fee Role — only shown when access fee is enabled */}
-              {accessFeeEnabled && (
-                <div className="mt-5 pt-5 border-t" style={{ borderColor: 'var(--card-border)' }}>
-                  <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>
-                    Access Fee Role
-                  </label>
-                  <p className="text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
-                    When someone pays the access fee, what role should they be added to the gallery as?
-                  </p>
-                  <select value={accessFeeRole} onChange={e => setAccessFeeRole(e.target.value)}
-                    className="w-full border rounded px-3 py-2 text-[13px] outline-none"
-                    style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }}>
-                    {!isElevated ? (
-                      systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
-                    ) : (
-                      <>
-                        <optgroup label="System Roles">
-                          {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                        </optgroup>
-                        {galleryCustomRoles.length > 0 && (
-                          <optgroup label="Gallery Custom Roles">
-                            {galleryCustomRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                          </optgroup>
-                        )}
-                        {savedNotInGallery.length > 0 && (
-                          <optgroup label="Saved Custom Roles">
-                            {savedNotInGallery.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                          </optgroup>
-                        )}
-                      </>
-                    )}
-                  </select>
-                </div>
-              )}
             </div>
 
             {/* Right — live preview */}
@@ -5908,6 +5901,7 @@
       const [showGalleryRegistration, setShowGalleryRegistration] = useState(false);
       const [accessFeeEnabled, setAccessFeeEnabled] = useState(false);
       const [accessFeeAmount, setAccessFeeAmount] = useState('0.00');
+      const [accessFeeRole, setAccessFeeRole] = useState('everyone');
       const [collectEmailEnabled, setCollectEmailEnabled] = useState(false);
       const [collectEmailOptional, setCollectEmailOptional] = useState(false);
       const [customFormEnabled, setCustomFormEnabled] = useState(false);
@@ -6241,6 +6235,8 @@
                     showRegistration={showGalleryRegistration} onToggleRegistration={() => setShowGalleryRegistration(v => !v)}
                     accessFeeEnabled={accessFeeEnabled} onToggleAccessFee={() => setAccessFeeEnabled(v => !v)}
                     accessFeeAmount={accessFeeAmount} onChangeAccessFeeAmount={setAccessFeeAmount}
+                    accessFeeRole={accessFeeRole} onChangeAccessFeeRole={setAccessFeeRole}
+                    roles={roles} savedRoles={savedRoles} viewMode={viewMode}
                     collectEmailEnabled={collectEmailEnabled} onToggleCollectEmail={() => setCollectEmailEnabled(v => !v)}
                     collectEmailOptional={collectEmailOptional} onToggleCollectEmailOptional={() => setCollectEmailOptional(v => !v)}
                     customFormEnabled={customFormEnabled} onToggleCustomForm={() => setCustomFormEnabled(v => !v)}
