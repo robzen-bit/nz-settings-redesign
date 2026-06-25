@@ -5123,6 +5123,191 @@
       </button>
     );
 
+    // ===== Edit Custom Form View =====
+    const CORE_FIELDS = [
+      { id: 'first_name',   label: 'First Name',   canDisable: true,  canMakeOptional: true  },
+      { id: 'last_name',    label: 'Last Name',    canDisable: true,  canMakeOptional: true  },
+      { id: 'email',        label: 'Email',        canDisable: false, canMakeOptional: false },
+      { id: 'phone_number', label: 'Phone Number', canDisable: true,  canMakeOptional: true  },
+    ];
+
+    const EditCustomFormView = ({ onBack, accessFeeEnabled }) => {
+      const [useCustomTitle, setUseCustomTitle] = useState(false);
+      const [customTitle, setCustomTitle] = useState('');
+      const [description, setDescription] = useState('Please fill out the form below to complete registration.');
+      const [submitLabel, setSubmitLabel] = useState('Submit');
+      const [fieldEnabled, setFieldEnabled] = useState({ first_name: true, last_name: true, email: true, phone_number: true });
+      const [fieldRequired, setFieldRequired] = useState({ first_name: false, last_name: false, email: true, phone_number: false });
+      const [customFields, setCustomFields] = useState([]);
+      const galleryName = 'Sample Gallery';
+      const displayTitle = useCustomTitle && customTitle.trim() ? customTitle.trim() : galleryName;
+      const visibleFields = CORE_FIELDS.filter(f => fieldEnabled[f.id]);
+
+      const addCustomField = () => {
+        if (customFields.length >= 15) return;
+        setCustomFields(prev => [...prev, { id: `cf-${Date.now()}`, label: '', required: false }]);
+      };
+      const removeCustomField = (id) => setCustomFields(prev => prev.filter(f => f.id !== id));
+      const updateCustomField = (id, label) => setCustomFields(prev => prev.map(f => f.id === id ? { ...f, label } : f));
+
+      return (
+        <div className="flex flex-col min-h-screen" style={{ background: '#fff' }}>
+          {/* Header */}
+          <div className="flex items-center justify-center px-6 py-4 border-b shrink-0" style={{ borderColor: 'var(--card-border)', position: 'relative' }}>
+            <button onClick={onBack} className="absolute left-6 flex items-center gap-1.5 text-[13px] font-semibold"
+              style={{ color: 'var(--text-secondary)' }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15,18 9,12 15,6"/></svg>
+              Back to Gallery Settings
+            </button>
+            <h1 className="text-[13px] font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>EDIT CUSTOM FORM</h1>
+          </div>
+
+          {/* Two-column layout */}
+          <div className="flex flex-1 overflow-hidden">
+            {/* Left — builder */}
+            <div className="flex-1 overflow-y-auto px-8 py-6" style={{ maxWidth: 580, borderRight: '1px solid var(--card-border)' }}>
+
+              {/* Title */}
+              <div className="mb-5">
+                <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Title</label>
+                <input value={useCustomTitle ? customTitle : galleryName} readOnly={!useCustomTitle}
+                  onChange={e => setCustomTitle(e.target.value)}
+                  className="w-full px-3 py-2 rounded border text-[14px] outline-none"
+                  style={{ borderColor: 'var(--card-border)', color: useCustomTitle ? 'var(--text-primary)' : 'var(--text-tertiary)', background: useCustomTitle ? '#fff' : 'var(--soft-bg)' }} />
+                <label className="flex items-center gap-2 mt-2 cursor-pointer">
+                  <button type="button" onClick={() => setUseCustomTitle(v => !v)}
+                    className="flex items-center justify-center rounded border-2 transition-all shrink-0"
+                    style={{ width: 16, height: 16, borderColor: useCustomTitle ? 'var(--brand)' : 'var(--line)', background: useCustomTitle ? 'var(--brand)' : '#fff' }}>
+                    {useCustomTitle && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
+                  </button>
+                  <span className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>Use a Custom Form Title</span>
+                </label>
+              </div>
+
+              {/* Description */}
+              <div className="mb-5">
+                <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Description / Instructions</label>
+                <textarea value={description} onChange={e => setDescription(e.target.value)} rows={2}
+                  className="w-full px-3 py-2 rounded border text-[13px] outline-none resize-none"
+                  style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+              </div>
+
+              {/* Form Fields */}
+              <div className="mb-5">
+                <label className="block text-[12px] font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>Form Fields</label>
+                <div className="rounded-lg border overflow-hidden" style={{ borderColor: 'var(--card-border)' }}>
+                  {CORE_FIELDS.map((f, i) => {
+                    const enabled = fieldEnabled[f.id];
+                    const required = fieldRequired[f.id];
+                    const isDisabledField = !f.canDisable;
+                    return (
+                      <div key={f.id} className="flex items-center px-4 py-3 gap-4"
+                        style={{ borderTop: i > 0 ? '1px solid var(--card-border)' : 'none', background: enabled ? '#fff' : 'var(--soft-bg)', opacity: isDisabledField && !enabled ? 0.5 : 1 }}>
+                        <Toggle size="sm" checked={enabled} onChange={isDisabledField ? undefined : () => setFieldEnabled(prev => ({ ...prev, [f.id]: !prev[f.id] }))} />
+                        <span className="flex-1 text-[13px]" style={{ color: enabled ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{f.label}</span>
+                        <label className="flex items-center gap-1.5 cursor-pointer">
+                          <button type="button"
+                            onClick={isDisabledField ? undefined : () => setFieldRequired(prev => ({ ...prev, [f.id]: !prev[f.id] }))}
+                            className="flex items-center justify-center rounded border-2 transition-all shrink-0"
+                            style={{ width: 15, height: 15, borderColor: required ? 'var(--brand)' : 'var(--line)', background: required ? 'var(--brand)' : '#fff', cursor: isDisabledField ? 'default' : 'pointer' }}>
+                            {required && <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
+                          </button>
+                          <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>Required</span>
+                        </label>
+                      </div>
+                    );
+                  })}
+                  {customFields.map((cf, i) => (
+                    <div key={cf.id} className="flex items-center px-4 py-3 gap-3" style={{ borderTop: '1px solid var(--card-border)' }}>
+                      <div className="flex-1">
+                        <input value={cf.label} onChange={e => updateCustomField(cf.id, e.target.value)}
+                          placeholder="Field label" maxLength={50}
+                          className="w-full px-2 py-1 rounded border text-[13px] outline-none"
+                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+                      </div>
+                      <button onClick={() => removeCustomField(cf.id)} className="shrink-0 p-1 rounded hover:bg-red-50 transition-colors"
+                        style={{ color: 'var(--text-tertiary)' }}
+                        onMouseEnter={e => e.currentTarget.style.color = '#e53935'}
+                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/>
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                  <div className="px-4 py-3 flex items-center justify-between" style={{ borderTop: (CORE_FIELDS.length + customFields.length) > 0 ? '1px solid var(--card-border)' : 'none', background: 'var(--soft-bg)' }}>
+                    <span className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>Custom Fields ({customFields.length}/15 max)</span>
+                    <button onClick={addCustomField} disabled={customFields.length >= 15}
+                      className="text-[12px] font-semibold disabled:opacity-40"
+                      style={{ color: 'var(--brand)' }}>+ Add Custom Field</button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit Label */}
+              <div>
+                <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Submit Button Label</label>
+                <input value={submitLabel} onChange={e => setSubmitLabel(e.target.value.slice(0, 50))}
+                  className="w-full px-3 py-2 rounded border text-[14px] outline-none"
+                  style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+                <div className="text-[11px] mt-1" style={{ color: 'var(--text-tertiary)' }}>{submitLabel.length}/50</div>
+              </div>
+            </div>
+
+            {/* Right — live preview */}
+            <div className="flex-1 overflow-y-auto px-8 py-6" style={{ background: 'var(--soft-bg)' }}>
+              <div className="rounded-xl bg-white border mx-auto" style={{ borderColor: 'var(--card-border)', maxWidth: 420, boxShadow: 'var(--shadow-xl)', overflow: 'hidden' }}>
+                {/* Checkered header strip */}
+                <div style={{ height: 80, background: 'repeating-conic-gradient(#e0e0e0 0% 25%, #f5f5f5 0% 50%) 0 0 / 20px 20px', borderBottom: '1px solid var(--card-border)' }} />
+                <div className="px-6 py-5">
+                  <h2 className="text-[20px] font-bold text-center mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'Georgia, serif' }}>{displayTitle}</h2>
+                  {description && <p className="text-[13px] text-center mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>}
+                  {/* Name row */}
+                  {(fieldEnabled.first_name || fieldEnabled.last_name) && (
+                    <div className="flex gap-2 mb-3">
+                      {fieldEnabled.first_name && (
+                        <input readOnly placeholder="First Name" className="flex-1 px-3 py-2 rounded border text-[13px]" style={{ borderColor: 'var(--card-border)' }} />
+                      )}
+                      {fieldEnabled.last_name && (
+                        <input readOnly placeholder="Last Name" className="flex-1 px-3 py-2 rounded border text-[13px]" style={{ borderColor: 'var(--card-border)' }} />
+                      )}
+                    </div>
+                  )}
+                  {/* Email */}
+                  <input readOnly placeholder="Email*" className="w-full px-3 py-2 rounded border text-[13px] mb-3" style={{ borderColor: 'var(--card-border)' }} />
+                  {/* Phone */}
+                  {fieldEnabled.phone_number && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex items-center gap-1 px-2 py-2 rounded border text-[12px]" style={{ borderColor: 'var(--card-border)' }}>
+                        <span>🇺🇸</span><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="6,9 12,15 18,9"/></svg>
+                      </div>
+                      <input readOnly placeholder="Mobile (optional)" className="flex-1 px-3 py-2 rounded border text-[13px]" style={{ borderColor: 'var(--card-border)' }} />
+                    </div>
+                  )}
+                  {/* Custom fields preview */}
+                  {customFields.filter(f => f.label.trim()).map(cf => (
+                    <input key={cf.id} readOnly placeholder={cf.label} className="w-full px-3 py-2 rounded border text-[13px] mb-3" style={{ borderColor: 'var(--card-border)' }} />
+                  ))}
+                  {/* Access fee note */}
+                  {accessFeeEnabled && (
+                    <div className="text-center mt-3 mb-2">
+                      <p className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Access Fee: $0.00</p>
+                      <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>By filling out the form and clicking 'Continue', you will be prompted to pay a one time Access Fee.</p>
+                      <p className="text-[12px] mt-1" style={{ color: 'var(--text-secondary)' }}>Already paid? <span style={{ color: 'var(--brand)', fontWeight: 600, cursor: 'pointer' }}>Click Here</span></p>
+                    </div>
+                  )}
+                  <button className="w-full mt-3 py-2.5 rounded text-[14px] font-semibold"
+                    style={{ background: 'var(--soft-bg)', color: 'var(--text-tertiary)', border: '1px solid var(--card-border)', cursor: 'default' }}>
+                    {submitLabel || 'Submit'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     const BookingView = ({ onBack, viewMode, savedRoles = [] }) => {
       const [shootType, setShootType] = useState('School');
       const [duration, setDuration] = useState('00:15');
@@ -5817,7 +6002,9 @@
             setViewMode={setViewMode} setModeMenuOpen={setModeMenuOpen} />
           <div className="flex flex-1">
             <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
-            {activeView === 'booking' ? (
+            {showEditCustomForm ? (
+              <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} />
+            ) : activeView === 'booking' ? (
               <BookingView onBack={() => setActiveView('gallery')} viewMode={viewMode} savedRoles={savedRoles} />
             ) : (
             <div className="flex-1 flex flex-col bg-white border-l" style={{ borderColor: 'var(--card-border)' }}>
