@@ -5223,7 +5223,6 @@
       const [addFieldTarget, setAddFieldTarget] = useState(null); // null = primary block, string = blockId
       const [primaryBlockLabel, setPrimaryBlockLabel] = useState('');
       const [primaryBlockDesc, setPrimaryBlockDesc] = useState('');
-      const [showPrimaryMeta, setShowPrimaryMeta] = useState(false);
       const [additionalBlocks, setAdditionalBlocks] = useState([]);
       const [blockMenuOpen, setBlockMenuOpen] = useState(null);
       const [renameBlockId, setRenameBlockId] = useState(null);
@@ -5297,6 +5296,7 @@
         const id = `block-${Date.now()}`;
         setAdditionalBlocks(prev => [...prev, {
           id, name: `Contact ${prev.length + 2}`,
+          label: '', description: '',
           fieldEnabled: { first_name: true, last_name: true, email: true, phone_number: false },
           fieldRequired: { first_name: false, last_name: false, email: false, phone_number: false },
           emailRole: 'everyone',
@@ -5377,32 +5377,22 @@
                   <label className="block text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Contact Block 1</label>
                   <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--soft-bg)', color: 'var(--text-tertiary)', border: '1px solid var(--card-border)' }}>Primary — cannot be removed</span>
                 </div>
-                <button type="button" onClick={() => setShowPrimaryMeta(v => !v)}
-                  className="flex items-center gap-1.5 text-[12px] font-medium mb-3"
-                  style={{ color: 'var(--brand)' }}>
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    {showPrimaryMeta ? <polyline points="18,15 12,9 6,15"/> : <polyline points="6,9 12,15 18,9"/>}
-                  </svg>
-                  {showPrimaryMeta ? 'Remove' : 'Add'} Block Label & Description
-                </button>
-                {showPrimaryMeta && (
-                  <div className="mb-3 p-3 rounded-lg border" style={{ borderColor: 'var(--card-border)', background: 'var(--soft-bg)' }}>
-                    <div className="mb-3">
-                      <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Label (optional)</label>
-                      <input value={primaryBlockLabel} onChange={e => setPrimaryBlockLabel(e.target.value.slice(0, 100))}
-                        placeholder="e.g. Your Contact Information"
-                        className="w-full px-3 py-2 rounded border text-[13px] outline-none"
-                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
-                    </div>
-                    <div>
-                      <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Description (optional)</label>
-                      <textarea value={primaryBlockDesc} onChange={e => setPrimaryBlockDesc(e.target.value.slice(0, 250))} rows={2}
-                        placeholder="e.g. Please provide your primary contact details."
-                        className="w-full px-3 py-2 rounded border text-[13px] outline-none resize-none"
-                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
-                    </div>
+                <div className="mb-3 p-3 rounded-lg border" style={{ borderColor: 'var(--card-border)', background: 'var(--soft-bg)' }}>
+                  <div className="mb-3">
+                    <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Label (optional)</label>
+                    <input value={primaryBlockLabel} onChange={e => setPrimaryBlockLabel(e.target.value.slice(0, 100))}
+                      placeholder="e.g. Your Contact Information"
+                      className="w-full px-3 py-2 rounded border text-[13px] outline-none"
+                      style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
                   </div>
-                )}
+                  <div>
+                    <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Description (optional)</label>
+                    <textarea value={primaryBlockDesc} onChange={e => setPrimaryBlockDesc(e.target.value.slice(0, 250))} rows={2}
+                      placeholder="e.g. Please provide your primary contact details."
+                      className="w-full px-3 py-2 rounded border text-[13px] outline-none resize-none"
+                      style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
+                  </div>
+                </div>
                 <div className="rounded-lg border overflow-hidden" style={{ borderColor: 'var(--card-border)' }}>
                   {CORE_FIELDS.map((f, i) => {
                     const enabled = fieldEnabled[f.id];
@@ -5568,6 +5558,23 @@
                           </button>
                         </div>
                       )}
+                    </div>
+                  </div>
+                  {/* Block label & description */}
+                  <div className="p-3 border-b" style={{ borderColor: 'var(--card-border)', background: 'var(--soft-bg)' }}>
+                    <div className="mb-3">
+                      <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Label (optional)</label>
+                      <input value={block.label} onChange={e => setAdditionalBlocks(prev => prev.map(b => b.id !== block.id ? b : { ...b, label: e.target.value.slice(0, 100) }))}
+                        placeholder="e.g. Emergency Contact"
+                        className="w-full px-3 py-2 rounded border text-[13px] outline-none"
+                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Description (optional)</label>
+                      <textarea value={block.description} onChange={e => setAdditionalBlocks(prev => prev.map(b => b.id !== block.id ? b : { ...b, description: e.target.value.slice(0, 250) }))} rows={2}
+                        placeholder="e.g. Please provide a secondary contact."
+                        className="w-full px-3 py-2 rounded border text-[13px] outline-none resize-none"
+                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
                     </div>
                   </div>
                   {/* Block fields — same as primary but email can be disabled */}
@@ -5804,7 +5811,7 @@
                   <h2 className="text-[20px] font-bold text-center mb-1" style={{ color: 'var(--text-primary)', fontFamily: 'Georgia, serif' }}>{displayTitle}</h2>
                   {description && <p className="text-[13px] text-center mb-4" style={{ color: 'var(--text-secondary)' }}>{description}</p>}
                   {/* Primary block label/desc */}
-                  {showPrimaryMeta && (primaryBlockLabel || primaryBlockDesc) && (
+                  {(primaryBlockLabel || primaryBlockDesc) && (
                     <div className="mb-4">
                       {primaryBlockLabel && <h3 className="text-[15px] font-bold mb-1" style={{ color: 'var(--text-primary)' }}>{primaryBlockLabel}</h3>}
                       {primaryBlockDesc && <p className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>{primaryBlockDesc}</p>}
@@ -5855,7 +5862,14 @@
                   {/* Additional contact blocks preview */}
                   {additionalBlocks.map(block => (
                     <div key={block.id} className="mb-1 pt-4 mt-3" style={{ borderTop: '1px solid var(--card-border)' }}>
-                      <p className="text-[13px] font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{block.name}</p>
+                      {(block.label || block.description) ? (
+                        <div className="mb-3">
+                          {block.label && <p className="text-[14px] font-bold" style={{ color: 'var(--text-primary)' }}>{block.label}</p>}
+                          {block.description && <p className="text-[12px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{block.description}</p>}
+                        </div>
+                      ) : (
+                        <p className="text-[13px] font-bold mb-3" style={{ color: 'var(--text-primary)' }}>{block.name}</p>
+                      )}
                       {(block.fieldEnabled.first_name || block.fieldEnabled.last_name) && (
                         <div className="flex gap-2 mb-3">
                           {block.fieldEnabled.first_name && (
