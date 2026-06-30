@@ -2493,7 +2493,7 @@
                     </div>
                   ) : (
                     <div key={c.id}
-                      className="shared-flat-row grid items-center gap-4"
+                      className="shared-flat-row grid items-start gap-4"
                       style={{
                         gridTemplateColumns: '1fr auto',
                         padding: '6px 0 12px 22px',
@@ -2504,8 +2504,14 @@
                         <span>{c.label}</span>
                         {c.tooltip && <InfoTooltip content={c.tooltip} />}
                       </div>
-                      <div className="control-end flex" style={disabledStyle} aria-disabled={!roleEnabled}>
+                      <div className="control-end flex flex-col items-end gap-1" style={disabledStyle} aria-disabled={!roleEnabled}>
                         <SettingControl s={c} value={perRole[role.id]?.[feature.id]?.values?.[c.id]} onChange={(v) => onUpdate(role.id, c.id, v)} compact />
+                        {role.id === 'everyone' && (c.id === 'specific-amount' || c.id === 'video-specific-amount') && (
+                          <p className="text-[11px] leading-snug text-right" style={{ color: 'var(--danger)', maxWidth: 220 }}>
+                            Visitors may use multiple email addresses to bypass this limit.{' '}
+                            <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--danger)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
+                          </p>
+                        )}
                       </div>
                     </div>
                   )
@@ -2706,7 +2712,23 @@
             if (!isSettingVisibleForRole(s, r.id, feature.id, perRole)) return null;
             const enabled = !!perRole[r.id]?.[feature.id]?.enabled;
             const value = perRole[r.id]?.[feature.id]?.values?.[s.id];
-            return (
+            const showBypassWarning = r.id === 'everyone' && (s.id === 'specific-amount' || s.id === 'video-specific-amount');
+            return showBypassWarning ? (
+              <div key={r.id} className="flex flex-col items-end gap-1"
+                style={{ opacity: enabled ? 1 : 0.5, pointerEvents: enabled ? 'auto' : 'none' }}>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider shrink-0 truncate"
+                    style={{ color: 'var(--text-secondary)', maxWidth: 80 }} title={r.name}>
+                    {r.name}
+                  </span>
+                  <SettingControl s={s} value={value} onChange={(v) => onUpdate(r.id, s.id, v)} compact />
+                </div>
+                <p className="text-[11px] leading-snug text-right" style={{ color: 'var(--danger)', maxWidth: 220 }}>
+                  Visitors may use multiple email addresses to bypass this limit.{' '}
+                  <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--danger)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
+                </p>
+              </div>
+            ) : (
               <div key={r.id} className="flex items-center gap-2"
                 style={{ opacity: enabled ? 1 : 0.5, pointerEvents: enabled ? 'auto' : 'none' }}>
                 <span className="text-[10px] font-bold uppercase tracking-wider shrink-0 truncate"
@@ -3275,9 +3297,17 @@
                                     padding: '10px 16px',
                                   }}>
                                   {visible ? (
-                                    <CompareCellControl s={s} value={value}
-                                      onChange={(v) => onUpdate(feature.id, r.id, s.id, v)}
-                                      name={`cmp-${feature.id}-${s.id}-${r.id}`} />
+                                    <div className="flex flex-col gap-1">
+                                      <CompareCellControl s={s} value={value}
+                                        onChange={(v) => onUpdate(feature.id, r.id, s.id, v)}
+                                        name={`cmp-${feature.id}-${s.id}-${r.id}`} />
+                                      {r.id === 'everyone' && (s.id === 'specific-amount' || s.id === 'video-specific-amount') && (
+                                        <p className="text-[11px] leading-snug" style={{ color: 'var(--danger)', maxWidth: 200 }}>
+                                          Visitors may use multiple email addresses to bypass this limit.{' '}
+                                          <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--danger)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
+                                        </p>
+                                      )}
+                                    </div>
                                   ) : (
                                     <span className="text-[11px] italic" style={{ color: 'var(--text-tertiary)' }}>—</span>
                                   )}
