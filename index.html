@@ -2507,7 +2507,7 @@
                       <div className="control-end flex flex-col items-end gap-1" style={disabledStyle} aria-disabled={!roleEnabled}>
                         <SettingControl s={c} value={perRole[role.id]?.[feature.id]?.values?.[c.id]} onChange={(v) => onUpdate(role.id, c.id, v)} compact />
                         {role.id === 'everyone' && (c.id === 'specific-amount' || c.id === 'video-specific-amount') && (
-                          <p className="text-[11px] leading-snug text-right" style={{ color: 'var(--danger)', maxWidth: 220 }}>
+                          <p className="text-[11px] leading-snug text-right" style={{ color: 'var(--danger)', whiteSpace: 'nowrap' }}>
                             Visitors may use multiple email addresses to bypass this limit.{' '}
                             <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--danger)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
                           </p>
@@ -2659,7 +2659,7 @@
                           value={perRole[r.id]?.[featureId]?.values?.[c.id]}
                           onChange={(v) => onUpdate(r.id, c.id, v)} compact />
                         {showBypassWarning && (
-                          <p className="text-[11px] leading-snug text-right" style={{ color: 'var(--danger)', maxWidth: 220 }}>
+                          <p className="text-[11px] leading-snug text-right" style={{ color: 'var(--danger)', whiteSpace: 'nowrap' }}>
                             Visitors may use multiple email addresses to bypass this limit.{' '}
                             <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--danger)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
                           </p>
@@ -2711,7 +2711,7 @@
 
       return (
         <div style={{ background: 'var(--soft-bg)', borderTop: '1px solid var(--card-border)' }}>
-          <div className="multi-panel-body px-8 pt-4 pb-5" style={{ maxWidth: 540 }}>
+          <div className="multi-panel-body px-8 pt-4 pb-5">
             {(() => {
               const topLevel = mainSettings.filter(s => !s.dependsOn);
               const childrenOf = (id) => mainSettings.filter(s => s.dependsOn?.settingId === id);
