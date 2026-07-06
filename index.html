@@ -4532,7 +4532,7 @@
                       <a href="#" onClick={e => e.preventDefault()} style={{ color: '#F26B3A', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
                     </p>
                   )}
-                  <div className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-2.5">
                     {/* Option 1: same role */}
                     <label className="flex items-center gap-3 cursor-pointer" onClick={() => setRoleConfigOption('same')}>
                       <RadioDot active={roleConfigOption === 'same'} />
@@ -4621,7 +4621,7 @@
                 </div>
 
                 {/* Header radio */}
-                <div className="flex flex-col gap-3 mb-8">
+                <div className="flex flex-col gap-1.5 mb-8">
                   {[
                     { val: true,  label: 'My CSV file includes headers' },
                     { val: false, label: 'My CSV file does not include headers' },
@@ -4640,7 +4640,7 @@
                 {/* Import Behavior */}
                 <div className="mb-8">
                   <h3 className="text-[15px] font-bold mb-4" style={{ color: 'var(--text-primary)' }}>Import Behavior</h3>
-                  <div className="flex flex-col gap-3">
+                  <div className="flex flex-col gap-1.5">
                     {[
                       { val: 'overwrite', label: 'Overwrite current gallery contacts' },
                       { val: 'append',   label: 'Append with current gallery contacts' },
