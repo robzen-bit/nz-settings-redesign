@@ -235,6 +235,8 @@
     .radio-dot.is-focus,
     label:focus-within .radio-dot,
     .radio-dot:focus-visible { box-shadow: 0 0 0 3px rgba(242,107,58,0.22); outline: none; }
+    .radio-dot-sm { width: 13px; height: 13px; }
+    .radio-dot-sm.is-on::after { width: 5px; height: 5px; }
     /* ===== Checkbox — synced with style guide (.check-box 18px, 5px radius) ===== */
     .check-box {
       width: 18px; height: 18px; border-radius: 5px;
@@ -657,6 +659,8 @@
             dependsOn: { settingId: 'download-type', values: ['Specific amount download'] } },
           { id: 'gallery-resolutions', type: 'multicheck', label: 'Gallery Allowed Resolutions',
             options: ['Original','High','Medium','Low'], def: ['Original'],
+            subOptions: { High: ['3264 (8MP)', '3872 (10MP)'], Medium: ['2048 (3MP)', '2560 (5MP)'], Low: ['640 (0.3MP)', '800 (0.5MP)', '1280 (1MP)'] },
+            subDef: { High: '3264 (8MP)', Medium: '2048 (3MP)', Low: '640 (0.3MP)' },
             dependsOn: { settingId: 'download-type', values: ['All photos and individual download', 'All photos', 'Specific amount download'] } },
           { id: 'individual-resolution', type: 'select', label: 'Individual Allowed Resolution',
             options: ['Original','High','Medium','Low'], def: 'Original',
@@ -685,19 +689,7 @@
             dependsOn: { settingId: 'video-download-type', values: ['All videos and individual download', 'Individual download only'] } },
         ],
       },
-      { id: 'keyword-search', name: 'Keyword Search',
-        settings: [
-          { id: 'placeholder', type: 'text', label: 'Search bar placeholder',
-            def: 'Search the contents of this gallery…' },
-          { id: 'collapse', type: 'check', label: 'Collapse on page load', def: true, on: 'Enabled',
-            dependsOn: { settingId: 'placeholder' } },
-        ],
-      },
-      { id: 'face-finder', name: 'Face Finder', settings: [] },
-      { id: 'favorites', name: 'Favorites', settings: [] },
-      { id: 'commenting', name: 'Commenting', settings: [] },
-      { id: 'sharing', name: 'Sharing', settings: [] },
-      // Screenshot Protection — per-role feature. sectionStart marks a new section group.
+      // Screenshot Protection — per-role feature.
       { id: 'screenshot-protection', name: 'Screenshot Protection',
         settings: [
           { id: 'screenshot-config', type: 'screenshot-config', fullWidth: true,
@@ -713,6 +705,18 @@
           },
         ],
       },
+      { id: 'keyword-search', name: 'Keyword Search',
+        settings: [
+          { id: 'placeholder', type: 'text', label: 'Search bar placeholder',
+            def: 'Search the contents of this gallery…' },
+          { id: 'collapse', type: 'check', label: 'Collapse on page load', def: true, on: 'Enabled',
+            dependsOn: { settingId: 'placeholder' } },
+        ],
+      },
+      { id: 'face-finder', name: 'Face Finder', settings: [] },
+      { id: 'favorites', name: 'Favorites', settings: [] },
+      { id: 'commenting', name: 'Commenting', settings: [] },
+      { id: 'sharing', name: 'Sharing', settings: [] },
       // Watermark — applies to all roles. No per-role toggle.
       { id: 'watermark', name: 'Watermark', appliesToAll: true, sectionStart: 'General Features',
         settings: [
@@ -849,6 +853,31 @@
     // Build grouped human-readable status lines for a feature. Roles with the same effective
     // configuration collapse into one sentence — e.g. "Everyone & Client can download Full + Individual".
     // Only positive (enabled) groups are listed; off-roles are inferred from their unticked toggle.
+    const getCompareAllDescText = (featureId, roleId, perRole) => {
+      const values = perRole[roleId]?.[featureId]?.values || {};
+      if (featureId === 'photo-downloads') {
+        const dt = values['download-type'];
+        if (dt === 'All photos and individual download') return 'All & ind.';
+        if (dt === 'All photos') return 'All photos';
+        if (dt === 'Specific amount download') return `${values['specific-amount'] ?? 10} photos`;
+        if (dt === 'Individual download only') return 'Ind. only';
+      }
+      if (featureId === 'video-downloads') {
+        const dt = values['video-download-type'];
+        if (dt === 'All videos and individual download') return 'All & ind.';
+        if (dt === 'All videos') return 'All videos';
+        if (dt === 'Specific amount download') return `${values['video-specific-amount'] ?? 5} videos`;
+        if (dt === 'Individual download only') return 'Ind. only';
+      }
+      if (featureId === 'screenshot-protection') {
+        const cfg = values['screenshot-config'] || {};
+        if (cfg.desktop && cfg.mobile) return 'Desk. & Mob.';
+        if (cfg.desktop) return 'Desktop';
+        if (cfg.mobile) return 'Mobile';
+      }
+      return null;
+    };
+
     const buildFeatureStatusLines = (feature, roles, perRole) => {
       const groups = new Map();
       roles.forEach(r => {
@@ -2227,6 +2256,48 @@
         );
       }
       if (s.type === 'multicheck') {
+        const hasSubOpts = !!s.subOptions;
+        const selectedArr = hasSubOpts
+          ? (Array.isArray(value) ? value : (value?.selected || []))
+          : (value || []);
+        const subSel = hasSubOpts
+          ? (Array.isArray(value) ? {} : (value?.sub || {}))
+          : {};
+        if (hasSubOpts) {
+          return (
+            <div className="flex items-start gap-4 flex-wrap">
+              {s.options.map(opt => {
+                const checked = selectedArr.includes(opt);
+                const subs = s.subOptions[opt];
+                const currentSub = subSel[opt] || s.subDef?.[opt];
+                return (
+                  <div key={opt} className="flex flex-col gap-1.5" style={{ width: 128 }}>
+                    <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
+                      <span className={`check-box ${checked ? 'is-on' : ''}`} />
+                      <input type="checkbox" checked={checked} disabled={disabled}
+                        onChange={() => {
+                          const nextSel = checked ? selectedArr.filter(v => v !== opt) : [...selectedArr, opt];
+                          onChange({ selected: nextSel, sub: subSel });
+                        }}
+                        className="sr-only" />
+                      <span style={{ color: 'var(--text-primary)', opacity: checked ? 1 : 0.35 }}>{opt}</span>
+                    </label>
+                    {subs && (
+                      <select
+                        value={currentSub || subs[0]}
+                        disabled={disabled || !checked}
+                        onChange={e => onChange({ selected: selectedArr, sub: { ...subSel, [opt]: e.target.value } })}
+                        className="text-[12px] px-2 py-1 rounded border bg-white outline-none"
+                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', width: '100%', opacity: checked ? 1 : 0.35 }}>
+                        {subs.map(sub => <option key={sub} value={sub}>{sub}</option>)}
+                      </select>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        }
         return (
           <div className="flex items-center gap-5 flex-wrap">
             {s.options.map(opt => {
@@ -2711,7 +2782,7 @@
 
       return (
         <div style={{ background: 'var(--soft-bg)', borderTop: '1px solid var(--card-border)' }}>
-          <div className="multi-panel-body px-8 pt-4 pb-5">
+          <div className="multi-panel-body px-8 pt-4 pb-5" style={{ maxWidth: 760 }}>
             {(() => {
               const topLevel = mainSettings.filter(s => !s.dependsOn);
               const childrenOf = (id) => mainSettings.filter(s => s.dependsOn?.settingId === id);
@@ -2964,6 +3035,53 @@
           </div>
         );
       }
+      if (s.type === 'multicheck') {
+        const hasSubOpts = !!s.subOptions;
+        const selectedArr = hasSubOpts
+          ? (Array.isArray(value) ? value : (value?.selected || []))
+          : (value || []);
+        const subSel = hasSubOpts
+          ? (Array.isArray(value) ? {} : (value?.sub || {}))
+          : {};
+        return (
+          <div className="flex flex-col gap-0.5">
+            {s.options.map(opt => {
+              const checked = selectedArr.includes(opt);
+              const subs = hasSubOpts ? s.subOptions[opt] : null;
+              const currentSub = hasSubOpts ? (subSel[opt] || s.subDef?.[opt]) : null;
+              return (
+                <div key={opt} className="flex items-center gap-2 py-0.5">
+                  <label className="inline-flex items-center gap-2 text-[12px] cursor-pointer leading-tight">
+                    <span className={`check-box ${checked ? 'is-on' : ''}`} />
+                    <input type="checkbox" checked={checked}
+                      onChange={() => {
+                        if (hasSubOpts) {
+                          const nextSel = checked ? selectedArr.filter(v => v !== opt) : [...selectedArr, opt];
+                          onChange({ selected: nextSel, sub: subSel });
+                        } else {
+                          const next = checked ? (value || []).filter(v => v !== opt) : [...(value || []), opt];
+                          onChange(next);
+                        }
+                      }}
+                      className="sr-only" />
+                    <span style={{ color: 'var(--text-primary)', opacity: checked ? 1 : 0.35 }}>{opt}</span>
+                  </label>
+                  {subs && (
+                    <select
+                      value={currentSub || subs[0]}
+                      disabled={!checked}
+                      onChange={e => onChange({ selected: selectedArr, sub: { ...subSel, [opt]: e.target.value } })}
+                      className="text-[11px] px-1.5 py-0.5 rounded border bg-white outline-none"
+                      style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', opacity: checked ? 1 : 0.35 }}>
+                      {subs.map(sub => <option key={sub} value={sub}>{sub}</option>)}
+                    </select>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
       return <SettingControl s={s} value={value} onChange={onChange} compact />;
     };
 
@@ -3166,8 +3284,9 @@
                         ) : (
                           roles.map((r, i) => {
                             const enabled = !!perRole[r.id]?.[feature.id]?.enabled;
+                            const descText = enabled ? getCompareAllDescText(feature.id, r.id, perRole) : null;
                             return (
-                              <div key={r.id} className="flex items-center justify-center gap-2"
+                              <div key={r.id} className="flex items-center justify-start gap-2"
                                 style={{
                                   borderRight: i === roles.length - 1 ? 'none' : '1px solid var(--card-border)',
                                   padding: '10px 16px',
@@ -3179,6 +3298,11 @@
                                   style={{ color: enabled ? 'var(--brand)' : 'var(--text-tertiary)' }}>
                                   {enabled ? 'On' : 'Off'}
                                 </span>
+                                {descText && (
+                                  <span className="text-[11px]" style={{ color: 'var(--text-secondary)' }}>
+                                    {descText}
+                                  </span>
+                                )}
                               </div>
                             );
                           })
@@ -4135,7 +4259,7 @@
     };
 
     const ImportCSVModal = ({ roles, viewMode, savedRoles = [], onEnsureRoles, onClose, onAdd }) => {
-      const [step, setStep] = useState('roleConfig'); // 'roleConfig' | 'upload' | 'matching'
+      const [step, setStep] = useState('upload'); // 'upload' | 'matching'
       const [csvRawRows, setCsvRawRows] = useState(null);
       const [csvFilename, setCsvFilename] = useState('');
       const [csvUploaded, setCsvUploaded] = useState(false);
@@ -4193,6 +4317,13 @@
       const importSavedOptions = viewMode === 'basic' ? [] : savedRoles.filter(s =>
         !customInGallery.some(r => r.name.toLowerCase() === s.name.toLowerCase())
       ).map(s => ({ id: `__saved__:${s.id}`, name: s.name }));
+
+      const RadioDot = ({ active }) => (
+        <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0 mt-0.5"
+          style={{ width: 18, height: 18, borderColor: active ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
+          {active && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
+        </span>
+      );
 
       const isSystemId = (id) => id === 'everyone' || id === '__guest__' || id === '__client__';
       const pickedCustomInPerCol = Object.values(emailRoles)
@@ -4354,7 +4485,7 @@
         <div className="fixed inset-0 bg-white flex flex-col" style={{ zIndex: 8000 }}>
           {/* Header */}
           <div className="flex items-center px-6 py-4 border-b" style={{ borderColor: 'var(--card-border)', position: 'relative' }}>
-            {step === 'roleConfig' ? (
+            {step === 'upload' ? (
               <button onClick={onClose} className="flex items-center gap-1.5 text-[13px] font-medium"
                 style={{ color: 'var(--text-secondary)' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -4384,19 +4515,71 @@
           )}
 
           {/* Body */}
-          <div className="flex-1 overflow-y-auto px-6 py-8" style={{ maxWidth: 780, width: '100%', margin: '0 auto' }}>
+          <div className="flex-1 overflow-y-auto px-6 py-6" style={{ maxWidth: 780, width: '100%', margin: '0 auto' }}>
             {step === 'upload' ? (
               <>
-                <h2 className="text-[20px] font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Add via CSV</h2>
+                <h2 className="text-[20px] font-bold mb-8" style={{ color: 'var(--text-primary)' }}>Add via CSV</h2>
 
-                <p className="text-[14px] mb-8 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                  Add several contacts at once by uploading a formatted CSV file.<br/>
-                  You can download a CSV file template below.
-                </p>
+                {/* Gallery Role Configuration */}
+                <div className="mb-8">
+                  <h3 className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Gallery Role Configuration</h3>
+                  <p className="text-[13px] mb-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                    How would you like to assign roles to the contacts you are importing?
+                  </p>
+                  {viewMode !== 'basic' && (
+                    <p className="text-[12px] mb-5 leading-relaxed" style={{ color: '#86868B' }}>
+                      You can use our system roles — General, Guest, and Client — as well as any custom roles you have added to this gallery or saved for later use.{' '}
+                      <a href="#" onClick={e => e.preventDefault()} style={{ color: '#F26B3A', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
+                    </p>
+                  )}
+                  <div className="flex flex-col gap-5">
+                    {/* Option 1: same role */}
+                    <label className="flex items-center gap-3 cursor-pointer" onClick={() => setRoleConfigOption('same')}>
+                      <RadioDot active={roleConfigOption === 'same'} />
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>
+                          Assign all contacts I am importing to the same role.
+                        </span>
+                        <select value={bulkRoleId}
+                          onChange={e => { setBulkRoleId(e.target.value); setRoleConfigOption('same'); }}
+                          onClick={e => e.stopPropagation()}
+                          className="text-[13px] px-2 py-1.5 rounded-md border bg-white outline-none"
+                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
+                          {viewMode === 'basic' ? (
+                            systemRoleOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
+                          ) : (
+                            <>
+                              <optgroup label="System Roles">
+                                {systemRoleOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                              </optgroup>
+                              {galleryCustomOptions.length > 0 && (
+                                <optgroup label="Gallery Custom Roles">
+                                  {galleryCustomOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                </optgroup>
+                              )}
+                              {importSavedOptions.length > 0 && (
+                                <optgroup label="Saved Custom Roles">
+                                  {importSavedOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                                </optgroup>
+                              )}
+                            </>
+                          )}
+                        </select>
+                      </div>
+                    </label>
+                    {/* Option 2: assign during matching */}
+                    <label className="flex items-start gap-3 cursor-pointer" onClick={() => setRoleConfigOption('perColumn')}>
+                      <RadioDot active={roleConfigOption === 'perColumn'} />
+                      <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>
+                        I would like to assign roles during my data matching phase.
+                      </span>
+                    </label>
+                  </div>
+                </div>
 
                 {/* Drop zone */}
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Import CSV File</span>
+                  <h3 className="text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>Import CSV File</h3>
                   <button className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: 'var(--brand)' }}>
                     Download CSV template
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -4454,113 +4637,7 @@
                   ))}
                 </div>
               </>
-            ) : step === 'roleConfig' ? (() => {
-              const otherRoles = roles.filter(r => r.id !== 'everyone');
-              const hasOnlyGeneral = otherRoles.length === 0;
-
-              const PLAN_LIMITS = {
-                basic:        { customRoles: 0, builtIn: ['Client', 'Guest'], label: 'Basic',        blurb: 'Your Basic plan includes the built-in Client and Guest roles. Contacts will be mapped to the closest matching built-in role, or General if no match is found. Custom roles cannot be created on this plan.' },
-                professional: { customRoles: 2, builtIn: ['Client', 'Guest'], label: 'Professional', blurb: 'Your Professional plan includes the built-in Client and Guest roles plus 2 custom roles. Roles from your CSV will be created automatically up to your limit. Any additional roles will be assigned to General.' },
-                advanced:     { customRoles: 10, builtIn: ['Client', 'Guest'], label: 'Advanced',    blurb: 'Your Advanced plan allows up to 10 custom roles in addition to the built-in Client and Guest roles. Roles from your CSV will be created automatically up to your limit.' },
-              };
-              const planInfo = PLAN_LIMITS[viewMode] || PLAN_LIMITS.basic;
-
-              const RadioDot = ({ active }) => (
-                <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0 mt-0.5"
-                  style={{ width: 18, height: 18, borderColor: active ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
-                  {active && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
-                </span>
-              );
-
-              return (
-                <>
-                  <h2 className="text-[20px] font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Gallery Role Configuration</h2>
-                  <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)', marginBottom: viewMode === 'basic' ? 32 : 12 }}>
-                    How would you like to assign roles to the contacts you are importing?
-                  </p>
-                  {viewMode !== 'basic' && (
-                    <p className="text-[13px] mb-8 leading-relaxed" style={{ color: '#86868B' }}>
-                      You can use our system roles — General, Guest, and Client — as well as any custom roles you have added to this gallery or saved for later use. Make sure any roles you plan to use are saved before continuing.{' '}
-                      <a href="#" onClick={e => e.preventDefault()} style={{ color: '#F26B3A', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
-                    </p>
-                  )}
-                  <div className="flex flex-col gap-6">
-
-                    {/* Option 1 */}
-                    <div>
-                      <label className="flex items-center gap-3 cursor-pointer" onClick={() => setRoleConfigOption('same')}>
-                        <RadioDot active={roleConfigOption === 'same'} />
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>
-                              Assign all contacts I am importing to the same role.
-                            </span>
-                            <select value={bulkRoleId}
-                              onChange={e => { setBulkRoleId(e.target.value); setRoleConfigOption('same'); }}
-                              onClick={e => e.stopPropagation()}
-                              className="text-[13px] px-2 py-1.5 rounded-md border bg-white outline-none"
-                              style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
-                              {viewMode === 'basic' ? (
-                                systemRoleOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
-                              ) : (
-                                <>
-                                  <optgroup label="System Roles">
-                                    {systemRoleOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                  </optgroup>
-                                  {galleryCustomOptions.length > 0 && (
-                                    <optgroup label="Gallery Custom Roles">
-                                      {galleryCustomOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                    </optgroup>
-                                  )}
-                                  {importSavedOptions.length > 0 && (
-                                    <optgroup label="Saved Custom Roles">
-                                      {importSavedOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                    </optgroup>
-                                  )}
-                                </>
-                              )}
-                            </select>
-                          </div>
-                        </div>
-                      </label>
-                    </div>
-
-                    {/* Option 2 */}
-                    <label className="flex items-start gap-3 cursor-pointer" onClick={() => setRoleConfigOption('perColumn')}>
-                      <RadioDot active={roleConfigOption === 'perColumn'} />
-                      <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>
-                        I would like to assign roles during my data matching phase.
-                      </span>
-                    </label>
-
-                    {/* Option 3 */}
-                    <div>
-                      <label className="flex items-start gap-3 cursor-pointer" onClick={() => setRoleConfigOption('csvColumn')}>
-                        <RadioDot active={roleConfigOption === 'csvColumn'} />
-                        <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>
-                          I have included a role column or columns in my CSV file.
-                        </span>
-                      </label>
-                      {roleConfigOption === 'csvColumn' && (
-                        <div className="mt-3 ml-[30px] rounded-lg px-4 py-3 text-[13px] leading-relaxed border"
-                          style={{ background: 'var(--brand-cream, #FFF8F5)', borderColor: 'rgba(242,107,58,0.25)', color: 'var(--text-secondary)' }}>
-                          {(() => {
-                            return (
-                              <p>
-                                Zenfolio will match each contact's role value to our system roles — General, Guest, and Client — and any custom roles you have saved in this gallery. Unrecognized values will be imported as General.{' '}
-                                Contacts without a role value will also import as General.{' '}
-                                <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)', fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
-                              </p>
-                            );
-                          })()}
-                        </div>
-                      )}
-                    </div>
-
-                  </div>
-                </>
-              );
-            })() : (
+            ) : (
               /* ── Data Matching step ── */
               <>
                 <h2 className="text-[20px] font-bold mb-2 text-center" style={{ color: 'var(--text-primary)' }}>Data Matching</h2>
@@ -4671,16 +4748,7 @@
 
           {/* Footer */}
           <div className="flex items-center px-6 py-4 border-t" style={{ borderColor: 'var(--card-border)', background: '#1a1a1a', minHeight: 64 }}>
-            {step === 'roleConfig' ? (
-              <>
-                <div className="mr-auto" />
-                <button onClick={() => setStep('upload')}
-                  className="text-[13px] font-bold tracking-wider px-6 py-2.5 rounded-full text-white transition-all"
-                  style={{ background: 'var(--brand)', cursor: 'pointer' }}>
-                  Next
-                </button>
-              </>
-            ) : step === 'upload' ? (
+            {step === 'upload' ? (
               <>
                 {/* Import mode radios */}
                 <div className="flex items-center gap-6 mr-auto">
@@ -4698,10 +4766,6 @@
                     </label>
                   ))}
                 </div>
-                <button onClick={() => setStep('roleConfig')}
-                  className="text-[13px] font-medium mr-6" style={{ color: '#aaa', textDecoration: 'underline' }}>
-                  Back
-                </button>
                 <button onClick={() => {
                   if (!csvUploaded) return;
                   const includeRole = roleConfigOption === 'csvColumn';
@@ -5358,23 +5422,23 @@
                   <label className="block text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Contact Block 1</label>
                   <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--soft-bg)', color: 'var(--text-tertiary)', border: '1px solid var(--card-border)' }}>Primary — cannot be removed</span>
                 </div>
-                <div className="mb-3 p-3 rounded-lg border" style={{ borderColor: 'var(--card-border)', background: 'var(--soft-bg)' }}>
-                  <div className="mb-3">
-                    <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Label (optional)</label>
-                    <input value={primaryBlockLabel} onChange={e => setPrimaryBlockLabel(e.target.value.slice(0, 100))}
-                      placeholder="e.g. Your Contact Information"
-                      className="w-full px-3 py-2 rounded border text-[13px] outline-none"
-                      style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Description (optional)</label>
-                    <textarea value={primaryBlockDesc} onChange={e => setPrimaryBlockDesc(e.target.value.slice(0, 250))} rows={2}
-                      placeholder="e.g. Please provide your primary contact details."
-                      className="w-full px-3 py-2 rounded border text-[13px] outline-none resize-none"
-                      style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
-                  </div>
-                </div>
                 <div className="rounded-lg border overflow-hidden" style={{ borderColor: 'var(--card-border)' }}>
+                  <div className="p-3 border-b" style={{ borderColor: 'var(--card-border)', background: 'var(--soft-bg)' }}>
+                    <div className="mb-3">
+                      <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Label (optional)</label>
+                      <input value={primaryBlockLabel} onChange={e => setPrimaryBlockLabel(e.target.value.slice(0, 100))}
+                        placeholder="e.g. Your Contact Information"
+                        className="w-full px-3 py-2 rounded border text-[13px] outline-none"
+                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
+                    </div>
+                    <div>
+                      <label className="block text-[11px] font-semibold mb-1" style={{ color: 'var(--text-secondary)' }}>Block Description (optional)</label>
+                      <textarea value={primaryBlockDesc} onChange={e => setPrimaryBlockDesc(e.target.value.slice(0, 250))} rows={2}
+                        placeholder="e.g. Please provide your primary contact details."
+                        className="w-full px-3 py-2 rounded border text-[13px] outline-none resize-none"
+                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }} />
+                    </div>
+                  </div>
                   {CORE_FIELDS.map((f, i) => {
                     const enabled = fieldEnabled[f.id];
                     const required = fieldRequired[f.id];
@@ -6831,12 +6895,13 @@
                     );
                   })()}
 
-                  <div className="matrix-scroll" style={{ overflowX: 'auto' }}>
+                  <div className="matrix-scroll" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 270px)' }}>
                   <div className="bg-white rounded-xl border" style={{ borderColor: 'var(--card-border)', minWidth: !isMobile ? matrixMinWidth : undefined }}>
-                    {/* Header row — desktop only; mobile uses the role strip above + per-feature stacked rows. */}
+                    {/* Header row — sticky within the scroll container */}
                     {!isMobile && (
                       <div className="grid items-center" style={{ gridTemplateColumns: gridCols, padding: '14px 0',
-                        background: 'var(--soft-bg)', borderTopLeftRadius: 12, borderTopRightRadius: 12 }}>
+                        background: 'var(--soft-bg)', borderTopLeftRadius: 12, borderTopRightRadius: 12,
+                        position: 'sticky', top: 0, zIndex: 10 }}>
                         <div className="pl-6 text-[13px]" style={{ color: 'var(--text-secondary)' }}>Feature</div>
                         {roles.map(r => (
                           <ColumnHeader key={r.id} role={r}
