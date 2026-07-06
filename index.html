@@ -4518,20 +4518,16 @@
                     const savedNotInPreset = savedRoles.filter(s => !presetRoles.some(p => p.toLowerCase() === s.name.toLowerCase()));
                     return (
                       <>
-                        <div className="mb-8">
-                          <p className="text-[13px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Select a Gallery Preset</p>
-                          <p className="text-[12px] mb-3" style={{ color: 'var(--text-secondary)' }}>Selected preset will be applied to all the galleries.</p>
+                        <div>
+                          <h3 className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Gallery Preset &amp; Role Configuration</h3>
+                          <p className="text-[13px] mb-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                            Select a preset to apply to all galleries, then choose how to assign roles to imported contacts.
+                          </p>
                           <select value={preset} onChange={e => { setPreset(e.target.value); setBulkRole('Client'); }}
-                            className="w-full text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none"
+                            className="w-full text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none mb-6"
                             style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
                             {Object.keys(VOLUME_PRESET_ROLES).map(p => <option key={p}>{p}</option>)}
                           </select>
-                        </div>
-                        <div>
-                          <h3 className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Gallery Role Configuration</h3>
-                          <p className="text-[13px] mb-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                            How would you like to assign roles to the contacts you are importing?
-                          </p>
                           <div className="flex flex-col gap-2.5">
                             <label className="flex items-center gap-3 cursor-pointer" onClick={() => setRoleConfigOption('same')}>
                               <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0"
