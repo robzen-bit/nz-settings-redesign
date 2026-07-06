@@ -4269,6 +4269,10 @@
     };
 
     const VolumeWizardModal = ({ onClose, savedRoles = [] }) => {
+      const [wizardStep, setWizardStep] = useState(0); // 0 = workflow select, 1 = folder setup, 2 = CSV upload
+      const [workflowOption, setWorkflowOption] = useState('import'); // 'import' | 'before' | 'during'
+      const [projectName, setProjectName] = useState('');
+      const [selectedFolder, setSelectedFolder] = useState(null);
       const [hasHeaders, setHasHeaders] = useState(true);
       const [preset, setPreset] = useState('Matthews');
       const [isDragOver, setIsDragOver] = useState(false);
@@ -4276,13 +4280,30 @@
       const [bulkRole, setBulkRole] = useState('Client');
       const fileInputRef = React.useRef(null);
       const SYSTEM_ROLE_NAMES = ['General', 'Guest', 'Client'];
+
+      const FOLDERS = [
+        { id: 'reg', name: 'Registration Test', meta: '2 Galleries' },
+        { id: 'dive', name: 'Deep Dive Demo', meta: '1 Folder' },
+        { id: 'hands', name: 'All Hands', meta: '3 Folders, 2 Galleries' },
+      ];
+
+      const headerTitle = wizardStep === 0 ? 'Volume Wizard' : 'Volume Wizard — Import Subject List';
+
+      // Radio dot helper (inline, no RadioDot dependency)
+      const RDot = ({ active }) => (
+        <span className="flex items-center justify-center rounded-full border-2 shrink-0 transition-all"
+          style={{ width: 20, height: 20, borderColor: active ? 'var(--brand)' : '#ccc', background: '#fff' }}>
+          {active && <span style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
+        </span>
+      );
+
       return (
         <div className="fixed inset-0 flex flex-col" style={{ zIndex: 1000, background: '#fff' }}>
           {/* Header */}
           <div className="flex items-center justify-between px-6 py-4 border-b shrink-0" style={{ borderColor: 'var(--card-border)' }}>
             <div style={{ width: 32 }} />
             <span className="text-[13px] font-bold tracking-widest uppercase" style={{ color: 'var(--text-primary)' }}>
-              Volume Wizard — Import Subject List
+              {headerTitle}
             </span>
             <button onClick={onClose} className="flex items-center justify-center" style={{ width: 32, height: 32, color: 'var(--text-secondary)' }}>
               <CloseIcon size={18} />
@@ -4291,139 +4312,299 @@
 
           {/* Body */}
           <div className="flex-1 overflow-y-auto" style={{ background: '#f5f5f7' }}>
-            <div className="px-6 py-8" style={{ maxWidth: 560, margin: '0 auto' }}>
 
-              {/* Step indicator */}
-              <div className="rounded-xl bg-white border mb-6 px-6 py-5" style={{ borderColor: 'var(--card-border)' }}>
-                <p className="text-[14px] font-semibold text-center mb-2" style={{ color: 'var(--text-primary)' }}>Set-Up Step 2 of 3</p>
-                <p className="text-[13px] text-center leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                  Upload subject data to generate galleries in bulk and apply a preset.{' '}
-                  <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Click here</a> for more info.
-                </p>
-              </div>
-
-              {/* Main card */}
-              <div className="rounded-xl bg-white border px-6 py-6" style={{ borderColor: 'var(--card-border)' }}>
-                <h2 className="text-[18px] font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Create via CSV</h2>
-                <p className="text-[13px] mb-6 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                  Create galleries in bulk by importing a CSV file.{' '}
-                  <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Click here</a> to learn more.
+            {/* ── Step 0: Workflow selection ── */}
+            {wizardStep === 0 && (
+              <div className="px-6 py-8" style={{ maxWidth: 720, margin: '0 auto' }}>
+                <p className="text-[14px] text-center mb-6" style={{ color: 'var(--text-secondary)' }}>
+                  Setup depends on client info and delivery method. Choose the option that fits your workflow.
                 </p>
 
-                {/* Drop zone */}
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Import CSV File</span>
-                  <button className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: 'var(--brand)' }}>
-                    Download CSV template
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                  </button>
-                </div>
-                <div
-                  onDragOver={e => { e.preventDefault(); setIsDragOver(true); }}
-                  onDragLeave={() => setIsDragOver(false)}
-                  onDrop={e => { e.preventDefault(); setIsDragOver(false); }}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="rounded-lg mb-5 flex flex-col items-center justify-center py-10 gap-3 cursor-pointer"
-                  style={{ border: `2px dashed ${isDragOver ? 'var(--brand)' : 'var(--card-border)'}`, background: isDragOver ? 'var(--brand-cream)' : '#fafafa' }}>
-                  <button className="flex items-center gap-2 text-[13px] font-semibold px-5 py-2.5 rounded-full text-white"
-                    style={{ background: '#1a1a1a', pointerEvents: 'none' }}
-                    onClick={e => e.stopPropagation()}>
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
-                    Browse Files
-                  </button>
-                  <span className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>or Drag and Drop to upload</span>
-                  <input ref={fileInputRef} type="file" accept=".csv" className="hidden" />
-                </div>
-
-                {/* Header radio */}
-                <div className="flex flex-col gap-1.5 mb-8">
-                  {[{ val: true, label: 'My CSV file includes headers' }, { val: false, label: 'My CSV file does not include headers' }].map(opt => (
-                    <label key={String(opt.val)} className="flex items-center gap-2.5 cursor-pointer text-[13px]"
-                      style={{ color: 'var(--text-primary)' }} onClick={() => setHasHeaders(opt.val)}>
-                      <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0"
-                        style={{ width: 18, height: 18, borderColor: hasHeaders === opt.val ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
-                        {hasHeaders === opt.val && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
-                      </span>
-                      {opt.label}
-                    </label>
-                  ))}
-                </div>
-
-                {/* Gallery Preset */}
-                {(() => {
-                  const presetRoles = (VOLUME_PRESET_ROLES[preset] || []).filter(r => !SYSTEM_ROLE_NAMES.includes(r));
-                  const savedNotInPreset = savedRoles.filter(s => !presetRoles.some(p => p.toLowerCase() === s.name.toLowerCase()));
-                  return (
-                    <>
-                      <div className="mb-8">
-                        <p className="text-[13px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Select a Gallery Preset</p>
-                        <p className="text-[12px] mb-3" style={{ color: 'var(--text-secondary)' }}>Selected preset will be applied to all the galleries.</p>
-                        <select value={preset} onChange={e => { setPreset(e.target.value); setBulkRole('Client'); }}
-                          className="w-full text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none"
-                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
-                          {Object.keys(VOLUME_PRESET_ROLES).map(p => <option key={p}>{p}</option>)}
-                        </select>
+                {/* Import Subject List — selected card */}
+                <div onClick={() => setWorkflowOption('import')} className="rounded-xl bg-white mb-3 cursor-pointer"
+                  style={{ border: `2px solid ${workflowOption === 'import' ? 'var(--brand)' : 'var(--card-border)'}`, padding: '20px 24px' }}>
+                  <div className="flex items-start gap-3 mb-3">
+                    <RDot active={workflowOption === 'import'} />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[16px] font-bold" style={{ color: 'var(--text-primary)' }}>Import Subject List</span>
+                        <a href="#" onClick={e => e.preventDefault()} className="text-[13px] font-medium" style={{ color: 'var(--brand)' }}>See how it works</a>
                       </div>
+                      <p className="text-[13px] mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)', maxWidth: 540 }}>
+                        Upload a CSV to create galleries with unique QR codes automatically assigned and contact details set for each subject.
+                      </p>
+                    </div>
+                  </div>
+                  {/* Flow diagram */}
+                  <div className="flex items-stretch rounded-lg overflow-hidden mt-2" style={{ background: '#f5f5f7', border: '1px solid var(--card-border)' }}>
+                    <div className="flex-1 px-4 py-3">
+                      <div className="text-[11px] font-bold mb-1" style={{ color: 'var(--brand)' }}>.CSV FILE</div>
+                      <div className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>Import a <strong>CSV file</strong> with subject data.</div>
+                    </div>
+                    <div className="flex items-center px-2" style={{ color: 'var(--text-tertiary)' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                    <div className="flex-1 px-4 py-3 flex flex-col items-center justify-center" style={{ borderLeft: '1px solid var(--card-border)', borderRight: '1px solid var(--card-border)' }}>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-1" style={{ color: 'var(--text-secondary)' }}>
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                        <rect x="5" y="5" width="3" height="3" fill="currentColor"/><rect x="16" y="5" width="3" height="3" fill="currentColor"/><rect x="5" y="16" width="3" height="3" fill="currentColor"/>
+                        <path d="M14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2z" fill="currentColor" stroke="none"/>
+                      </svg>
+                      <div className="text-[12px] text-center" style={{ color: 'var(--text-secondary)' }}>Download created <strong>QR codes</strong>.</div>
+                    </div>
+                    <div className="flex items-center px-2" style={{ color: 'var(--text-tertiary)' }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    </div>
+                    <div className="flex-1 px-4 py-3 flex flex-col items-center justify-center">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mb-1" style={{ color: 'var(--text-secondary)' }}>
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/>
+                      </svg>
+                      <div className="text-[12px] text-center" style={{ color: 'var(--text-secondary)' }}>Photograph <strong>QR &amp; subject</strong>, upload.</div>
+                    </div>
+                  </div>
+                </div>
 
-                      {/* Gallery Role Configuration */}
-                      <div>
-                        <h3 className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Gallery Role Configuration</h3>
-                        <p className="text-[13px] mb-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                          How would you like to assign roles to the contacts you are importing?
-                        </p>
-                        <div className="flex flex-col gap-2.5">
-                          <label className="flex items-center gap-3 cursor-pointer" onClick={() => setRoleConfigOption('same')}>
-                            <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0"
-                              style={{ width: 18, height: 18, borderColor: roleConfigOption === 'same' ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
-                              {roleConfigOption === 'same' && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
-                            </span>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>Assign the same role to all imported contacts.</span>
-                              <select value={bulkRole}
-                                onChange={e => { setBulkRole(e.target.value); setRoleConfigOption('same'); }}
-                                onClick={e => e.stopPropagation()}
-                                className="text-[13px] px-2 py-1.5 rounded-md border bg-white outline-none"
-                                style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
-                                <optgroup label="System Roles">
-                                  {SYSTEM_ROLE_NAMES.map(r => <option key={r}>{r}</option>)}
-                                </optgroup>
-                                {presetRoles.length > 0 && (
-                                  <optgroup label="Gallery Preset Roles">
-                                    {presetRoles.map(r => <option key={r}>{r}</option>)}
-                                  </optgroup>
-                                )}
-                                {savedNotInPreset.length > 0 && (
-                                  <optgroup label="Saved Custom Roles">
-                                    {savedNotInPreset.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-                                  </optgroup>
-                                )}
-                              </select>
-                            </div>
-                          </label>
-                          <label className="flex items-start gap-3 cursor-pointer" onClick={() => setRoleConfigOption('perColumn')}>
-                            <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0 mt-0.5"
-                              style={{ width: 18, height: 18, borderColor: roleConfigOption === 'perColumn' ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
-                              {roleConfigOption === 'perColumn' && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
-                            </span>
-                            <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>I would like to assign roles during the data matching phase.</span>
-                          </label>
+                {/* Collect Registration Before the Shoot */}
+                <div onClick={() => setWorkflowOption('before')} className="rounded-xl bg-white mb-3 px-6 py-5 cursor-pointer flex items-center gap-3"
+                  style={{ border: `2px solid ${workflowOption === 'before' ? 'var(--brand)' : 'var(--card-border)'}` }}>
+                  <RDot active={workflowOption === 'before'} />
+                  <span className="text-[16px] font-bold" style={{ color: 'var(--text-primary)' }}>Collect Registration Before the Shoot</span>
+                </div>
+
+                {/* Collect Registration During the Shoot */}
+                <div onClick={() => setWorkflowOption('during')} className="rounded-xl bg-white px-6 py-5 cursor-pointer flex items-center gap-3"
+                  style={{ border: `2px solid ${workflowOption === 'during' ? 'var(--brand)' : 'var(--card-border)'}` }}>
+                  <RDot active={workflowOption === 'during'} />
+                  <span className="text-[16px] font-bold" style={{ color: 'var(--text-primary)' }}>Collect Registration During the Shoot</span>
+                </div>
+              </div>
+            )}
+
+            {/* ── Step 1: Folder setup ── */}
+            {wizardStep === 1 && (
+              <div className="px-6 py-8" style={{ maxWidth: 720, margin: '0 auto' }}>
+                {/* Step indicator */}
+                <div className="rounded-xl bg-white border mb-6 px-6 py-5" style={{ borderColor: 'var(--card-border)' }}>
+                  <p className="text-[14px] font-semibold text-center mb-2" style={{ color: 'var(--text-primary)' }}>Set-Up Step 1 of 3</p>
+                  <p className="text-[13px] text-center leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                    Establish the job name and select its destination folder.{' '}
+                    <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Click here</a> for more info.
+                  </p>
+                </div>
+
+                {/* Main card */}
+                <div className="rounded-xl bg-white border px-6 py-6" style={{ borderColor: 'var(--card-border)' }}>
+                  {/* Folder title */}
+                  <div className="mb-6">
+                    <label className="block text-[14px] font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Choose Folder Title:</label>
+                    <input value={projectName} onChange={e => setProjectName(e.target.value)}
+                      placeholder="Project Name"
+                      className="w-full text-[13px] px-4 py-2.5 rounded-lg border outline-none"
+                      style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+                  </div>
+
+                  {/* Location picker */}
+                  <div>
+                    <label className="block text-[14px] font-bold mb-2" style={{ color: 'var(--text-primary)' }}>Choose a location:</label>
+                    <div className="flex items-center gap-2 border rounded-lg px-3 py-2 mb-3 bg-white" style={{ borderColor: 'var(--card-border)' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-tertiary)' }}>
+                        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+                      </svg>
+                      <input placeholder="Search locations..." className="flex-1 text-[13px] outline-none bg-transparent" style={{ color: 'var(--text-primary)' }} />
+                    </div>
+                    <div className="rounded-lg border overflow-hidden" style={{ borderColor: 'var(--card-border)' }}>
+                      {/* Breadcrumb row */}
+                      <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: 'var(--card-border)', background: '#fafafa' }}>
+                        <div className="flex items-center gap-2">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-tertiary)' }}>
+                            <path d="M15 18l-6-6 6-6"/>
+                          </svg>
+                          <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>My Folders</span>
+                          <span className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>18 Folders, 24 Galleries</span>
                         </div>
+                        <a href="#" onClick={e => e.preventDefault()} className="text-[12px] font-semibold" style={{ color: 'var(--brand)' }}>Add Folder</a>
                       </div>
-                    </>
-                  );
-                })()}
+                      {/* Folder rows */}
+                      {FOLDERS.map(f => (
+                        <div key={f.id} onClick={() => setSelectedFolder(f.id)}
+                          className="flex items-center gap-3 px-4 py-3 cursor-pointer border-b last:border-b-0"
+                          style={{ borderColor: 'var(--card-border)', background: selectedFolder === f.id ? 'var(--brand-cream, #fff7f3)' : '#fff' }}>
+                          <span className="flex items-center justify-center rounded-full border-2 shrink-0"
+                            style={{ width: 18, height: 18, borderColor: selectedFolder === f.id ? 'var(--brand)' : '#ccc', background: '#fff' }}>
+                            {selectedFolder === f.id && <span style={{ width: 9, height: 9, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
+                          </span>
+                          {/* Folder icon */}
+                          <svg width="32" height="28" viewBox="0 0 40 32" fill="none">
+                            <path d="M2 6a2 2 0 0 1 2-2h10l4 4h18a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6z" fill="#90CAF9"/>
+                            <path d="M2 10h36v18a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V10z" fill="#64B5F6"/>
+                          </svg>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>{f.name}</div>
+                            <div className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>{f.meta}</div>
+                          </div>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--text-tertiary)' }}>
+                            <path d="M9 18l6-6-6-6"/>
+                          </svg>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* ── Step 2: CSV upload ── */}
+            {wizardStep === 2 && (
+              <div className="px-6 py-8" style={{ maxWidth: 560, margin: '0 auto' }}>
+                {/* Step indicator */}
+                <div className="rounded-xl bg-white border mb-6 px-6 py-5" style={{ borderColor: 'var(--card-border)' }}>
+                  <p className="text-[14px] font-semibold text-center mb-2" style={{ color: 'var(--text-primary)' }}>Set-Up Step 2 of 3</p>
+                  <p className="text-[13px] text-center leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                    Upload subject data to generate galleries in bulk and apply a preset.{' '}
+                    <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Click here</a> for more info.
+                  </p>
+                </div>
+
+                {/* Main card */}
+                <div className="rounded-xl bg-white border px-6 py-6" style={{ borderColor: 'var(--card-border)' }}>
+                  <h2 className="text-[18px] font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Create via CSV</h2>
+                  <p className="text-[13px] mb-6 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                    Create galleries in bulk by importing a CSV file.{' '}
+                    <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Click here</a> to learn more.
+                  </p>
+
+                  {/* Drop zone */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Import CSV File</span>
+                    <button className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: 'var(--brand)' }}>
+                      Download CSV template
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </button>
+                  </div>
+                  <div
+                    onDragOver={e => { e.preventDefault(); setIsDragOver(true); }}
+                    onDragLeave={() => setIsDragOver(false)}
+                    onDrop={e => { e.preventDefault(); setIsDragOver(false); }}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="rounded-lg mb-5 flex flex-col items-center justify-center py-10 gap-3 cursor-pointer"
+                    style={{ border: `2px dashed ${isDragOver ? 'var(--brand)' : 'var(--card-border)'}`, background: isDragOver ? 'var(--brand-cream)' : '#fafafa' }}>
+                    <button className="flex items-center gap-2 text-[13px] font-semibold px-5 py-2.5 rounded-full text-white"
+                      style={{ background: '#1a1a1a', pointerEvents: 'none' }}
+                      onClick={e => e.stopPropagation()}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                      Browse Files
+                    </button>
+                    <span className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>or Drag and Drop to upload</span>
+                    <input ref={fileInputRef} type="file" accept=".csv" className="hidden" />
+                  </div>
+
+                  {/* Header radio */}
+                  <div className="flex flex-col gap-1.5 mb-8">
+                    {[{ val: true, label: 'My CSV file includes headers' }, { val: false, label: 'My CSV file does not include headers' }].map(opt => (
+                      <label key={String(opt.val)} className="flex items-center gap-2.5 cursor-pointer text-[13px]"
+                        style={{ color: 'var(--text-primary)' }} onClick={() => setHasHeaders(opt.val)}>
+                        <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0"
+                          style={{ width: 18, height: 18, borderColor: hasHeaders === opt.val ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
+                          {hasHeaders === opt.val && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
+                        </span>
+                        {opt.label}
+                      </label>
+                    ))}
+                  </div>
+
+                  {/* Gallery Preset + Role Config */}
+                  {(() => {
+                    const presetRoles = (VOLUME_PRESET_ROLES[preset] || []).filter(r => !SYSTEM_ROLE_NAMES.includes(r));
+                    const savedNotInPreset = savedRoles.filter(s => !presetRoles.some(p => p.toLowerCase() === s.name.toLowerCase()));
+                    return (
+                      <>
+                        <div className="mb-8">
+                          <p className="text-[13px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Select a Gallery Preset</p>
+                          <p className="text-[12px] mb-3" style={{ color: 'var(--text-secondary)' }}>Selected preset will be applied to all the galleries.</p>
+                          <select value={preset} onChange={e => { setPreset(e.target.value); setBulkRole('Client'); }}
+                            className="w-full text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none"
+                            style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
+                            {Object.keys(VOLUME_PRESET_ROLES).map(p => <option key={p}>{p}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <h3 className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Gallery Role Configuration</h3>
+                          <p className="text-[13px] mb-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                            How would you like to assign roles to the contacts you are importing?
+                          </p>
+                          <div className="flex flex-col gap-2.5">
+                            <label className="flex items-center gap-3 cursor-pointer" onClick={() => setRoleConfigOption('same')}>
+                              <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0"
+                                style={{ width: 18, height: 18, borderColor: roleConfigOption === 'same' ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
+                                {roleConfigOption === 'same' && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
+                              </span>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>Assign the same role to all imported contacts.</span>
+                                <select value={bulkRole}
+                                  onChange={e => { setBulkRole(e.target.value); setRoleConfigOption('same'); }}
+                                  onClick={e => e.stopPropagation()}
+                                  className="text-[13px] px-2 py-1.5 rounded-md border bg-white outline-none"
+                                  style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
+                                  <optgroup label="System Roles">
+                                    {SYSTEM_ROLE_NAMES.map(r => <option key={r}>{r}</option>)}
+                                  </optgroup>
+                                  {presetRoles.length > 0 && (
+                                    <optgroup label="Gallery Preset Roles">
+                                      {presetRoles.map(r => <option key={r}>{r}</option>)}
+                                    </optgroup>
+                                  )}
+                                  {savedNotInPreset.length > 0 && (
+                                    <optgroup label="Saved Custom Roles">
+                                      {savedNotInPreset.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                                    </optgroup>
+                                  )}
+                                </select>
+                              </div>
+                            </label>
+                            <label className="flex items-start gap-3 cursor-pointer" onClick={() => setRoleConfigOption('perColumn')}>
+                              <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0 mt-0.5"
+                                style={{ width: 18, height: 18, borderColor: roleConfigOption === 'perColumn' ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
+                                {roleConfigOption === 'perColumn' && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
+                              </span>
+                              <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>I would like to assign roles during the data matching phase.</span>
+                            </label>
+                          </div>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Footer */}
           <div className="flex items-center justify-between px-6 py-4 border-t shrink-0"
             style={{ borderColor: 'var(--card-border)', background: '#1a1a1a', minHeight: 64 }}>
-            <button className="text-[13px]" style={{ color: '#aaa', textDecoration: 'underline' }}>Back</button>
-            <button className="text-[13px] font-bold tracking-wider px-6 py-2.5 rounded-full text-white opacity-40"
-              style={{ background: '#555', cursor: 'not-allowed' }}>
-              Next
-            </button>
+            {wizardStep > 0 ? (
+              <button onClick={() => setWizardStep(s => s - 1)} className="text-[13px]" style={{ color: '#aaa', textDecoration: 'underline' }}>Back</button>
+            ) : (
+              <div style={{ width: 40 }} />
+            )}
+            {wizardStep === 0 ? (
+              <button onClick={() => setWizardStep(1)}
+                className="text-[13px] font-bold tracking-wider px-6 py-2.5 rounded-full text-white"
+                style={{ background: 'var(--brand)' }}>
+                Next
+              </button>
+            ) : wizardStep === 1 ? (
+              <button disabled={!selectedFolder || !projectName}
+                onClick={() => { if (selectedFolder && projectName) setWizardStep(2); }}
+                className="text-[13px] font-bold tracking-wider px-6 py-2.5 rounded-full text-white"
+                style={{ background: selectedFolder && projectName ? 'var(--brand)' : '#555', opacity: selectedFolder && projectName ? 1 : 0.4, cursor: selectedFolder && projectName ? 'pointer' : 'not-allowed' }}>
+                Next
+              </button>
+            ) : (
+              <button className="text-[13px] font-bold tracking-wider px-6 py-2.5 rounded-full text-white opacity-40"
+                style={{ background: '#555', cursor: 'not-allowed' }}>
+                Next
+              </button>
+            )}
           </div>
         </div>
       );
