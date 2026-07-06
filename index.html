@@ -1055,10 +1055,10 @@
         {NAV_ITEMS.map((item) => {
           const Cmp = item.icon;
           const isActive = item.id === activeView || (activeView === 'gallery' && item.id === 'galleries');
-          const clickable = item.id === 'galleries' || item.id === 'booking';
+          const clickable = item.id === 'galleries' || item.id === 'booking' || item.id === 'volume-workflow';
           return (
             <button key={item.id}
-              onClick={clickable ? () => setActiveView(item.id === 'galleries' ? 'gallery' : item.id) : undefined}
+              onClick={clickable ? () => setActiveView(item.id === 'galleries' ? 'gallery' : item.id === 'volume-workflow' ? 'volume-workflow' : item.id) : undefined}
               className={`nav-item flex flex-col items-center justify-center gap-1 py-3 ${isActive ? 'is-active' : ''}`}
               style={clickable ? { cursor: 'pointer' } : { cursor: 'default' }}>
               <Cmp size={18} stroke={1.6} />
@@ -4260,6 +4260,112 @@
       });
     };
 
+    const VolumeWizardModal = ({ onClose }) => {
+      const [hasHeaders, setHasHeaders] = useState(true);
+      const [preset, setPreset] = useState('Matthews');
+      const [isDragOver, setIsDragOver] = useState(false);
+      const fileInputRef = React.useRef(null);
+      const presets = ['Matthews', 'Smith Family', 'Corporate', 'Sports Season', 'School Portrait'];
+      return (
+        <div className="fixed inset-0 flex flex-col" style={{ zIndex: 1000, background: '#fff' }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b shrink-0" style={{ borderColor: 'var(--card-border)' }}>
+            <div style={{ width: 32 }} />
+            <span className="text-[13px] font-bold tracking-widest uppercase" style={{ color: 'var(--text-primary)' }}>
+              Volume Wizard — Import Subject List
+            </span>
+            <button onClick={onClose} className="flex items-center justify-center" style={{ width: 32, height: 32, color: 'var(--text-secondary)' }}>
+              <CloseIcon size={18} />
+            </button>
+          </div>
+
+          {/* Body */}
+          <div className="flex-1 overflow-y-auto" style={{ background: '#f5f5f7' }}>
+            <div className="px-6 py-8" style={{ maxWidth: 560, margin: '0 auto' }}>
+
+              {/* Step indicator */}
+              <div className="rounded-xl bg-white border mb-6 px-6 py-5" style={{ borderColor: 'var(--card-border)' }}>
+                <p className="text-[14px] font-semibold text-center mb-2" style={{ color: 'var(--text-primary)' }}>Set-Up Step 2 of 3</p>
+                <p className="text-[13px] text-center leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  Upload subject data to generate galleries in bulk and apply a preset.{' '}
+                  <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Click here</a> for more info.
+                </p>
+              </div>
+
+              {/* Main card */}
+              <div className="rounded-xl bg-white border px-6 py-6" style={{ borderColor: 'var(--card-border)' }}>
+                <h2 className="text-[18px] font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Create via CSV</h2>
+                <p className="text-[13px] mb-6 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  Create galleries in bulk by importing a CSV file.{' '}
+                  <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Click here</a> to learn more.
+                </p>
+
+                {/* Drop zone */}
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Import CSV File</span>
+                  <button className="text-[13px] font-medium flex items-center gap-1.5" style={{ color: 'var(--brand)' }}>
+                    Download CSV template
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  </button>
+                </div>
+                <div
+                  onDragOver={e => { e.preventDefault(); setIsDragOver(true); }}
+                  onDragLeave={() => setIsDragOver(false)}
+                  onDrop={e => { e.preventDefault(); setIsDragOver(false); }}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="rounded-lg mb-5 flex flex-col items-center justify-center py-10 gap-3 cursor-pointer"
+                  style={{ border: `2px dashed ${isDragOver ? 'var(--brand)' : 'var(--card-border)'}`, background: isDragOver ? 'var(--brand-cream)' : '#fafafa' }}>
+                  <button className="flex items-center gap-2 text-[13px] font-semibold px-5 py-2.5 rounded-full text-white"
+                    style={{ background: '#1a1a1a', pointerEvents: 'none' }}
+                    onClick={e => e.stopPropagation()}>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+                    Browse Files
+                  </button>
+                  <span className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>or Drag and Drop to upload</span>
+                  <input ref={fileInputRef} type="file" accept=".csv" className="hidden" />
+                </div>
+
+                {/* Header radio */}
+                <div className="flex flex-col gap-1.5 mb-6">
+                  {[{ val: true, label: 'My CSV file includes headers' }, { val: false, label: 'My CSV file does not include headers' }].map(opt => (
+                    <label key={String(opt.val)} className="flex items-center gap-2.5 cursor-pointer text-[13px]"
+                      style={{ color: 'var(--text-primary)' }} onClick={() => setHasHeaders(opt.val)}>
+                      <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0"
+                        style={{ width: 18, height: 18, borderColor: hasHeaders === opt.val ? 'var(--brand)' : 'var(--line)', background: '#fff' }}>
+                        {hasHeaders === opt.val && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
+                      </span>
+                      {opt.label}
+                    </label>
+                  ))}
+                </div>
+
+                {/* Gallery Preset */}
+                <div>
+                  <p className="text-[13px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Select a Gallery Preset</p>
+                  <p className="text-[12px] mb-3" style={{ color: 'var(--text-secondary)' }}>Selected preset will be applied to all the galleries.</p>
+                  <select value={preset} onChange={e => setPreset(e.target.value)}
+                    className="w-full text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none"
+                    style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
+                    {presets.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between px-6 py-4 border-t shrink-0"
+            style={{ borderColor: 'var(--card-border)', background: '#1a1a1a', minHeight: 64 }}>
+            <button className="text-[13px]" style={{ color: '#aaa', textDecoration: 'underline' }}>Back</button>
+            <button className="text-[13px] font-bold tracking-wider px-6 py-2.5 rounded-full text-white opacity-40"
+              style={{ background: '#555', cursor: 'not-allowed' }}>
+              Next
+            </button>
+          </div>
+        </div>
+      );
+    };
+
     const ImportCSVModal = ({ roles, viewMode, savedRoles = [], onEnsureRoles, onClose, onAdd }) => {
       const [step, setStep] = useState('upload'); // 'upload' | 'matching'
       const [csvRawRows, setCsvRawRows] = useState(null);
@@ -6807,6 +6913,8 @@
             <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
             {showEditCustomForm ? (
               <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} accessFeeRole={accessFeeRole} roles={roles} savedRoles={savedRoles} viewMode={viewMode} />
+            ) : activeView === 'volume-workflow' ? (
+              <VolumeWizardModal onClose={() => setActiveView('gallery')} />
             ) : activeView === 'booking' ? (
               <BookingView onBack={() => setActiveView('gallery')} viewMode={viewMode} savedRoles={savedRoles} />
             ) : (
