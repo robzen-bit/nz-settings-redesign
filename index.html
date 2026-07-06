@@ -5928,52 +5928,7 @@
                         </label>
                       </div>
                     );
-                    if (f.id !== 'email') return row;
-                    const activeRole = accessFeeEnabled ? accessFeeRole : emailRole;
-                    return (
-                      <React.Fragment key={f.id}>
-                        {row}
-                        <div className="px-4 py-2.5" style={{ borderTop: '1px solid var(--card-border)', background: '#fafafa' }}>
-                          {accessFeeEnabled ? (
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Role</span>
-                              <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--soft-bg)', color: 'var(--text-tertiary)', border: '1px solid var(--card-border)' }}>Set by Access Fee</span>
-                            </div>
-                          ) : (
-                            <div className="mb-2">
-                              <span className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Role — </span>
-                              <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>When someone submits this form, what role should they be added to the gallery as?</span>
-                            </div>
-                          )}
-                          <select
-                            value={activeRole}
-                            onChange={accessFeeEnabled ? undefined : e => setEmailRole(e.target.value)}
-                            disabled={accessFeeEnabled}
-                            className="border rounded px-3 py-1.5 text-[13px] outline-none"
-                            style={{ borderColor: 'var(--card-border)', color: accessFeeEnabled ? 'var(--text-tertiary)' : 'var(--text-primary)', background: accessFeeEnabled ? 'var(--soft-bg)' : '#fff', maxWidth: 280, cursor: accessFeeEnabled ? 'not-allowed' : 'pointer' }}>
-                            {!isElevated ? (
-                              systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
-                            ) : (
-                              <>
-                                <optgroup label="System Roles">
-                                  {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                </optgroup>
-                                {galleryCustomRoles.length > 0 && (
-                                  <optgroup label="Gallery Roles">
-                                    {galleryCustomRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                  </optgroup>
-                                )}
-                                {savedNotInGallery.length > 0 && (
-                                  <optgroup label="Saved Custom Roles">
-                                    {savedNotInGallery.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                                  </optgroup>
-                                )}
-                              </>
-                            )}
-                          </select>
-                        </div>
-                      </React.Fragment>
-                    );
+                    return row;
                   })}
                   {customFields.map((cf) => (
                     <div key={cf.id} className="flex items-center px-4 py-3 gap-3" style={{ borderTop: '1px solid var(--card-border)', background: '#fff' }}>
@@ -6262,6 +6217,42 @@
                     <div className="text-[11px] mt-1" style={{ color: 'var(--text-tertiary)' }}>{submitMessage.length}/250</div>
                   </div>
                 )}
+              </div>
+
+              {/* Registrant Role Assignment */}
+              <div className="mt-6">
+                <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Registrant Role Assignment</label>
+                <p className="text-[13px] mb-3" style={{ color: accessFeeEnabled ? 'var(--text-tertiary)' : 'var(--text-secondary)' }}>
+                  {accessFeeEnabled
+                    ? 'Role controlled by Access Fee.'
+                    : 'What role should anyone who registers be added to the gallery as?'}
+                </p>
+                <select
+                  value={accessFeeEnabled ? accessFeeRole : emailRole}
+                  onChange={accessFeeEnabled ? undefined : e => setEmailRole(e.target.value)}
+                  disabled={accessFeeEnabled}
+                  className="border rounded px-3 py-2 text-[13px] outline-none w-full"
+                  style={{ borderColor: 'var(--card-border)', color: accessFeeEnabled ? 'var(--text-tertiary)' : 'var(--text-primary)', background: accessFeeEnabled ? 'var(--soft-bg)' : '#fff', cursor: accessFeeEnabled ? 'not-allowed' : 'pointer', maxWidth: 320 }}>
+                  {!isElevated ? (
+                    systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
+                  ) : (
+                    <>
+                      <optgroup label="System Roles">
+                        {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                      </optgroup>
+                      {galleryCustomRoles.length > 0 && (
+                        <optgroup label="Gallery Roles">
+                          {galleryCustomRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
+                        </optgroup>
+                      )}
+                      {savedNotInGallery.length > 0 && (
+                        <optgroup label="Saved Custom Roles">
+                          {savedNotInGallery.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                        </optgroup>
+                      )}
+                    </>
+                  )}
+                </select>
               </div>
 
             </div>
