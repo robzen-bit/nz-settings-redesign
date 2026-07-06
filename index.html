@@ -5914,10 +5914,10 @@
                     const isDisabledField = !f.canDisable;
                     const row = (
                       <div key={f.id} className="flex items-center px-4 py-3 gap-4"
-                        style={{ borderTop: i > 0 ? '1px solid var(--card-border)' : 'none', background: enabled ? '#fff' : 'var(--soft-bg)', opacity: isDisabledField && !enabled ? 0.5 : 1 }}>
-                        <Toggle size="sm" checked={enabled} onChange={isDisabledField ? undefined : () => setFieldEnabled(prev => ({ ...prev, [f.id]: !prev[f.id] }))} />
-                        <span className="flex-1 text-[13px]" style={{ color: enabled ? 'var(--text-primary)' : 'var(--text-tertiary)' }}>{f.label}</span>
-                        <label className="flex items-center gap-1.5 cursor-pointer">
+                        style={{ borderTop: i > 0 ? '1px solid var(--card-border)' : 'none', background: enabled ? '#fff' : 'var(--soft-bg)' }}>
+                        <Toggle size="sm" checked={enabled} disabled={isDisabledField} onChange={isDisabledField ? undefined : () => setFieldEnabled(prev => ({ ...prev, [f.id]: !prev[f.id] }))} />
+                        <span className="flex-1 text-[13px]" style={{ color: enabled ? 'var(--text-primary)' : 'var(--text-tertiary)', opacity: isDisabledField ? 0.5 : 1 }}>{f.label}</span>
+                        <label className="flex items-center gap-1.5" style={{ opacity: isDisabledField ? 0.5 : 1, cursor: isDisabledField ? 'default' : 'pointer' }}>
                           <button type="button"
                             onClick={isDisabledField ? undefined : () => setFieldRequired(prev => ({ ...prev, [f.id]: !prev[f.id] }))}
                             className="flex items-center justify-center rounded border-2 transition-all shrink-0"
