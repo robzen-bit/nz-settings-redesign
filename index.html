@@ -3663,7 +3663,7 @@
                                 {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                               </optgroup>
                               {galleryCustomRoles.length > 0 && (
-                                <optgroup label="Gallery Custom Roles">
+                                <optgroup label="Gallery Roles">
                                   {galleryCustomRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                 </optgroup>
                               )}
@@ -4364,6 +4364,14 @@
       );
     };
 
+    const VOLUME_PRESET_ROLES = {
+      'Matthews':        ['General', 'Guest', 'Client', 'Student', 'Parent'],
+      'Smith Family':    ['General', 'Guest', 'Client', 'Immediate Family', 'Extended Family'],
+      'Corporate':       ['General', 'Guest', 'Client', 'Employee', 'Manager'],
+      'Sports Season':   ['General', 'Guest', 'Client', 'Athlete', 'Coach'],
+      'School Portrait': ['General', 'Guest', 'Client', 'Student', 'Staff'],
+    };
+
     const ImportCSVModal = ({ roles, viewMode, savedRoles = [], onEnsureRoles, onClose, onAdd }) => {
       const [modalTab, setModalTab] = useState('csv'); // 'csv' | 'volume'
       const [step, setStep] = useState('upload'); // 'upload' | 'matching'
@@ -4377,6 +4385,8 @@
       const [emailRoles, setEmailRoles] = useState({});
       const [roleConfigOption, setRoleConfigOption] = useState('same');
       const [bulkRoleId, setBulkRoleId] = useState('everyone');
+      const [volumePreset, setVolumePreset] = useState('Matthews');
+      const [volumeBulkRole, setVolumeBulkRole] = useState('Client');
 
       const [importing, setImporting] = useState(false);
       const [importDone, setImportDone] = useState(false);
@@ -4684,69 +4694,67 @@
                   ))}
                 </div>
                 {/* Gallery Preset */}
-                <div className="mb-8">
-                  <p className="text-[13px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Select a Gallery Preset</p>
-                  <p className="text-[12px] mb-3" style={{ color: 'var(--text-secondary)' }}>Selected preset will be applied to all the galleries.</p>
-                  <select className="w-full text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none"
-                    style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
-                    {['Matthews', 'Smith Family', 'Corporate', 'Sports Season', 'School Portrait'].map(p => <option key={p}>{p}</option>)}
-                  </select>
-                </div>
-
-                {/* Gallery Role Configuration */}
-                <div>
-                  <h3 className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Gallery Role Configuration</h3>
-                  <p className="text-[13px] mb-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                    How would you like to assign roles to the contacts you are importing?
-                  </p>
-                  {viewMode !== 'basic' && (
-                    <p className="text-[12px] mb-5 leading-relaxed" style={{ color: '#86868B' }}>
-                      You can use our system roles — General, Guest, and Client — as well as any custom roles you have added to this gallery or saved for later use.{' '}
-                      <a href="#" onClick={e => e.preventDefault()} style={{ color: '#F26B3A', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
-                    </p>
-                  )}
-                  <div className="flex flex-col gap-2.5">
-                    <label className="flex items-center gap-3 cursor-pointer" onClick={() => setRoleConfigOption('same')}>
-                      <RadioDot active={roleConfigOption === 'same'} />
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>
-                          Assign the same role to all imported contacts.
-                        </span>
-                        <select value={bulkRoleId}
-                          onChange={e => { setBulkRoleId(e.target.value); setRoleConfigOption('same'); }}
-                          onClick={e => e.stopPropagation()}
-                          className="text-[13px] px-2 py-1.5 rounded-md border bg-white outline-none"
+                {(() => {
+                  const SYSTEM_ROLE_NAMES = ['General', 'Guest', 'Client'];
+                  const presetRoles = (VOLUME_PRESET_ROLES[volumePreset] || []).filter(r => !SYSTEM_ROLE_NAMES.includes(r));
+                  const savedNotInPreset = savedRoles.filter(s => !presetRoles.some(p => p.toLowerCase() === s.name.toLowerCase()));
+                  return (
+                    <>
+                      <div className="mb-8">
+                        <p className="text-[13px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Select a Gallery Preset</p>
+                        <p className="text-[12px] mb-3" style={{ color: 'var(--text-secondary)' }}>Selected preset will be applied to all the galleries.</p>
+                        <select value={volumePreset} onChange={e => { setVolumePreset(e.target.value); setVolumeBulkRole('Client'); }}
+                          className="w-full text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none"
                           style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
-                          {viewMode === 'basic' ? (
-                            systemRoleOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
-                          ) : (
-                            <>
-                              <optgroup label="System Roles">
-                                {systemRoleOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                              </optgroup>
-                              {galleryCustomOptions.length > 0 && (
-                                <optgroup label="Gallery Custom Roles">
-                                  {galleryCustomOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                </optgroup>
-                              )}
-                              {importSavedOptions.length > 0 && (
-                                <optgroup label="Saved Custom Roles">
-                                  {importSavedOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                </optgroup>
-                              )}
-                            </>
-                          )}
+                          {Object.keys(VOLUME_PRESET_ROLES).map(p => <option key={p}>{p}</option>)}
                         </select>
                       </div>
-                    </label>
-                    <label className="flex items-start gap-3 cursor-pointer" onClick={() => setRoleConfigOption('perColumn')}>
-                      <RadioDot active={roleConfigOption === 'perColumn'} />
-                      <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>
-                        I would like to assign roles during the data matching phase.
-                      </span>
-                    </label>
-                  </div>
-                </div>
+
+                      {/* Gallery Role Configuration */}
+                      <div>
+                        <h3 className="text-[15px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Gallery Role Configuration</h3>
+                        <p className="text-[13px] mb-4 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                          How would you like to assign roles to the contacts you are importing?
+                        </p>
+                        <div className="flex flex-col gap-2.5">
+                          <label className="flex items-center gap-3 cursor-pointer" onClick={() => setRoleConfigOption('same')}>
+                            <RadioDot active={roleConfigOption === 'same'} />
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>
+                                Assign the same role to all imported contacts.
+                              </span>
+                              <select value={volumeBulkRole}
+                                onChange={e => { setVolumeBulkRole(e.target.value); setRoleConfigOption('same'); }}
+                                onClick={e => e.stopPropagation()}
+                                className="text-[13px] px-2 py-1.5 rounded-md border bg-white outline-none"
+                                style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
+                                <optgroup label="System Roles">
+                                  {SYSTEM_ROLE_NAMES.map(r => <option key={r}>{r}</option>)}
+                                </optgroup>
+                                {presetRoles.length > 0 && (
+                                  <optgroup label="Gallery Preset Roles">
+                                    {presetRoles.map(r => <option key={r}>{r}</option>)}
+                                  </optgroup>
+                                )}
+                                {savedNotInPreset.length > 0 && (
+                                  <optgroup label="Saved Custom Roles">
+                                    {savedNotInPreset.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
+                                  </optgroup>
+                                )}
+                              </select>
+                            </div>
+                          </label>
+                          <label className="flex items-start gap-3 cursor-pointer" onClick={() => setRoleConfigOption('perColumn')}>
+                            <RadioDot active={roleConfigOption === 'perColumn'} />
+                            <span className="text-[14px]" style={{ color: 'var(--text-primary)' }}>
+                              I would like to assign roles during the data matching phase.
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           ) : null}
@@ -4788,7 +4796,7 @@
                                 {systemRoleOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                               </optgroup>
                               {galleryCustomOptions.length > 0 && (
-                                <optgroup label="Gallery Custom Roles">
+                                <optgroup label="Gallery Roles">
                                   {galleryCustomOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                 </optgroup>
                               )}
@@ -4974,7 +4982,7 @@
                                       {systemRoleOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                     </optgroup>
                                     {galleryCustomOptions.length > 0 && (
-                                      <optgroup label="Gallery Custom Roles">
+                                      <optgroup label="Gallery Roles">
                                         {galleryCustomOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                       </optgroup>
                                     )}
@@ -5735,7 +5743,7 @@
                                   {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                 </optgroup>
                                 {galleryCustomRoles.length > 0 && (
-                                  <optgroup label="Gallery Custom Roles">
+                                  <optgroup label="Gallery Roles">
                                     {galleryCustomRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                   </optgroup>
                                 )}
@@ -5926,7 +5934,7 @@
                                     {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                   </optgroup>
                                   {galleryCustomRoles.length > 0 && (
-                                    <optgroup label="Gallery Custom Roles">
+                                    <optgroup label="Gallery Roles">
                                       {galleryCustomRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                     </optgroup>
                                   )}
@@ -6648,7 +6656,7 @@
                             {base.map(r => <option key={r}>{r}</option>)}
                           </optgroup>
                           {presetCustom.length > 0 && (
-                            <optgroup label="Preset Custom Roles">
+                            <optgroup label="Gallery Preset Roles">
                               {presetCustom.map(r => <option key={r}>{r}</option>)}
                             </optgroup>
                           )}
