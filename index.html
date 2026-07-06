@@ -4683,7 +4683,7 @@
                       <div className="grid" style={{ gridTemplateColumns: '28px 180px 1fr 220px 56px', alignItems: 'center' }}>
                         <div className="flex items-center justify-center">
                           {showRoleOption && (
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--brand)" style={{ flexShrink: 0 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-primary)" style={{ flexShrink: 0 }}>
                               <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
                             </svg>
                           )}
@@ -4727,11 +4727,11 @@
                           <div className="grid mt-2" style={{ gridTemplateColumns: '28px 180px 1fr 220px 56px', alignItems: 'center' }}>
                             <div /><div /><div />
                             <div className="pr-3 flex items-center gap-2">
-                              <span className="text-[11px] font-semibold shrink-0" style={{ color: 'var(--brand)' }}>Role</span>
+                              <span className="text-[11px] font-semibold shrink-0" style={{ color: 'var(--text-primary)' }}>Role</span>
                               <select value={colRoleId}
                                 onChange={e => setEmailRoleId(row.header, e.target.value)}
                                 className="flex-1 text-[12px] px-2 py-1 rounded border bg-white outline-none"
-                                style={{ borderColor: 'var(--brand)', color: 'var(--text-primary)', minWidth: 100 }}>
+                                style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', minWidth: 100 }}>
                                 {viewMode === 'basic' ? (
                                   colOpts.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
                                 ) : (
