@@ -4453,6 +4453,17 @@
               </div>
             </div>
           </div>
+
+          {/* Footer */}
+          <div className="flex items-center justify-between px-6 py-4 border-t shrink-0"
+            style={{ borderColor: 'var(--card-border)', background: '#1a1a1a', minHeight: 64 }}>
+            <div style={{ width: 40 }} />
+            <button onClick={onClose}
+              className="text-[13px] font-bold tracking-wider px-6 py-2.5 rounded-full text-white"
+              style={{ background: 'var(--brand)' }}>
+              Next
+            </button>
+          </div>
         </div>
       );
     };
@@ -5114,15 +5125,10 @@
                 style={{ background: selectedFolder && projectName ? 'var(--brand)' : '#555', opacity: selectedFolder && projectName ? 1 : 0.4, cursor: selectedFolder && projectName ? 'pointer' : 'not-allowed' }}>
                 Next
               </button>
-            ) : (wizardStep === 2 && workflowOption === 'before') ? (
+            ) : (
               <button className="text-[13px] font-bold tracking-wider px-6 py-2.5 rounded-full text-white"
                 style={{ background: 'var(--brand)' }} onClick={onClose}>
                 Create
-              </button>
-            ) : (
-              <button className="text-[13px] font-bold tracking-wider px-6 py-2.5 rounded-full text-white opacity-40"
-                style={{ background: '#555', cursor: 'not-allowed' }}>
-                Next
               </button>
             )}
           </div>
