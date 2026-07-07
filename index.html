@@ -1071,7 +1071,7 @@
       </aside>
     );
 
-    const TopBar = ({ viewMode, modeMenuOpen, setViewMode, setModeMenuOpen, customRolesEnabled, setCustomRolesEnabled }) => (
+    const TopBar = ({ viewMode, modeMenuOpen, setViewMode, setModeMenuOpen }) => (
       <header className="top-bar flex items-center justify-between px-6 h-[52px] bg-white border-b" style={{ borderColor: 'var(--card-border)' }}>
         <div className="flex items-center gap-2">
           <span className="text-[20px] font-extrabold tracking-tight" style={{ color: '#222' }}>zenfolio</span>
@@ -1131,15 +1131,6 @@
             )}
           </div>
 
-          {/* Custom Roles feature flag toggle */}
-          <div className="flex items-center gap-1.5 ml-3 border-l pl-3" style={{ borderColor: 'var(--card-border)' }}>
-            <span className="text-[11px]" style={{ color: 'var(--text-3)' }}>Custom Roles:</span>
-            <button onClick={() => setCustomRolesEnabled(v => !v)}
-              className="relative flex-shrink-0" style={{ width: 32, height: 18 }}>
-              <div style={{ position: 'absolute', inset: 0, borderRadius: 9, background: customRolesEnabled ? 'var(--brand)' : 'var(--line)', transition: 'background 0.2s' }} />
-              <div style={{ position: 'absolute', top: 2, left: customRolesEnabled ? 16 : 2, width: 14, height: 14, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
-            </button>
-          </div>
         </div>
 
         <div className="flex items-center gap-4" style={{ color: 'var(--text-secondary)' }}>
@@ -7617,7 +7608,6 @@
       };
 
       const [removeConfirm, setRemoveConfirm] = useState(null); // roleId pending confirmation
-      const [customRolesEnabled, setCustomRolesEnabled] = useState(true);
       const [presetConfirm, setPresetConfirm] = useState(null); // { roleNames, presetName, rolesToRemove, rolesToAddOrUpdate }
 
       const applyPreset = (roleNames, presetName) => {
@@ -7781,8 +7771,7 @@
       return (
         <div className="min-h-screen flex flex-col" style={{ background: 'var(--page-bg)' }}>
           <TopBar viewMode={viewMode} modeMenuOpen={modeMenuOpen}
-            setViewMode={setViewMode} setModeMenuOpen={setModeMenuOpen}
-            customRolesEnabled={customRolesEnabled} setCustomRolesEnabled={setCustomRolesEnabled} />
+            setViewMode={setViewMode} setModeMenuOpen={setModeMenuOpen} />
           <div className="flex flex-1">
             <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
             {showEditCustomForm ? (
@@ -7812,11 +7801,6 @@
                     activeSection={activeSection} onSelectSection={setActiveSection}
                     viewMode={viewMode}
                     onApplyPreset={(roleNames, presetName) => {
-                      if (!customRolesEnabled) {
-                        // Feature flag off: apply immediately without confirmation (AC 1a)
-                        applyPreset(roleNames, presetName);
-                        return;
-                      }
                       // Compute what changes so the modal can describe them (AC 4a–4d)
                       const currentCustomRoles = roles.filter(r => r.id !== 'everyone');
                       const rolesToRemove = currentCustomRoles
