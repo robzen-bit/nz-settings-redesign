@@ -1289,6 +1289,7 @@
       const isAccess = activeSection === 'access';
       const isFeatures = activeSection === 'features';
       const isContacts = activeSection === 'contacts';
+      const isPresets = activeSection === 'presets';
       const contactsCount = contacts.length;
       // Build a per-role count list, only including roles that have at least one contact.
       // Order matches the matrix roles order so it stays consistent with the rest of the UI.
@@ -1362,8 +1363,9 @@
               <StatusPill on={false} />Price List
             </div>
           </div>
-          <div className="rounded-xl px-3 py-3 bg-white border" style={{ borderColor: 'var(--card-border)' }}>
-            <div className="flex items-center gap-2"><PresetIcon size={15} /><span className="text-[13px] font-semibold">Setting Presets</span></div>
+          <div onClick={() => onSelectSection('presets')} className="rounded-xl px-3 py-3 bg-white border cursor-pointer"
+            style={{ borderColor: isPresets ? 'var(--brand)' : 'var(--card-border)', background: isPresets ? 'var(--orange-soft, #fff7f3)' : '#fff' }}>
+            <div className="flex items-center gap-2"><PresetIcon size={15} /><span className="text-[13px] font-semibold" style={{ color: isPresets ? 'var(--brand)' : 'var(--text-primary)' }}>Setting Presets</span></div>
           </div>
         </aside>
       );
@@ -5688,6 +5690,92 @@
       );
     };
 
+    // ===== Apply Preset Modal =====
+    const GALLERY_PRESETS = ['Sports', 'Wedding', 'Portrait'];
+
+    const ApplyPresetModal = ({ currentPreset, onClose, onApply }) => {
+      const [selected, setSelected] = useState(currentPreset || GALLERY_PRESETS[0]);
+      return (
+        <div className="fixed inset-0 flex items-center justify-center" style={{ zIndex: 2000, background: 'rgba(0,0,0,0.45)' }}
+          onClick={onClose}>
+          <div className="bg-white rounded-2xl shadow-xl flex flex-col" style={{ width: 580, maxHeight: '80vh' }}
+            onClick={e => e.stopPropagation()}>
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--card-border)' }}>
+              <div style={{ width: 24 }} />
+              <span className="text-[14px] font-bold tracking-widest uppercase" style={{ color: 'var(--text-primary)' }}>Presets</span>
+              <button onClick={onClose} style={{ color: 'var(--text-secondary)' }}><CloseIcon size={18} /></button>
+            </div>
+            {/* Warning */}
+            <p className="text-[13px] font-semibold text-center px-6 pt-4 pb-2" style={{ color: 'var(--brand)' }}>
+              Changing this preset may affect your visitors' shopping cart.
+            </p>
+            {/* Preset list */}
+            <div className="flex-1 overflow-y-auto px-6 pb-4">
+              {GALLERY_PRESETS.map((preset, i) => (
+                <div key={preset}>
+                  <label className="flex items-center gap-4 py-4 cursor-pointer" onClick={() => setSelected(preset)}>
+                    <span className="flex items-center justify-center rounded-full border-2 shrink-0 transition-all"
+                      style={{ width: 22, height: 22, borderColor: selected === preset ? 'var(--brand)' : '#ccc', background: '#fff' }}>
+                      {selected === preset && <span style={{ width: 11, height: 11, borderRadius: '50%', background: 'var(--brand)', display: 'block' }} />}
+                    </span>
+                    <span className="text-[15px] font-medium" style={{ color: 'var(--text-primary)' }}>{preset}</span>
+                  </label>
+                  {i < GALLERY_PRESETS.length - 1 && <div style={{ borderTop: '1px solid var(--card-border)' }} />}
+                </div>
+              ))}
+            </div>
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t" style={{ borderColor: 'var(--card-border)' }}>
+              <button onClick={onClose} className="text-[13px] font-semibold px-5 py-2 rounded-lg"
+                style={{ color: 'var(--text-primary)', textDecoration: 'underline' }}>Cancel</button>
+              <button onClick={() => { onApply(selected); onClose(); }}
+                className="text-[13px] font-bold px-6 py-2 rounded-full text-white"
+                style={{ background: 'var(--brand)' }}>Apply</button>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    // ===== Gallery Presets View =====
+    const PresetsView = ({ activeSection, onSelectSection }) => {
+      const [showApplyModal, setShowApplyModal] = useState(false);
+      const [appliedPreset, setAppliedPreset] = useState(null);
+      return (
+        <main className="main-pane flex-1 px-8 pt-8 pb-12" style={{ maxWidth: 900 }}>
+          <h1 className="text-[18px] font-extrabold tracking-tight uppercase mb-1" style={{ color: 'var(--brand)', letterSpacing: '0.02em' }}>Gallery Preset</h1>
+          <p className="text-[13px] mb-6" style={{ color: 'var(--text-secondary)' }}>
+            Applying a preset will update your gallery settings.{' '}
+            <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Learn more</a> about presets.
+          </p>
+          {appliedPreset && (
+            <p className="text-[13px] mb-4 font-medium" style={{ color: 'var(--text-secondary)' }}>
+              Current preset: <strong style={{ color: 'var(--text-primary)' }}>{appliedPreset}</strong>
+            </p>
+          )}
+          <div className="flex items-center gap-3 mb-8">
+            <button onClick={() => setShowApplyModal(true)}
+              className="text-[13px] font-bold px-6 py-2.5 rounded-lg text-white"
+              style={{ background: 'var(--brand)' }}>Apply a New Preset</button>
+            <button className="text-[13px] font-bold px-6 py-2.5 rounded-lg border-2"
+              style={{ borderColor: 'var(--text-primary)', color: 'var(--text-primary)', background: '#fff' }}>Save New Preset</button>
+          </div>
+          <div style={{ borderTop: '1px solid var(--card-border)' }} className="mb-8" />
+          <p className="text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>Manage all available gallery presets.</p>
+          <button className="text-[13px] font-bold px-6 py-2.5 rounded-lg border-2"
+            style={{ borderColor: 'var(--text-primary)', color: 'var(--text-primary)', background: '#fff' }}>Manage Presets</button>
+          {showApplyModal && (
+            <ApplyPresetModal
+              currentPreset={appliedPreset}
+              onClose={() => setShowApplyModal(false)}
+              onApply={p => setAppliedPreset(p)}
+            />
+          )}
+        </main>
+      );
+    };
+
     const ContactsView = ({ contacts, roles, viewMode, savedRoles, onEnsureRoles, onAdd, onRemoveContact, onOverwrite, activeSection, onSelectSection, onAddRole }) => {
       const isMobile = useIsMobile();
       const [first, setFirst] = useState('');
@@ -7610,6 +7698,8 @@
                     onAdd={addContact} onRemoveContact={removeContact} onOverwrite={clearContacts}
                     activeSection={activeSection} onSelectSection={setActiveSection}
                     onAddRole={() => setShowModal(true)} />
+                ) : activeSection === 'presets' ? (
+                  <PresetsView activeSection={activeSection} onSelectSection={setActiveSection} />
                 ) : activeSection === 'access' ? (
                   <AccessSection
                     mode={accessMode} onSelectMode={setAccessMode}
