@@ -7895,7 +7895,7 @@
                     );
                   })()}
 
-                  <div className="matrix-scroll" style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: 'calc(100vh - 270px)' }}>
+                  <div className="matrix-scroll" style={{ overflowX: 'auto', ...(isMobile ? {} : { overflowY: 'auto', maxHeight: 'calc(100vh - 270px)' }) }}>
                   <div className="bg-white rounded-xl border" style={{ borderColor: 'var(--card-border)', minWidth: !isMobile ? matrixMinWidth : undefined }}>
                     {/* Header row — sticky within the scroll container */}
                     {!isMobile && (
