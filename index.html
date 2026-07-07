@@ -4327,7 +4327,7 @@
       });
     };
 
-    const QRCodeWorkflowModal = ({ onClose, savedRoles = [] }) => {
+    const QRCodeWorkflowModal = ({ onClose, savedRoles = [], viewMode = 'basic' }) => {
       const [hasHeaders, setHasHeaders] = useState(true);
       const [preset, setPreset] = useState('Matthews');
       const [isDragOver, setIsDragOver] = useState(false);
@@ -4342,8 +4342,8 @@
         'Sports Season':   ['General', 'Guest', 'Client', 'Athlete', 'Coach'],
         'School Portrait': ['General', 'Guest', 'Client', 'Student', 'Staff'],
       };
-      const presetRoles = (QR_PRESET_ROLES[preset] || []).filter(r => !SYSTEM_ROLE_NAMES.includes(r));
-      const savedNotInPreset = savedRoles.filter(s => !presetRoles.some(p => p.toLowerCase() === s.name.toLowerCase()));
+      // AC 6b: show only roles from the selected preset; AC 6d: basic = system roles only
+      const presetRoles = viewMode === 'basic' ? [] : (QR_PRESET_ROLES[preset] || []).filter(r => !SYSTEM_ROLE_NAMES.includes(r));
 
       return (
         <div className="fixed inset-0 bg-white flex flex-col" style={{ zIndex: 1000 }}>
@@ -4435,11 +4435,6 @@
                           {presetRoles.map(r => <option key={r}>{r}</option>)}
                         </optgroup>
                       )}
-                      {savedNotInPreset.length > 0 && (
-                        <optgroup label="Saved Custom Roles">
-                          {savedNotInPreset.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
-                        </optgroup>
-                      )}
                     </select>
                   </div>
                 </label>
@@ -4476,7 +4471,7 @@
       'School Portrait': ['General', 'Guest', 'Client', 'Student', 'Staff'],
     };
 
-    const VolumeWizardModal = ({ onClose, savedRoles = [] }) => {
+    const VolumeWizardModal = ({ onClose, savedRoles = [], viewMode = 'basic' }) => {
       const [wizardStep, setWizardStep] = useState(0); // 0 = workflow select, 1 = folder setup, 2 = CSV upload
       const [workflowOption, setWorkflowOption] = useState('import'); // 'import' | 'before' | 'during'
       const [projectName, setProjectName] = useState('');
@@ -5043,8 +5038,8 @@
 
                   {/* Gallery Preset + Role Config */}
                   {(() => {
-                    const presetRoles = (VOLUME_PRESET_ROLES[preset] || []).filter(r => !SYSTEM_ROLE_NAMES.includes(r));
-                    const savedNotInPreset = savedRoles.filter(s => !presetRoles.some(p => p.toLowerCase() === s.name.toLowerCase()));
+                    // AC 6b: only preset roles; AC 6d: basic = system roles only
+                    const presetRoles = viewMode === 'basic' ? [] : (VOLUME_PRESET_ROLES[preset] || []).filter(r => !SYSTEM_ROLE_NAMES.includes(r));
                     return (
                       <>
                         <div>
@@ -5076,11 +5071,6 @@
                                   {presetRoles.length > 0 && (
                                     <optgroup label="Gallery Preset Roles">
                                       {presetRoles.map(r => <option key={r}>{r}</option>)}
-                                    </optgroup>
-                                  )}
-                                  {savedNotInPreset.length > 0 && (
-                                    <optgroup label="Saved Custom Roles">
-                                      {savedNotInPreset.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                                     </optgroup>
                                   )}
                                 </select>
@@ -5193,9 +5183,7 @@
         customInGallery.map(r => ({ id: r.id, name: r.name }));
 
       // Saved roles not currently active in this gallery (shown as a separate optgroup)
-      const importSavedOptions = viewMode === 'basic' ? [] : savedRoles.filter(s =>
-        !customInGallery.some(r => r.name.toLowerCase() === s.name.toLowerCase())
-      ).map(s => ({ id: `__saved__:${s.id}`, name: s.name }));
+      // AC 6a: gallery-level surface — show only roles currently in the gallery features table (no saved-but-not-active roles)
 
       const RadioDot = ({ active }) => (
         <span className="flex items-center justify-center rounded-full border-2 transition-all shrink-0 mt-0.5"
@@ -5440,11 +5428,6 @@
                                   {galleryCustomOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                 </optgroup>
                               )}
-                              {importSavedOptions.length > 0 && (
-                                <optgroup label="Saved Custom Roles">
-                                  {importSavedOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                </optgroup>
-                              )}
                             </>
                           )}
                         </select>
@@ -5624,11 +5607,6 @@
                                     {galleryCustomOptions.length > 0 && (
                                       <optgroup label="Gallery Roles">
                                         {galleryCustomOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
-                                      </optgroup>
-                                    )}
-                                    {importSavedOptions.length > 0 && (
-                                      <optgroup label="Saved Custom Roles">
-                                        {importSavedOptions.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                       </optgroup>
                                     )}
                                   </>
@@ -7783,9 +7761,9 @@
             {showEditCustomForm ? (
               <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} accessFeeRole={accessFeeRole} roles={roles} savedRoles={savedRoles} viewMode={viewMode} />
             ) : activeView === 'volume-workflow' ? (
-              <VolumeWizardModal onClose={() => setActiveView('gallery')} savedRoles={savedRoles} />
+              <VolumeWizardModal onClose={() => setActiveView('gallery')} savedRoles={savedRoles} viewMode={viewMode} />
             ) : activeView === 'qr-code-workflow' ? (
-              <QRCodeWorkflowModal onClose={() => setActiveView('gallery')} savedRoles={savedRoles} />
+              <QRCodeWorkflowModal onClose={() => setActiveView('gallery')} savedRoles={savedRoles} viewMode={viewMode} />
             ) : activeView === 'booking' ? (
               <BookingView onBack={() => setActiveView('gallery')} viewMode={viewMode} savedRoles={savedRoles} />
             ) : (
