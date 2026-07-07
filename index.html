@@ -1071,7 +1071,7 @@
       </aside>
     );
 
-    const TopBar = ({ viewMode, modeMenuOpen, setViewMode, setModeMenuOpen }) => (
+    const TopBar = ({ viewMode, modeMenuOpen, setViewMode, setModeMenuOpen, customRolesEnabled, setCustomRolesEnabled }) => (
       <header className="top-bar flex items-center justify-between px-6 h-[52px] bg-white border-b" style={{ borderColor: 'var(--card-border)' }}>
         <div className="flex items-center gap-2">
           <span className="text-[20px] font-extrabold tracking-tight" style={{ color: '#222' }}>zenfolio</span>
@@ -1129,6 +1129,16 @@
                 })}
               </div>
             )}
+          </div>
+
+          {/* Custom Roles feature flag toggle */}
+          <div className="flex items-center gap-1.5 ml-3 border-l pl-3" style={{ borderColor: 'var(--card-border)' }}>
+            <span className="text-[11px]" style={{ color: 'var(--text-3)' }}>Custom Roles:</span>
+            <button onClick={() => setCustomRolesEnabled(v => !v)}
+              className="relative flex-shrink-0" style={{ width: 32, height: 18 }}>
+              <div style={{ position: 'absolute', inset: 0, borderRadius: 9, background: customRolesEnabled ? 'var(--brand)' : 'var(--line)', transition: 'background 0.2s' }} />
+              <div style={{ position: 'absolute', top: 2, left: customRolesEnabled ? 16 : 2, width: 14, height: 14, borderRadius: '50%', background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
+            </button>
           </div>
         </div>
 
@@ -7607,6 +7617,31 @@
       };
 
       const [removeConfirm, setRemoveConfirm] = useState(null); // roleId pending confirmation
+      const [customRolesEnabled, setCustomRolesEnabled] = useState(true);
+      const [presetConfirm, setPresetConfirm] = useState(null); // { roleNames, presetName, rolesToRemove, rolesToAddOrUpdate }
+
+      const applyPreset = (roleNames, presetName) => {
+        const generalRole = roles.find(r => r.id === 'everyone');
+        const presetStates = PRESET_ROLE_STATES[presetName]?.[viewMode] || {};
+        const generalState = presetStates['General'] ? presetStates['General'] : perRole['everyone'];
+        const newRoles = [generalRole];
+        const newPerRole = { everyone: generalState };
+        roleNames.forEach((name, i) => {
+          const id = `role-preset-${Date.now()}-${i}`;
+          newRoles.push({ id, name, removable: true, isCustom: false });
+          newPerRole[id] = presetStates[name]
+            ? JSON.parse(JSON.stringify(presetStates[name]))
+            : buildRoleState('client');
+        });
+        // Reassign contacts from removed roles to General (AC 3a)
+        const removedIds = roles.filter(r => r.id !== 'everyone' && !roleNames.includes(r.name)).map(r => r.id);
+        if (removedIds.length > 0) {
+          setContacts(prev => prev.map(c => removedIds.includes(c.roleId) ? { ...c, roleId: 'everyone' } : c));
+        }
+        setRoles(newRoles);
+        setPerRole(newPerRole);
+        showToast(`"${presetName}" preset applied`);
+      };
 
       const removeRole = (roleId) => {
         if (roles.length <= 1) return;
@@ -7746,7 +7781,8 @@
       return (
         <div className="min-h-screen flex flex-col" style={{ background: 'var(--page-bg)' }}>
           <TopBar viewMode={viewMode} modeMenuOpen={modeMenuOpen}
-            setViewMode={setViewMode} setModeMenuOpen={setModeMenuOpen} />
+            setViewMode={setViewMode} setModeMenuOpen={setModeMenuOpen}
+            customRolesEnabled={customRolesEnabled} setCustomRolesEnabled={setCustomRolesEnabled} />
           <div className="flex flex-1">
             <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
             {showEditCustomForm ? (
@@ -7776,25 +7812,18 @@
                     activeSection={activeSection} onSelectSection={setActiveSection}
                     viewMode={viewMode}
                     onApplyPreset={(roleNames, presetName) => {
-                      // Keep only General (everyone), replace all other roles with preset roles
-                      const generalRole = roles.find(r => r.id === 'everyone');
-                      const presetStates = PRESET_ROLE_STATES[presetName]?.[viewMode] || {};
-                      // Apply General override if defined
-                      const generalState = presetStates['General']
-                        ? presetStates['General']
-                        : perRole['everyone'];
-                      const newRoles = [generalRole];
-                      const newPerRole = { everyone: generalState };
-                      roleNames.forEach((name, i) => {
-                        const id = `role-preset-${Date.now()}-${i}`;
-                        newRoles.push({ id, name, removable: true, isCustom: false });
-                        newPerRole[id] = presetStates[name]
-                          ? JSON.parse(JSON.stringify(presetStates[name]))
-                          : buildRoleState('client');
-                      });
-                      setRoles(newRoles);
-                      setPerRole(newPerRole);
-                      showToast(`Preset applied — ${roleNames.length} role${roleNames.length !== 1 ? 's' : ''} added`);
+                      if (!customRolesEnabled) {
+                        // Feature flag off: apply immediately without confirmation (AC 1a)
+                        applyPreset(roleNames, presetName);
+                        return;
+                      }
+                      // Compute what changes so the modal can describe them (AC 4a–4d)
+                      const currentCustomRoles = roles.filter(r => r.id !== 'everyone');
+                      const rolesToRemove = currentCustomRoles
+                        .filter(r => !roleNames.includes(r.name))
+                        .map(r => r.name);
+                      const rolesToAddOrUpdate = ['General', ...roleNames];
+                      setPresetConfirm({ roleNames, presetName, rolesToRemove, rolesToAddOrUpdate });
                     }}
                   />
                 ) : activeSection === 'access' ? (
@@ -8038,6 +8067,64 @@
                       className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white"
                       style={{ background: '#E53E3E' }}>
                       Remove Role
+                    </button>
+                  </div>
+                </div>
+              </div>,
+              document.body
+            );
+          })()}
+
+          {presetConfirm && (() => {
+            const { roleNames, presetName, rolesToRemove, rolesToAddOrUpdate } = presetConfirm;
+            const hasRemovals = rolesToRemove.length > 0;
+            const affectedContacts = contacts.filter(c => {
+              const role = roles.find(r => r.id === c.roleId);
+              return role && rolesToRemove.includes(role.name);
+            }).length;
+            return ReactDOM.createPortal(
+              <div className="fixed inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)', zIndex: 300 }}
+                onClick={() => setPresetConfirm(null)}>
+                <div className="bg-white rounded-2xl shadow-2xl p-6" style={{ width: 460, maxWidth: 'calc(100vw - 32px)' }}
+                  onClick={e => e.stopPropagation()}>
+                  <h2 className="text-[17px] font-extrabold tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>
+                    Apply "{presetName}" Preset?
+                  </h2>
+                  {hasRemovals ? (
+                    <div className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      <p>Applying the <strong>{presetName}</strong> preset to this gallery will add or update the following roles:</p>
+                      <ul className="list-disc pl-5 mt-1 mb-3 space-y-0.5">
+                        {rolesToAddOrUpdate.map(name => <li key={name}><strong>{name}</strong></li>)}
+                      </ul>
+                      <p>and will remove the following roles:</p>
+                      <ul className="list-disc pl-5 mt-1 mb-3 space-y-0.5">
+                        {rolesToRemove.map(name => <li key={name}><strong>{name}</strong></li>)}
+                      </ul>
+                      {affectedContacts > 0 && (
+                        <p className="mt-1">
+                          {affectedContacts} {affectedContacts === 1 ? 'contact' : 'contacts'} assigned to {rolesToRemove.length === 1 ? 'the removed role' : 'removed roles'} will be moved to the <strong>General</strong> role.
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      <p>Applying this preset may update the settings applied to the following roles:</p>
+                      <ul className="list-disc pl-5 mt-1 mb-3 space-y-0.5">
+                        {rolesToAddOrUpdate.map(name => <li key={name}><strong>{name}</strong></li>)}
+                      </ul>
+                      <p>Since no roles are being removed, any contacts you've added to these roles will remain in their roles, but their experience may change.</p>
+                    </div>
+                  )}
+                  <div className="flex justify-end gap-3 mt-6">
+                    <button onClick={() => setPresetConfirm(null)}
+                      className="px-4 py-2 rounded-lg text-[14px] font-semibold"
+                      style={{ background: 'var(--soft-bg)', color: 'var(--text-primary)' }}>
+                      Cancel
+                    </button>
+                    <button onClick={() => { applyPreset(roleNames, presetName); setPresetConfirm(null); }}
+                      className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white"
+                      style={{ background: 'var(--brand)' }}>
+                      Confirm
                     </button>
                   </div>
                 </div>
