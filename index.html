@@ -5693,6 +5693,137 @@
     // ===== Apply Preset Modal =====
     const GALLERY_PRESETS = ['Sports', 'Wedding', 'Portrait'];
 
+    // Per-role feature state for each preset at each plan level.
+    // Keys match FEATURE_DEFS ids. Omitted features default to off / default values.
+    const mkState = (overrides) => {
+      const base = {};
+      ['photo-downloads','video-downloads','screenshot-protection','keyword-search',
+       'face-finder','favorites','commenting','sharing','watermark','video-previews'].forEach(id => {
+        base[id] = { enabled: false, values: {} };
+      });
+      // Apply overrides
+      Object.entries(overrides).forEach(([id, val]) => {
+        base[id] = { ...base[id], ...val };
+      });
+      return base;
+    };
+
+    const PRESET_ROLE_STATES = {
+      Sports: {
+        advanced: {
+          General: mkState({
+            'screenshot-protection': { enabled: true, values: {} },
+            'face-finder':  { enabled: true,  values: {} },
+            'favorites':    { enabled: true,  values: {} },
+            'sharing':      { enabled: true,  values: {} },
+          }),
+          Parent: mkState({
+            'photo-downloads': { enabled: true, values: {
+              'download-type': 'All photos and individual download',
+              'gallery-resolutions': ['Original'],
+              'individual-resolution': 'Original',
+            }},
+            'video-downloads': { enabled: true, values: {
+              'video-download-type': 'Specific amount download',
+              'video-specific-amount': 2,
+            }},
+            'face-finder':  { enabled: true,  values: {} },
+            'favorites':    { enabled: true,  values: {} },
+            'commenting':   { enabled: true,  values: {} },
+            'sharing':      { enabled: true,  values: {} },
+          }),
+          Player: mkState({
+            'photo-downloads': { enabled: true, values: {
+              'download-type': 'Individual download only',
+              'individual-resolution': 'Low',
+            }},
+            'face-finder':  { enabled: true,  values: {} },
+            'favorites':    { enabled: true,  values: {} },
+          }),
+          Coach: mkState({
+            'photo-downloads': { enabled: true, values: {
+              'download-type': 'Specific amount download',
+              'specific-amount': 5,
+            }},
+            'video-downloads': { enabled: true, values: {
+              'video-download-type': 'Specific amount download',
+              'video-specific-amount': 2,
+            }},
+          }),
+          'League Admin': mkState({
+            'photo-downloads': { enabled: true, values: {
+              'download-type': 'All photos and individual download',
+              'gallery-resolutions': ['Original'],
+              'individual-resolution': 'Original',
+            }},
+            'video-downloads': { enabled: true, values: {
+              'video-download-type': 'All videos and individual download',
+              'video-resolutions': ['Original'],
+              'video-individual-resolution': 'Original',
+            }},
+          }),
+        },
+      },
+      Wedding: {
+        advanced: {
+          General: mkState({
+            'screenshot-protection': { enabled: true,  values: {} },
+            'face-finder':           { enabled: true,  values: {} },
+          }),
+          Bride: mkState({
+            'photo-downloads': { enabled: true, values: {
+              'download-type': 'All photos and individual download',
+              'gallery-resolutions': ['High'],
+              'individual-resolution': 'High',
+            }},
+            'video-downloads': { enabled: true, values: {
+              'video-download-type': 'All videos and individual download',
+              'video-resolutions': ['Original'],
+              'video-individual-resolution': 'Original',
+            }},
+            'face-finder':  { enabled: true, values: {} },
+            'favorites':    { enabled: true, values: {} },
+            'commenting':   { enabled: true, values: {} },
+            'sharing':      { enabled: true, values: {} },
+          }),
+          Groom: mkState({
+            'photo-downloads': { enabled: true, values: {
+              'download-type': 'All photos and individual download',
+              'gallery-resolutions': ['High'],
+              'individual-resolution': 'High',
+            }},
+            'video-downloads': { enabled: true, values: {
+              'video-download-type': 'All videos and individual download',
+              'video-resolutions': ['Original'],
+              'video-individual-resolution': 'Original',
+            }},
+            'face-finder':  { enabled: true, values: {} },
+            'favorites':    { enabled: true, values: {} },
+            'commenting':   { enabled: true, values: {} },
+            'sharing':      { enabled: true, values: {} },
+          }),
+          "Bride's Mother": mkState({
+            'face-finder':  { enabled: true, values: {} },
+            'favorites':    { enabled: true, values: {} },
+            'commenting':   { enabled: true, values: {} },
+            'sharing':      { enabled: true, values: {} },
+          }),
+          'Wedding Planner': mkState({
+            'photo-downloads': { enabled: true, values: {
+              'download-type': 'Specific amount download',
+              'specific-amount': 10,
+            }},
+          }),
+          Florist: mkState({
+            'photo-downloads': { enabled: true, values: {
+              'download-type': 'Specific amount download',
+              'specific-amount': 10,
+            }},
+          }),
+        },
+      },
+    };
+
     const GALLERY_PRESET_ROLES = {
       Sports: {
         basic:        ['Client', 'Guest'],
@@ -5764,7 +5895,7 @@
       const handleApply = (presetName) => {
         setAppliedPreset(presetName);
         const roleNames = GALLERY_PRESET_ROLES[presetName]?.[viewMode] || [];
-        if (onApplyPreset) onApplyPreset(roleNames);
+        if (onApplyPreset) onApplyPreset(roleNames, presetName);
       };
 
       return (
@@ -7727,16 +7858,22 @@
                   <PresetsView
                     activeSection={activeSection} onSelectSection={setActiveSection}
                     viewMode={viewMode}
-                    onApplyPreset={(roleNames) => {
+                    onApplyPreset={(roleNames, presetName) => {
                       // Keep only General (everyone), replace all other roles with preset roles
                       const generalRole = roles.find(r => r.id === 'everyone');
-                      const generalPerRole = perRole['everyone'];
+                      const presetStates = PRESET_ROLE_STATES[presetName]?.[viewMode] || {};
+                      // Apply General override if defined
+                      const generalState = presetStates['General']
+                        ? presetStates['General']
+                        : perRole['everyone'];
                       const newRoles = [generalRole];
-                      const newPerRole = { everyone: generalPerRole };
+                      const newPerRole = { everyone: generalState };
                       roleNames.forEach((name, i) => {
                         const id = `role-preset-${Date.now()}-${i}`;
                         newRoles.push({ id, name, removable: true, isCustom: false });
-                        newPerRole[id] = buildRoleState('client');
+                        newPerRole[id] = presetStates[name]
+                          ? JSON.parse(JSON.stringify(presetStates[name]))
+                          : buildRoleState('client');
                       });
                       setRoles(newRoles);
                       setPerRole(newPerRole);
