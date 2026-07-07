@@ -5701,126 +5701,43 @@
        'face-finder','favorites','commenting','sharing','watermark','video-previews'].forEach(id => {
         base[id] = { enabled: false, values: {} };
       });
-      // Apply overrides
-      Object.entries(overrides).forEach(([id, val]) => {
-        base[id] = { ...base[id], ...val };
-      });
+      Object.entries(overrides).forEach(([id, val]) => { base[id] = { ...base[id], ...val }; });
       return base;
     };
 
+    // Named role states — reused across plan tiers so lower tiers inherit identical settings
+    // for any role name they share with the advanced tier.
+    const _sportsGeneral    = mkState({ 'screenshot-protection': { enabled: true, values: {} }, 'face-finder': { enabled: true, values: {} }, 'favorites': { enabled: true, values: {} }, 'sharing': { enabled: true, values: {} } });
+    const _sportsParent     = mkState({ 'photo-downloads': { enabled: true, values: { 'download-type': 'All photos and individual download', 'gallery-resolutions': ['Original'], 'individual-resolution': 'Original' } }, 'video-downloads': { enabled: true, values: { 'video-download-type': 'Specific amount download', 'video-specific-amount': 2 } }, 'face-finder': { enabled: true, values: {} }, 'favorites': { enabled: true, values: {} }, 'commenting': { enabled: true, values: {} }, 'sharing': { enabled: true, values: {} } });
+    const _sportsPlayer     = mkState({ 'photo-downloads': { enabled: true, values: { 'download-type': 'Individual download only', 'individual-resolution': 'Low' } }, 'face-finder': { enabled: true, values: {} }, 'favorites': { enabled: true, values: {} } });
+    const _sportsCoach      = mkState({ 'photo-downloads': { enabled: true, values: { 'download-type': 'Specific amount download', 'specific-amount': 5 } }, 'video-downloads': { enabled: true, values: { 'video-download-type': 'Specific amount download', 'video-specific-amount': 2 } } });
+    const _sportsLeagueAdmin = mkState({ 'photo-downloads': { enabled: true, values: { 'download-type': 'All photos and individual download', 'gallery-resolutions': ['Original'], 'individual-resolution': 'Original' } }, 'video-downloads': { enabled: true, values: { 'video-download-type': 'All videos and individual download', 'video-resolutions': ['Original'], 'video-individual-resolution': 'Original' } } });
+
+    const _weddingGeneral      = mkState({ 'screenshot-protection': { enabled: true, values: {} }, 'face-finder': { enabled: true, values: {} } });
+    const _weddingBrideGroom   = mkState({ 'photo-downloads': { enabled: true, values: { 'download-type': 'All photos and individual download', 'gallery-resolutions': ['High'], 'individual-resolution': 'High' } }, 'video-downloads': { enabled: true, values: { 'video-download-type': 'All videos and individual download', 'video-resolutions': ['Original'], 'video-individual-resolution': 'Original' } }, 'face-finder': { enabled: true, values: {} }, 'favorites': { enabled: true, values: {} }, 'commenting': { enabled: true, values: {} }, 'sharing': { enabled: true, values: {} } });
+    const _weddingBridesMother = mkState({ 'face-finder': { enabled: true, values: {} }, 'favorites': { enabled: true, values: {} }, 'commenting': { enabled: true, values: {} }, 'sharing': { enabled: true, values: {} } });
+    const _weddingPlannerFlorist = mkState({ 'photo-downloads': { enabled: true, values: { 'download-type': 'Specific amount download', 'specific-amount': 10 } } });
+
+    const _portraitGeneral    = mkState({});
+    const _portraitClient     = mkState({ 'photo-downloads': { enabled: true, values: { 'download-type': 'All photos and individual download', 'gallery-resolutions': ['Original'], 'individual-resolution': 'Original' } }, 'video-downloads': { enabled: true, values: { 'video-download-type': 'All videos and individual download', 'video-resolutions': ['Original'], 'video-individual-resolution': 'Original' } }, 'keyword-search': { enabled: true, values: {} }, 'face-finder': { enabled: true, values: {} }, 'favorites': { enabled: true, values: {} }, 'commenting': { enabled: true, values: {} }, 'sharing': { enabled: true, values: {} } });
+    const _portraitBestFriend = mkState({ 'screenshot-protection': { enabled: true, values: {} } });
+    const _portraitMom        = mkState({ 'screenshot-protection': { enabled: true, values: {} }, 'photo-downloads': { enabled: true, values: { 'download-type': 'Specific amount download', 'specific-amount': 5 } } });
+
     const PRESET_ROLE_STATES = {
       Sports: {
-        advanced: {
-          General: mkState({
-            'screenshot-protection': { enabled: true, values: {} },
-            'face-finder':  { enabled: true,  values: {} },
-            'favorites':    { enabled: true,  values: {} },
-            'sharing':      { enabled: true,  values: {} },
-          }),
-          Parent: mkState({
-            'photo-downloads': { enabled: true, values: {
-              'download-type': 'All photos and individual download',
-              'gallery-resolutions': ['Original'],
-              'individual-resolution': 'Original',
-            }},
-            'video-downloads': { enabled: true, values: {
-              'video-download-type': 'Specific amount download',
-              'video-specific-amount': 2,
-            }},
-            'face-finder':  { enabled: true,  values: {} },
-            'favorites':    { enabled: true,  values: {} },
-            'commenting':   { enabled: true,  values: {} },
-            'sharing':      { enabled: true,  values: {} },
-          }),
-          Player: mkState({
-            'photo-downloads': { enabled: true, values: {
-              'download-type': 'Individual download only',
-              'individual-resolution': 'Low',
-            }},
-            'face-finder':  { enabled: true,  values: {} },
-            'favorites':    { enabled: true,  values: {} },
-          }),
-          Coach: mkState({
-            'photo-downloads': { enabled: true, values: {
-              'download-type': 'Specific amount download',
-              'specific-amount': 5,
-            }},
-            'video-downloads': { enabled: true, values: {
-              'video-download-type': 'Specific amount download',
-              'video-specific-amount': 2,
-            }},
-          }),
-          'League Admin': mkState({
-            'photo-downloads': { enabled: true, values: {
-              'download-type': 'All photos and individual download',
-              'gallery-resolutions': ['Original'],
-              'individual-resolution': 'Original',
-            }},
-            'video-downloads': { enabled: true, values: {
-              'video-download-type': 'All videos and individual download',
-              'video-resolutions': ['Original'],
-              'video-individual-resolution': 'Original',
-            }},
-          }),
-        },
+        advanced:     { General: _sportsGeneral, Parent: _sportsParent, Player: _sportsPlayer, Coach: _sportsCoach, 'League Admin': _sportsLeagueAdmin },
+        professional: { General: _sportsGeneral, Parent: _sportsParent, Player: _sportsPlayer },
+        basic:        { General: _sportsGeneral },
       },
       Wedding: {
-        advanced: {
-          General: mkState({
-            'screenshot-protection': { enabled: true,  values: {} },
-            'face-finder':           { enabled: true,  values: {} },
-          }),
-          Bride: mkState({
-            'photo-downloads': { enabled: true, values: {
-              'download-type': 'All photos and individual download',
-              'gallery-resolutions': ['High'],
-              'individual-resolution': 'High',
-            }},
-            'video-downloads': { enabled: true, values: {
-              'video-download-type': 'All videos and individual download',
-              'video-resolutions': ['Original'],
-              'video-individual-resolution': 'Original',
-            }},
-            'face-finder':  { enabled: true, values: {} },
-            'favorites':    { enabled: true, values: {} },
-            'commenting':   { enabled: true, values: {} },
-            'sharing':      { enabled: true, values: {} },
-          }),
-          Groom: mkState({
-            'photo-downloads': { enabled: true, values: {
-              'download-type': 'All photos and individual download',
-              'gallery-resolutions': ['High'],
-              'individual-resolution': 'High',
-            }},
-            'video-downloads': { enabled: true, values: {
-              'video-download-type': 'All videos and individual download',
-              'video-resolutions': ['Original'],
-              'video-individual-resolution': 'Original',
-            }},
-            'face-finder':  { enabled: true, values: {} },
-            'favorites':    { enabled: true, values: {} },
-            'commenting':   { enabled: true, values: {} },
-            'sharing':      { enabled: true, values: {} },
-          }),
-          "Bride's Mother": mkState({
-            'face-finder':  { enabled: true, values: {} },
-            'favorites':    { enabled: true, values: {} },
-            'commenting':   { enabled: true, values: {} },
-            'sharing':      { enabled: true, values: {} },
-          }),
-          'Wedding Planner': mkState({
-            'photo-downloads': { enabled: true, values: {
-              'download-type': 'Specific amount download',
-              'specific-amount': 10,
-            }},
-          }),
-          Florist: mkState({
-            'photo-downloads': { enabled: true, values: {
-              'download-type': 'Specific amount download',
-              'specific-amount': 10,
-            }},
-          }),
-        },
+        advanced:     { General: _weddingGeneral, Bride: _weddingBrideGroom, Groom: _weddingBrideGroom, "Bride's Mother": _weddingBridesMother, 'Wedding Planner': _weddingPlannerFlorist, Florist: _weddingPlannerFlorist },
+        professional: { General: _weddingGeneral, Bride: _weddingBrideGroom, Groom: _weddingBrideGroom },
+        basic:        { General: _weddingGeneral },
+      },
+      Portrait: {
+        advanced:     { General: _portraitGeneral, Client: _portraitClient, 'Best Friend': _portraitBestFriend, Mom: _portraitMom },
+        professional: { General: _portraitGeneral, Client: _portraitClient, 'Best Friend': _portraitBestFriend },
+        basic:        { General: _portraitGeneral, Client: _portraitClient },
       },
     };
 
