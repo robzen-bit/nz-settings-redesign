@@ -7790,9 +7790,14 @@
                         .filter(r => !roleNames.includes(r.name))
                         .map(r => r.name);
                       const currentRoleNames = new Set(roles.map(r => r.name));
-                      const allPresetRoles = ['General', ...roleNames];
-                      const rolesToAdd    = allPresetRoles.filter(n => !currentRoleNames.has(n));
-                      const rolesToUpdate = allPresetRoles.filter(n => currentRoleNames.has(n));
+                      // AC 4d: General is never listed — only classify non-General preset roles
+                      const rolesToAdd    = roleNames.filter(n => !currentRoleNames.has(n));
+                      const rolesToUpdate = roleNames.filter(n => currentRoleNames.has(n));
+                      // AC 5b: skip modal when only General base settings change
+                      if (rolesToAdd.length === 0 && rolesToUpdate.length === 0 && rolesToRemove.length === 0) {
+                        applyPreset(roleNames, presetName);
+                        return;
+                      }
                       setPresetConfirm({ roleNames, presetName, rolesToRemove, rolesToAdd, rolesToUpdate });
                     }}
                   />
@@ -8058,6 +8063,11 @@
                 <strong>{n}</strong>
               </React.Fragment>
             ));
+            const rw = (n) => n === 1 ? 'role' : 'roles';
+            const cw = (n) => n === 1 ? 'contact' : 'contacts';
+            const tw = (n) => n === 1 ? 'this role' : 'these roles';
+            const activeCount = [rolesToAdd.length > 0, rolesToUpdate.length > 0, rolesToRemove.length > 0].filter(Boolean).length;
+            const changeWord = activeCount === 1 ? 'change' : 'changes';
             return ReactDOM.createPortal(
               <div className="fixed inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)', zIndex: 300 }}
                 onClick={() => setPresetConfirm(null)}>
@@ -8074,33 +8084,26 @@
                   </div>
                   {/* Body */}
                   <div className="px-8 py-7 text-[15px] leading-relaxed" style={{ color: 'var(--text-primary)' }}>
-                    {hasRemovals ? (
-                      <>
+                    <p className="mb-4">Applying the <strong>"{presetName}"</strong> preset to this gallery will make the following {changeWord}:</p>
+                    <div className="flex flex-col gap-3">
+                      {rolesToAdd.length > 0 && (
+                        <p>The following {rw(rolesToAdd.length)} will be added: {fmtList(rolesToAdd)}.</p>
+                      )}
+                      {rolesToUpdate.length > 0 && (
                         <p>
-                          Applying the <strong>"{presetName}"</strong> preset to this gallery will
-                          {rolesToAdd.length > 0 && <> add the following roles: {fmtList(rolesToAdd)}</>}
-                          {rolesToAdd.length > 0 && rolesToUpdate.length > 0 && <>, and may update the settings for: {fmtList(rolesToUpdate)}</>}
-                          {rolesToAdd.length === 0 && rolesToUpdate.length > 0 && <> update the settings for the following roles: {fmtList(rolesToUpdate)}</>}
-                          {' '}and will remove the following roles: {fmtList(rolesToRemove)}.
+                          The settings may be updated for the following {rw(rolesToUpdate.length)}: {fmtList(rolesToUpdate)}.
+                          {!hasRemovals && (
+                            <> Since no roles are being removed, any contacts you've added to {tw(rolesToUpdate.length)} will remain in their {rw(rolesToUpdate.length)}, but their experience may change.</>
+                          )}
                         </p>
-                        <p className="mt-5">
-                          <strong>Note:</strong> {affectedContacts} {affectedContacts === 1 ? 'contact' : 'contacts'} assigned to removed roles will be moved to the General role.
-                        </p>
-                      </>
-                    ) : (
-                      <>
+                      )}
+                      {rolesToRemove.length > 0 && (
                         <p>
-                          {rolesToAdd.length > 0 && rolesToUpdate.length === 0 && <>Applying the <strong>"{presetName}"</strong> preset to this gallery will add the following roles: {fmtList(rolesToAdd)}.</>}
-                          {rolesToAdd.length === 0 && rolesToUpdate.length > 0 && <>Applying the <strong>"{presetName}"</strong> preset to this gallery may update the settings for the following roles: {fmtList(rolesToUpdate)}.</>}
-                          {rolesToAdd.length > 0 && rolesToUpdate.length > 0 && <>Applying the <strong>"{presetName}"</strong> preset to this gallery will add the following roles: {fmtList(rolesToAdd)}, and may update the settings for: {fmtList(rolesToUpdate)}.</>}
+                          The following {rw(rolesToRemove.length)} will be removed: {fmtList(rolesToRemove)}.{' '}
+                          {affectedContacts} {cw(affectedContacts)} assigned to removed {rw(rolesToRemove.length)} will be moved to the General role.
                         </p>
-                        {rolesToUpdate.length > 0 && (
-                          <p className="mt-5">
-                            Since no roles are being removed, any contacts you've added to these roles will remain in their roles, but their experience may change.
-                          </p>
-                        )}
-                      </>
-                    )}
+                      )}
+                    </div>
                   </div>
                   {/* Footer */}
                   <div className="flex items-center justify-between px-8 py-5 border-t" style={{ borderColor: 'var(--card-border)' }}>
