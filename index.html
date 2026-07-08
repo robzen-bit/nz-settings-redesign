@@ -7215,7 +7215,10 @@
 
           {/* Add Field Modal */}
           {addFieldModal && (() => {
-            const jsx = <div className="modal-overlay" onClick={closeModal} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
+            const overlayStyle = isMobile
+              ? { position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }
+              : { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' };
+            const jsx = <div className="modal-overlay" onClick={closeModal} style={overlayStyle}>
               <div className="bg-white rounded-2xl border shadow-xl flex flex-col" onClick={e => e.stopPropagation()}
                 style={{ borderColor: 'var(--card-border)', width: '100%', maxWidth: 480 }}>
                 {/* Modal header */}
@@ -7276,7 +7279,10 @@
           })()}
           {/* Rename Block Modal */}
           {renameBlockId && (() => {
-            const jsx = <div className="modal-overlay" onClick={() => setRenameBlockId(null)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
+            const overlayStyle = isMobile
+              ? { position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }
+              : { display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' };
+            const jsx = <div className="modal-overlay" onClick={() => setRenameBlockId(null)} style={overlayStyle}>
               <div className="bg-white rounded-2xl border shadow-xl flex flex-col" onClick={e => e.stopPropagation()}
                 style={{ borderColor: 'var(--card-border)', width: '100%', maxWidth: 400 }}>
                 <div className="flex items-center justify-between px-6 py-5 border-b shrink-0" style={{ borderColor: 'var(--card-border)' }}>
