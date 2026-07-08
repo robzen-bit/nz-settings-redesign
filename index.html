@@ -3681,32 +3681,49 @@
         !(roles || []).some(r => r.name.toLowerCase() === s.name.toLowerCase())
       ) : [];
       const [showAdvanced, setShowAdvanced] = useState(false);
+      const isMobile = useIsMobile();
 
       // Row component for registration sub-options
-      const RegRow = ({ checked, onToggle, label, description, optionalLabel, optionalChecked, onToggleOptional, optionalDisabled, children }) => (
-        <div className="flex gap-3 py-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
-          <button type="button" onClick={onToggle}
-            className="mt-0.5 shrink-0 flex items-center justify-center rounded-full border-2 transition-all"
-            style={{ width: 20, height: 20, borderColor: checked ? 'var(--brand)' : 'var(--line)', background: checked ? 'var(--brand)' : '#fff' }}>
-            {checked && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff' }} />}
+      const RegRow = ({ checked, onToggle, label, description, optionalLabel, optionalChecked, onToggleOptional, optionalDisabled, children }) => {
+        const optionalCheckbox = onToggleOptional ? (
+          <button type="button" onClick={!optionalDisabled ? onToggleOptional : undefined}
+            className="mt-1 shrink-0 flex items-center justify-center rounded border-2 transition-all"
+            style={{ width: 18, height: 18, borderColor: optionalDisabled ? 'var(--line)' : optionalChecked ? 'var(--brand)' : 'var(--line)', background: optionalDisabled ? 'var(--soft-bg)' : optionalChecked ? 'var(--brand)' : '#fff', cursor: optionalDisabled ? 'default' : 'pointer' }}>
+            {!optionalDisabled && optionalChecked && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
           </button>
-          <div className="flex-1 min-w-0">
-            <div className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>{label}</div>
-            <div className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{description}</div>
-            {checked && children}
-          </div>
-          {onToggleOptional && (
-            <div className="flex items-start gap-2 shrink-0 pt-0.5" style={{ minWidth: 220 }}>
-              <button type="button" onClick={!optionalDisabled ? onToggleOptional : undefined}
-                className="mt-1 shrink-0 flex items-center justify-center rounded border-2 transition-all"
-                style={{ width: 18, height: 18, borderColor: optionalDisabled ? 'var(--line)' : optionalChecked ? 'var(--brand)' : 'var(--line)', background: optionalDisabled ? 'var(--soft-bg)' : optionalChecked ? 'var(--brand)' : '#fff', cursor: optionalDisabled ? 'default' : 'pointer' }}>
-                {!optionalDisabled && optionalChecked && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
+        ) : null;
+        return (
+          <div className="py-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
+            <div className="flex gap-3">
+              <button type="button" onClick={onToggle}
+                className="mt-0.5 shrink-0 flex items-center justify-center rounded-full border-2 transition-all"
+                style={{ width: 20, height: 20, borderColor: checked ? 'var(--brand)' : 'var(--line)', background: checked ? 'var(--brand)' : '#fff' }}>
+                {checked && <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#fff' }} />}
               </button>
-              <span className="text-[13px]" style={{ color: optionalDisabled ? 'var(--text-tertiary)' : 'var(--text-secondary)' }}>{optionalLabel}</span>
+              <div className="flex-1 min-w-0">
+                <div className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>{label}</div>
+                <div className="text-[13px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>{description}</div>
+                {checked && !isMobile && children}
+              </div>
+              {!isMobile && onToggleOptional && (
+                <div className="flex items-start gap-2 shrink-0 pt-0.5" style={{ minWidth: 220 }}>
+                  {optionalCheckbox}
+                  <span className="text-[13px]" style={{ color: optionalDisabled ? 'var(--text-tertiary)' : 'var(--text-secondary)' }}>{optionalLabel}</span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      );
+            {isMobile && onToggleOptional && (
+              <div className="flex items-center justify-end gap-2 mt-2">
+                {optionalCheckbox}
+                <span className="text-[13px]" style={{ color: optionalDisabled ? 'var(--text-tertiary)' : 'var(--text-secondary)' }}>{optionalLabel}</span>
+              </div>
+            )}
+            {isMobile && checked && children && (
+              <div className="mt-3 flex justify-center">{children}</div>
+            )}
+          </div>
+        );
+      };
 
       return (
         <main className="main-pane flex-1 px-6 pt-6 pb-12" style={{ maxWidth: 920 }}>
