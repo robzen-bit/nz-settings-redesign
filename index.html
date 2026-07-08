@@ -1113,7 +1113,7 @@
       </aside>
     );
 
-    const IPhoneFrame = ({ children }) => (
+    const IPhoneFrame = ({ children, modals }) => (
       <div style={{
         position: 'relative', width: 390, flexShrink: 0,
         background: 'linear-gradient(160deg,#2C2C2E,#1C1C1E)',
@@ -1129,8 +1129,8 @@
         <div style={{ position:'absolute', left:-3, top:182, width:3, height:32, background:'#3A3A3C', borderRadius:'2px 0 0 2px' }} />
         {/* Power */}
         <div style={{ position:'absolute', right:-3, top:170, width:3, height:62, background:'#3A3A3C', borderRadius:'0 2px 2px 0' }} />
-        {/* Screen */}
-        <div style={{ background:'#fff', borderRadius:40, overflow:'hidden', display:'flex', flexDirection:'column', height:812 }}>
+        {/* Screen — position:relative + transform make position:fixed children clip to this element */}
+        <div style={{ background:'#fff', borderRadius:40, overflow:'hidden', display:'flex', flexDirection:'column', height:812, position:'relative', transform:'translateZ(0)' }}>
           {/* Status bar */}
           <div style={{ flexShrink:0, background:'#000', height:54, position:'relative', display:'flex', alignItems:'flex-end', padding:'0 28px 10px' }}>
             {/* Dynamic Island */}
@@ -1146,6 +1146,8 @@
           <div className="is-phone-sim" style={{ flex:1, overflowY:'auto', overflowX:'hidden', display:'flex', flexDirection:'column', minHeight:0 }}>
             {children}
           </div>
+          {/* Modal layer — renders above content, clipped to phone screen */}
+          {modals}
           {/* Home indicator */}
           <div style={{ flexShrink:0, height:30, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center' }}>
             <div style={{ width:130, height:5, background:'#000', borderRadius:3, opacity:0.18 }} />
@@ -8062,23 +8064,11 @@
             </div>
       );
 
-      return (
-        <MobileSimContext.Provider value={simulateMobile}>
-        <div className="min-h-screen flex flex-col" style={{ background: 'var(--page-bg)' }}>
-          <TopBar viewMode={viewMode} modeMenuOpen={modeMenuOpen}
-            setViewMode={setViewMode} setModeMenuOpen={setModeMenuOpen}
-            simulateMobile={simulateMobile} onToggleMobile={() => setSimulateMobile(v => !v)} />
-          {simulateMobile ? (
-            <div style={{ flex:1, display:'flex', alignItems:'flex-start', justifyContent:'center', padding:'32px 24px', overflowY:'auto', background:'#DEDAD3' }}>
-              <IPhoneFrame>{_mV}</IPhoneFrame>
-            </div>
-          ) : (
-            <div className="flex flex-1">
-              <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
-              {_mV}
-            </div>
-          )}
-
+      // All overlay/modal JSX — passed into IPhoneFrame when simulateMobile so they're
+      // scoped to the phone screen (via transform:translateZ(0) containing-block trick),
+      // or rendered at App level for desktop.
+      const _modals = (
+        <>
           {showModal && (
             <AddRoleModal onClose={() => setShowModal(false)}
               onSelect={addRole} onSelectBulk={addRoles} onDeleteSaved={deleteSavedRoles}
@@ -8130,14 +8120,14 @@
               onRoleAddContact={(id) => setContactRoleId(id)} />
           )}
 
-{showPlansModal && (
+          {showPlansModal && (
             <PlansModal currentPlan={viewMode} onClose={() => setShowPlansModal(false)} onSelectPlan={selectPlan} />
           )}
 
           {removeConfirm && (() => {
             const role = roles.find(r => r.id === removeConfirm);
             const count = contacts.filter(c => c.roleId === removeConfirm).length;
-            return ReactDOM.createPortal(
+            const jsx = (
               <div className="fixed inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)', zIndex: 300 }}
                 onClick={() => setRemoveConfirm(null)}>
                 <div className="bg-white rounded-2xl shadow-2xl p-6" style={{ width: 420, maxWidth: 'calc(100vw - 32px)' }}
@@ -8162,9 +8152,9 @@
                     </button>
                   </div>
                 </div>
-              </div>,
-              document.body
+              </div>
             );
+            return simulateMobile ? jsx : ReactDOM.createPortal(jsx, document.body);
           })()}
 
           {presetConfirm && (() => {
@@ -8185,7 +8175,7 @@
             const tw = (n) => n === 1 ? 'this role' : 'these roles';
             const activeCount = [rolesToAdd.length > 0, rolesToUpdate.length > 0, rolesToRemove.length > 0].filter(Boolean).length;
             const changeWord = activeCount === 1 ? 'change' : 'changes';
-            return ReactDOM.createPortal(
+            const jsx = (
               <div className="fixed inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)', zIndex: 300 }}
                 onClick={() => setPresetConfirm(null)}>
                 <div className="bg-white rounded-2xl shadow-2xl overflow-hidden" style={{ width: 500, maxWidth: 'calc(100vw - 32px)' }}
@@ -8236,9 +8226,9 @@
                     </button>
                   </div>
                 </div>
-              </div>,
-              document.body
+              </div>
             );
+            return simulateMobile ? jsx : ReactDOM.createPortal(jsx, document.body);
           })()}
 
           {toast && (
@@ -8246,6 +8236,28 @@
               style={{ background: 'rgba(27, 28, 31, 0.92)', left: '50%', transform: 'translateX(-50%)' }}>
               {toast}
             </div>
+          )}
+        </>
+      );
+
+      return (
+        <MobileSimContext.Provider value={simulateMobile}>
+        <div className="min-h-screen flex flex-col" style={{ background: 'var(--page-bg)' }}>
+          <TopBar viewMode={viewMode} modeMenuOpen={modeMenuOpen}
+            setViewMode={setViewMode} setModeMenuOpen={setModeMenuOpen}
+            simulateMobile={simulateMobile} onToggleMobile={() => setSimulateMobile(v => !v)} />
+          {simulateMobile ? (
+            <div style={{ flex:1, display:'flex', alignItems:'flex-start', justifyContent:'center', padding:'32px 24px', overflowY:'auto', background:'#DEDAD3' }}>
+              <IPhoneFrame modals={_modals}>{_mV}</IPhoneFrame>
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-1">
+                <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
+                {_mV}
+              </div>
+              {_modals}
+            </>
           )}
         </div>
         </MobileSimContext.Provider>
