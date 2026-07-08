@@ -530,6 +530,45 @@
       .features-header-h1 { font-size: 16px !important; }
     }
 
+    /* ============ Phone simulation mode (.is-phone-sim mirrors the 768px media query) ============ */
+    .is-phone-sim .mobile-only { display: flex !important; }
+    .is-phone-sim .desktop-only { display: none !important; }
+    .is-phone-sim .gallery-header { display: none !important; }
+    .is-phone-sim .gallery-header-mobile { display: block !important; }
+    .is-phone-sim .tabs-row {
+      padding-left: 16px !important; padding-right: 16px !important;
+      overflow-x: auto; -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap !important; gap: 16px !important;
+      justify-content: space-between;
+    }
+    .is-phone-sim .tabs-row .tab-btn { font-size: 16px !important; padding: 14px 4px !important; }
+    .is-phone-sim .tabs-row .tab-btn.is-active { color: var(--brand) !important; font-weight: 700 !important; }
+    .is-phone-sim .tabs-row .tab-btn.is-active::after { left: 0 !important; right: 0 !important; height: 3px !important; }
+    .is-phone-sim .tabs-row::-webkit-scrollbar { display: none; }
+    .is-phone-sim .layout-pane { flex-direction: column !important; }
+    .is-phone-sim .inner-sidebar { display: none !important; }
+    .is-phone-sim .main-pane { padding: 12px !important; max-width: 100% !important; }
+    .is-phone-sim .gallery-features-header { flex-direction: column !important; align-items: stretch !important; gap: 12px !important; }
+    .is-phone-sim .gallery-features-header > button { align-self: flex-start; }
+    .is-phone-sim .feature-row-mobile { display: flex !important; align-items: center !important; gap: 8px !important; padding: 16px 14px !important; background: transparent !important; cursor: pointer; }
+    .is-phone-sim .feature-row-mobile.is-open { background: var(--soft-bg) !important; }
+    .is-phone-sim .multi-panel-strip { padding-left: 14px !important; padding-right: 14px !important; }
+    .is-phone-sim .multi-panel-body { padding-left: 14px !important; padding-right: 14px !important; }
+    .is-phone-sim .per-role-row { grid-template-columns: 1fr !important; gap: 8px !important; padding: 12px !important; min-height: 0 !important; }
+    .is-phone-sim .per-role-row .control-cell { justify-content: flex-start !important; }
+    .is-phone-sim .per-role-row select, .is-phone-sim .per-role-row .v5-select-wrap, .is-phone-sim .per-role-row .v5-select-btn { width: 100% !important; min-width: 0 !important; }
+    .is-phone-sim .shared-flat-row { grid-template-columns: 1fr !important; gap: 10px !important; align-items: stretch !important; }
+    .is-phone-sim .shared-flat-row select, .is-phone-sim .shared-flat-row .v5-select-wrap, .is-phone-sim .shared-flat-row .v5-select-btn { width: 100% !important; min-width: 0 !important; }
+    .is-phone-sim .shared-flat-row .control-end { justify-content: flex-start !important; }
+    .is-phone-sim .panel-strip { flex-wrap: wrap; row-gap: 8px; }
+    .is-phone-sim .show-off-btn span:not([class]) { display: none; }
+    .is-phone-sim .contacts-form-grid { grid-template-columns: 1fr !important; }
+    .is-phone-sim .contacts-add-buttons { flex-direction: column; align-items: stretch !important; }
+    .is-phone-sim .contacts-add-buttons > button, .is-phone-sim .contacts-add-buttons > div { width: 100%; }
+    .is-phone-sim .contacts-add-buttons > div > button { width: 100%; }
+    .is-phone-sim .mobile-section-nav { display: flex !important; }
+    .is-phone-sim .features-header-h1 { font-size: 16px !important; }
+
     /* ===== Plan Level Picker (top bar) ===== */
     @keyframes mode-panel-down {
       from { opacity: 0; transform: translateY(-6px) scale(0.97); }
@@ -553,7 +592,10 @@
     const { useState, useMemo, useEffect } = React;
 
     // ===== Responsive helper =====
+    const MobileSimContext = React.createContext(false);
+
     function useIsMobile() {
+      const simMobile = React.useContext(MobileSimContext);
       const [isMobile, setIsMobile] = useState(() =>
         typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
       );
@@ -563,7 +605,7 @@
         mq.addEventListener('change', handler);
         return () => mq.removeEventListener('change', handler);
       }, []);
-      return isMobile;
+      return simMobile || isMobile;
     }
 
     // ===== Icons =====
@@ -1071,7 +1113,48 @@
       </aside>
     );
 
-    const TopBar = ({ viewMode, modeMenuOpen, setViewMode, setModeMenuOpen }) => (
+    const IPhoneFrame = ({ children }) => (
+      <div style={{
+        position: 'relative', width: 390, flexShrink: 0,
+        background: 'linear-gradient(160deg,#2C2C2E,#1C1C1E)',
+        borderRadius: 50, padding: '12px',
+        boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1), 0 0 0 1px #0A0A0A, 0 50px 120px rgba(0,0,0,0.55), 0 10px 30px rgba(0,0,0,0.35)',
+        userSelect: 'none',
+      }}>
+        {/* Mute toggle */}
+        <div style={{ position:'absolute', left:-3, top:106, width:3, height:20, background:'#3A3A3C', borderRadius:'2px 0 0 2px' }} />
+        {/* Volume up */}
+        <div style={{ position:'absolute', left:-3, top:138, width:3, height:32, background:'#3A3A3C', borderRadius:'2px 0 0 2px' }} />
+        {/* Volume down */}
+        <div style={{ position:'absolute', left:-3, top:182, width:3, height:32, background:'#3A3A3C', borderRadius:'2px 0 0 2px' }} />
+        {/* Power */}
+        <div style={{ position:'absolute', right:-3, top:170, width:3, height:62, background:'#3A3A3C', borderRadius:'0 2px 2px 0' }} />
+        {/* Screen */}
+        <div style={{ background:'#fff', borderRadius:40, overflow:'hidden', display:'flex', flexDirection:'column', height:812 }}>
+          {/* Status bar */}
+          <div style={{ flexShrink:0, background:'#000', height:54, position:'relative', display:'flex', alignItems:'flex-end', padding:'0 28px 10px' }}>
+            {/* Dynamic Island */}
+            <div style={{ position:'absolute', top:12, left:'50%', transform:'translateX(-50%)', width:120, height:34, background:'#000', borderRadius:20, border:'2px solid #1C1C1E', zIndex:1 }} />
+            <span style={{ fontSize:15, fontWeight:700, color:'#fff', letterSpacing:-0.3, lineHeight:1 }}>9:41</span>
+            <div style={{ marginLeft:'auto', display:'flex', gap:6, alignItems:'center' }}>
+              <svg width="17" height="12" viewBox="0 0 17 12" fill="white"><rect x="0" y="9" width="3" height="3" rx="0.5"/><rect x="4.5" y="6" width="3" height="6" rx="0.5"/><rect x="9" y="3" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" opacity="0.35"/></svg>
+              <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><circle cx="8" cy="10.5" r="1.2" fill="white"/><path d="M5.1 7.5a4.1 4.1 0 015.8 0" stroke="white" strokeWidth="1.5" strokeLinecap="round"/><path d="M2.3 4.5a8 8 0 0111.4 0" stroke="white" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="white" strokeOpacity="0.4"/><rect x="22.5" y="3.5" width="2" height="5" rx="1" fill="white" fillOpacity="0.4"/><rect x="1.5" y="1.5" width="18" height="9" rx="1.5" fill="white"/></svg>
+            </div>
+          </div>
+          {/* App content */}
+          <div className="is-phone-sim" style={{ flex:1, overflowY:'auto', overflowX:'hidden', display:'flex', flexDirection:'column', minHeight:0 }}>
+            {children}
+          </div>
+          {/* Home indicator */}
+          <div style={{ flexShrink:0, height:30, background:'#fff', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <div style={{ width:130, height:5, background:'#000', borderRadius:3, opacity:0.18 }} />
+          </div>
+        </div>
+      </div>
+    );
+
+    const TopBar = ({ viewMode, modeMenuOpen, setViewMode, setModeMenuOpen, simulateMobile, onToggleMobile }) => (
       <header className="top-bar flex items-center justify-between px-6 h-[52px] bg-white border-b" style={{ borderColor: 'var(--card-border)' }}>
         <div className="flex items-center gap-2">
           <span className="text-[20px] font-extrabold tracking-tight" style={{ color: '#222' }}>zenfolio</span>
@@ -1134,6 +1217,28 @@
         </div>
 
         <div className="flex items-center gap-4" style={{ color: 'var(--text-secondary)' }}>
+          <button
+            onClick={onToggleMobile}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg"
+            style={{
+              background: simulateMobile ? 'var(--brand)' : 'transparent',
+              color: simulateMobile ? '#fff' : 'var(--text-secondary)',
+              border: '1px solid', borderColor: simulateMobile ? 'var(--brand)' : 'var(--line)',
+              fontSize: 12, fontWeight: 600,
+            }}
+            title={simulateMobile ? 'Switch to desktop view' : 'Preview in mobile'}
+          >
+            {simulateMobile ? (
+              <svg width="14" height="12" viewBox="0 0 24 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="1" width="20" height="14" rx="2"/><path d="M8 19h8M12 15v4"/>
+              </svg>
+            ) : (
+              <svg width="11" height="14" viewBox="0 0 18 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="1" y="1" width="16" height="22" rx="3"/><path d="M9 18h.01"/>
+              </svg>
+            )}
+            <span className="text-[11px] font-semibold">{simulateMobile ? 'Desktop' : 'Mobile'}</span>
+          </button>
           <button className="hover:text-black"><BookIcon size={18} /></button>
           <button className="hover:text-black"><BellIcon size={18} /></button>
           <div className="flex items-center gap-2 ml-2">
@@ -7397,6 +7502,7 @@
       const [compareAllOpen, setCompareAllOpen] = useState(false);
       const [viewMode, setViewMode] = useState('basic');
       const [modeMenuOpen, setModeMenuOpen] = useState(false);
+      const [simulateMobile, setSimulateMobile] = useState(false);
       const roleHeaderWidth = useMemo(() => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -7752,13 +7858,7 @@
       const existingNames = roles.map(r => r.name.toLowerCase());
       const isMultiRole = roles.length > 1;
 
-      return (
-        <div className="min-h-screen flex flex-col" style={{ background: 'var(--page-bg)' }}>
-          <TopBar viewMode={viewMode} modeMenuOpen={modeMenuOpen}
-            setViewMode={setViewMode} setModeMenuOpen={setModeMenuOpen} />
-          <div className="flex flex-1">
-            <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
-            {showEditCustomForm ? (
+      const _mV = showEditCustomForm ? (
               <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} accessFeeRole={accessFeeRole} roles={roles} savedRoles={savedRoles} viewMode={viewMode} />
             ) : activeView === 'volume-workflow' ? (
               <VolumeWizardModal onClose={() => setActiveView('gallery')} savedRoles={savedRoles} viewMode={viewMode} />
@@ -7767,7 +7867,7 @@
             ) : activeView === 'booking' ? (
               <BookingView onBack={() => setActiveView('gallery')} viewMode={viewMode} savedRoles={savedRoles} />
             ) : (
-            <div className="flex-1 flex flex-col bg-white border-l" style={{ borderColor: 'var(--card-border)' }}>
+            <div className={`flex-1 flex flex-col bg-white${simulateMobile ? '' : ' border-l'}`} style={{ borderColor: 'var(--card-border)' }}>
               <GalleryHeader />
               <Tabs />
               <div className="layout-pane flex flex-1" style={{ background: '#fff' }}>
@@ -7959,8 +8059,24 @@
                 )}
               </div>
             </div>
-            )}
-          </div>
+      );
+
+      return (
+        <MobileSimContext.Provider value={simulateMobile}>
+        <div className="min-h-screen flex flex-col" style={{ background: 'var(--page-bg)' }}>
+          <TopBar viewMode={viewMode} modeMenuOpen={modeMenuOpen}
+            setViewMode={setViewMode} setModeMenuOpen={setModeMenuOpen}
+            simulateMobile={simulateMobile} onToggleMobile={() => setSimulateMobile(v => !v)} />
+          {simulateMobile ? (
+            <div style={{ flex:1, display:'flex', alignItems:'flex-start', justifyContent:'center', padding:'32px 24px', overflowY:'auto', background:'#DEDAD3' }}>
+              <IPhoneFrame>{_mV}</IPhoneFrame>
+            </div>
+          ) : (
+            <div className="flex flex-1">
+              <ZenfolioNav activeView={activeView} setActiveView={setActiveView} />
+              {_mV}
+            </div>
+          )}
 
           {showModal && (
             <AddRoleModal onClose={() => setShowModal(false)}
@@ -8131,6 +8247,7 @@
             </div>
           )}
         </div>
+        </MobileSimContext.Provider>
       );
     }
 
