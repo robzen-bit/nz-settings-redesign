@@ -3683,6 +3683,17 @@
       const [showAdvanced, setShowAdvanced] = useState(false);
       const isMobile = useIsMobile();
 
+      const [galleryPassword, setGalleryPassword] = useState('');
+      const PASS_WORDS = ['amber','bravo','cedar','delta','ember','fjord','grove','hazel','ivory','jade','kestrel','lunar','maple','noble','opal','prism','quartz','riven','solar','tidal','ultra','vivid','willow','xenon','yield','zephyr'];
+      const genAlphanumeric = () => {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+        return Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+      };
+      const genPassphrase = () => {
+        const pick = () => PASS_WORDS[Math.floor(Math.random() * PASS_WORDS.length)];
+        return `${pick()}-${pick()}-${pick()}`;
+      };
+
       // Row component for registration sub-options
       const RegRow = ({ checked, onToggle, label, description, optionalLabel, optionalChecked, onToggleOptional, optionalDisabled, children }) => {
         const optionalCheckbox = onToggleOptional ? (
@@ -3743,6 +3754,42 @@
                 onSelect={() => onSelectMode(m.id)} />
             ))}
           </div>
+
+          {/* Gallery Password — shown when password-protected */}
+          {mode === 'password' && (
+            <div className="mb-5 pb-5" style={{ borderBottom: '1px solid var(--card-border)' }}>
+              <div className="text-[14px] font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Gallery Password</div>
+              <div className="text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
+                Create a password or generate one by clicking the buttons below.<br />
+                Passwords should be 5 – 50 characters long with no spaces.
+              </div>
+              <input
+                value={galleryPassword}
+                onChange={e => { const v = e.target.value.replace(/\s/g,''); if (v.length <= 50) setGalleryPassword(v); }}
+                placeholder="Enter a password…"
+                className="w-full px-3 py-2 rounded border text-[14px] outline-none mb-3"
+                style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', maxWidth: 480 }}
+              />
+              <div className="flex gap-2 flex-wrap">
+                <button onClick={() => setGalleryPassword(genPassphrase())}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded text-[13px] font-semibold border transition-colors"
+                  style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--soft-bg)'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  Passphrase
+                </button>
+                <button onClick={() => setGalleryPassword(genAlphanumeric())}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded text-[13px] font-semibold border transition-colors"
+                  style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff' }}
+                  onMouseEnter={e => e.currentTarget.style.background = 'var(--soft-bg)'}
+                  onMouseLeave={e => e.currentTarget.style.background = '#fff'}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="23,4 23,10 17,10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                  Alphanumeric
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Show Gallery Registration */}
           <div className="flex items-start justify-between py-3"
