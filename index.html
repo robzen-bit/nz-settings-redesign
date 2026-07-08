@@ -7484,7 +7484,9 @@
     };
 
     function App() {
-      const isMobile = useIsMobile();
+      const [simulateMobile, setSimulateMobile] = useState(false);
+      // useIsMobile() can't read this component's own context, so OR simulateMobile directly
+      const isMobile = useIsMobile() || simulateMobile;
       const [roles, setRoles] = useState([{ id: 'everyone', name: 'General', removable: false }]);
       const [perRole, setPerRole] = useState({ everyone: buildEveryoneState() });
       const [features, setFeatures] = useState(initialFeatures);
@@ -7502,7 +7504,6 @@
       const [compareAllOpen, setCompareAllOpen] = useState(false);
       const [viewMode, setViewMode] = useState('basic');
       const [modeMenuOpen, setModeMenuOpen] = useState(false);
-      const [simulateMobile, setSimulateMobile] = useState(false);
       const roleHeaderWidth = useMemo(() => {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
