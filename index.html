@@ -568,6 +568,8 @@
     .is-phone-sim .contacts-add-buttons > div > button { width: 100%; }
     .is-phone-sim .mobile-section-nav { display: flex !important; }
     .is-phone-sim .features-header-h1 { font-size: 16px !important; }
+    .is-phone-sim .multicheck-suboption { display: none !important; }
+    .is-phone-sim .multicheck-opt { width: auto !important; }
 
     /* ===== Plan Level Picker (top bar) ===== */
     @keyframes mode-panel-down {
@@ -2385,7 +2387,7 @@
                 const subs = s.subOptions[opt];
                 const currentSub = subSel[opt] || s.subDef?.[opt];
                 return (
-                  <div key={opt} className="flex flex-col gap-1.5" style={{ width: 128 }}>
+                  <div key={opt} className="multicheck-opt flex flex-col gap-1.5" style={{ width: 128 }}>
                     <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
                       <span className={`check-box ${checked ? 'is-on' : ''}`} />
                       <input type="checkbox" checked={checked} disabled={disabled}
@@ -2397,14 +2399,16 @@
                       <span style={{ color: 'var(--text-primary)', opacity: checked ? 1 : 0.35 }}>{opt}</span>
                     </label>
                     {subs && (
-                      <select
-                        value={currentSub || subs[0]}
-                        disabled={disabled || !checked}
-                        onChange={e => onChange({ selected: selectedArr, sub: { ...subSel, [opt]: e.target.value } })}
-                        className="text-[12px] px-2 py-1 rounded border bg-white outline-none"
-                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', width: '100%', opacity: checked ? 1 : 0.35 }}>
-                        {subs.map(sub => <option key={sub} value={sub}>{sub}</option>)}
-                      </select>
+                      <div className="multicheck-suboption">
+                        <select
+                          value={currentSub || subs[0]}
+                          disabled={disabled || !checked}
+                          onChange={e => onChange({ selected: selectedArr, sub: { ...subSel, [opt]: e.target.value } })}
+                          className="text-[12px] px-2 py-1 rounded border bg-white outline-none"
+                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', width: '100%', opacity: checked ? 1 : 0.35 }}>
+                          {subs.map(sub => <option key={sub} value={sub}>{sub}</option>)}
+                        </select>
+                      </div>
                     )}
                   </div>
                 );
@@ -3565,7 +3569,7 @@
             {/* Spacer to balance the close button so the title stays centered */}
             <div style={{ width: 36 }} />
           </header>
-          <div className="flex-1 overflow-y-auto" style={{ background: 'var(--soft-bg)' }}>
+          <div className="flex-1 overflow-y-auto is-phone-sim" style={{ background: 'var(--soft-bg)' }}>
             {isMultiRole ? (
               <MultiRoleSettingsBlock feature={feature} roles={roles} perRole={perRole}
                 onUpdate={onUpdate} onUpdateShared={onUpdateShared} />
@@ -5998,7 +6002,7 @@
             {[
               { id: 'manual', label: 'Add Manually' },
               { id: 'from-contacts', label: 'Add from Contacts' },
-              { id: 'from-gallery', label: 'Add from Gallery' },
+              ...(!isMobile ? [{ id: 'from-gallery', label: 'Add from Gallery' }] : []),
               { id: 'csv', label: 'Import CSV' },
             ].map(t => (
               <button key={t.id}
@@ -6056,10 +6060,12 @@
                     ADD AS {r.name.toUpperCase()}
                   </SolidBtn>
                 ))}
-                <button onClick={() => onAddRole && onAddRole()} type="button"
-                  className="ml-auto add-role-btn flex items-center gap-2 text-[11px] font-bold tracking-wider px-4 py-2 rounded-full text-white whitespace-nowrap">
-                  <UserIcon size={13} stroke={2} /> ADD ROLE
-                </button>
+                {!isMobile && (
+                  <button onClick={() => onAddRole && onAddRole()} type="button"
+                    className="ml-auto add-role-btn flex items-center gap-2 text-[11px] font-bold tracking-wider px-4 py-2 rounded-full text-white whitespace-nowrap">
+                    <UserIcon size={13} stroke={2} /> ADD ROLE
+                  </button>
+                )}
                 {overflowRoles.length > 0 && (
                   <div className="relative">
                     <button onClick={(e) => { e.stopPropagation(); canAdd && setMoreOpen(o => !o); }}
