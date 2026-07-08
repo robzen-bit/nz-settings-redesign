@@ -7785,13 +7785,15 @@
                     activeSection={activeSection} onSelectSection={setActiveSection}
                     viewMode={viewMode}
                     onApplyPreset={(roleNames, presetName) => {
-                      // Compute what changes so the modal can describe them (AC 4a–4d)
                       const currentCustomRoles = roles.filter(r => r.id !== 'everyone');
                       const rolesToRemove = currentCustomRoles
                         .filter(r => !roleNames.includes(r.name))
                         .map(r => r.name);
-                      const rolesToAddOrUpdate = ['General', ...roleNames];
-                      setPresetConfirm({ roleNames, presetName, rolesToRemove, rolesToAddOrUpdate });
+                      const currentRoleNames = new Set(roles.map(r => r.name));
+                      const allPresetRoles = ['General', ...roleNames];
+                      const rolesToAdd    = allPresetRoles.filter(n => !currentRoleNames.has(n));
+                      const rolesToUpdate = allPresetRoles.filter(n => currentRoleNames.has(n));
+                      setPresetConfirm({ roleNames, presetName, rolesToRemove, rolesToAdd, rolesToUpdate });
                     }}
                   />
                 ) : activeSection === 'access' ? (
@@ -8044,7 +8046,7 @@
           })()}
 
           {presetConfirm && (() => {
-            const { roleNames, presetName, rolesToRemove, rolesToAddOrUpdate } = presetConfirm;
+            const { roleNames, presetName, rolesToRemove, rolesToAdd, rolesToUpdate } = presetConfirm;
             const hasRemovals = rolesToRemove.length > 0;
             const affectedContacts = contacts.filter(c => {
               const role = roles.find(r => r.id === c.roleId);
@@ -8075,7 +8077,11 @@
                     {hasRemovals ? (
                       <>
                         <p>
-                          Applying the <strong>"{presetName}"</strong> preset to this gallery will add or update the following roles: {fmtList(rolesToAddOrUpdate)} and will remove the following roles: {fmtList(rolesToRemove)}.
+                          Applying the <strong>"{presetName}"</strong> preset to this gallery will
+                          {rolesToAdd.length > 0 && <> add the following roles: {fmtList(rolesToAdd)}</>}
+                          {rolesToAdd.length > 0 && rolesToUpdate.length > 0 && <>, and may update the settings for: {fmtList(rolesToUpdate)}</>}
+                          {rolesToAdd.length === 0 && rolesToUpdate.length > 0 && <> update the settings for the following roles: {fmtList(rolesToUpdate)}</>}
+                          {' '}and will remove the following roles: {fmtList(rolesToRemove)}.
                         </p>
                         <p className="mt-5">
                           <strong>Note:</strong> {affectedContacts} {affectedContacts === 1 ? 'contact' : 'contacts'} assigned to removed roles will be moved to the General role.
@@ -8084,11 +8090,15 @@
                     ) : (
                       <>
                         <p>
-                          Applying this preset may update the settings applied to the following roles: {fmtList(rolesToAddOrUpdate)}.
+                          {rolesToAdd.length > 0 && rolesToUpdate.length === 0 && <>Applying the <strong>"{presetName}"</strong> preset to this gallery will add the following roles: {fmtList(rolesToAdd)}.</>}
+                          {rolesToAdd.length === 0 && rolesToUpdate.length > 0 && <>Applying the <strong>"{presetName}"</strong> preset to this gallery may update the settings for the following roles: {fmtList(rolesToUpdate)}.</>}
+                          {rolesToAdd.length > 0 && rolesToUpdate.length > 0 && <>Applying the <strong>"{presetName}"</strong> preset to this gallery will add the following roles: {fmtList(rolesToAdd)}, and may update the settings for: {fmtList(rolesToUpdate)}.</>}
                         </p>
-                        <p className="mt-5">
-                          Since no roles are being removed, any contacts you've added to these roles will remain in their roles, but their experience may change.
-                        </p>
+                        {rolesToUpdate.length > 0 && (
+                          <p className="mt-5">
+                            Since no roles are being removed, any contacts you've added to these roles will remain in their roles, but their experience may change.
+                          </p>
+                        )}
                       </>
                     )}
                   </div>
