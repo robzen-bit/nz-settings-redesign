@@ -8050,47 +8050,57 @@
               const role = roles.find(r => r.id === c.roleId);
               return role && rolesToRemove.includes(role.name);
             }).length;
+            const fmtList = (names) => names.map((n, i) => (
+              <React.Fragment key={n}>
+                {i > 0 && (i === names.length - 1 ? ' and ' : ', ')}
+                <strong>{n}</strong>
+              </React.Fragment>
+            ));
             return ReactDOM.createPortal(
               <div className="fixed inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)', zIndex: 300 }}
                 onClick={() => setPresetConfirm(null)}>
-                <div className="bg-white rounded-2xl shadow-2xl p-6" style={{ width: 460, maxWidth: 'calc(100vw - 32px)' }}
+                <div className="bg-white rounded-2xl shadow-2xl overflow-hidden" style={{ width: 500, maxWidth: 'calc(100vw - 32px)' }}
                   onClick={e => e.stopPropagation()}>
-                  <h2 className="text-[17px] font-extrabold tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>
-                    Apply "{presetName}" Preset?
-                  </h2>
-                  {hasRemovals ? (
-                    <div className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                      <p>Applying the <strong>{presetName}</strong> preset to this gallery will add or update the following roles:</p>
-                      <ul className="list-disc pl-5 mt-1 mb-3 space-y-0.5">
-                        {rolesToAddOrUpdate.map(name => <li key={name}><strong>{name}</strong></li>)}
-                      </ul>
-                      <p>and will remove the following roles:</p>
-                      <ul className="list-disc pl-5 mt-1 mb-3 space-y-0.5">
-                        {rolesToRemove.map(name => <li key={name}><strong>{name}</strong></li>)}
-                      </ul>
-                      {affectedContacts > 0 && (
-                        <p className="mt-1">
-                          {affectedContacts} {affectedContacts === 1 ? 'contact' : 'contacts'} assigned to {rolesToRemove.length === 1 ? 'the removed role' : 'removed roles'} will be moved to the <strong>General</strong> role.
-                        </p>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                      <p>Applying this preset may update the settings applied to the following roles:</p>
-                      <ul className="list-disc pl-5 mt-1 mb-3 space-y-0.5">
-                        {rolesToAddOrUpdate.map(name => <li key={name}><strong>{name}</strong></li>)}
-                      </ul>
-                      <p>Since no roles are being removed, any contacts you've added to these roles will remain in their roles, but their experience may change.</p>
-                    </div>
-                  )}
-                  <div className="flex justify-end gap-3 mt-6">
+                  {/* Header */}
+                  <div className="relative flex items-center justify-center px-6 py-5 border-b" style={{ borderColor: 'var(--card-border)' }}>
+                    <h2 className="text-[17px] font-extrabold tracking-tight" style={{ color: 'var(--text-primary)' }}>
+                      Apply "{presetName}" Preset?
+                    </h2>
                     <button onClick={() => setPresetConfirm(null)}
-                      className="px-4 py-2 rounded-lg text-[14px] font-semibold"
-                      style={{ background: 'var(--soft-bg)', color: 'var(--text-primary)' }}>
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-[20px] leading-none"
+                      style={{ color: 'var(--text-tertiary)' }}>×</button>
+                  </div>
+                  {/* Body */}
+                  <div className="px-8 py-7 text-[15px] leading-relaxed" style={{ color: 'var(--text-primary)' }}>
+                    {hasRemovals ? (
+                      <>
+                        <p>
+                          Applying the <strong>"{presetName}"</strong> preset to this gallery will add or update the following roles: {fmtList(rolesToAddOrUpdate)} and will remove the following roles: {fmtList(rolesToRemove)}.
+                        </p>
+                        <p className="mt-5">
+                          <strong>Note:</strong> {affectedContacts} {affectedContacts === 1 ? 'contact' : 'contacts'} assigned to removed roles will be moved to the General role.
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p>
+                          Applying this preset may update the settings applied to the following roles: {fmtList(rolesToAddOrUpdate)}.
+                        </p>
+                        <p className="mt-5">
+                          Since no roles are being removed, any contacts you've added to these roles will remain in their roles, but their experience may change.
+                        </p>
+                      </>
+                    )}
+                  </div>
+                  {/* Footer */}
+                  <div className="flex items-center justify-between px-8 py-5 border-t" style={{ borderColor: 'var(--card-border)' }}>
+                    <button onClick={() => setPresetConfirm(null)}
+                      className="text-[15px] font-semibold"
+                      style={{ color: 'var(--text-primary)' }}>
                       Cancel
                     </button>
                     <button onClick={() => { applyPreset(roleNames, presetName); setPresetConfirm(null); }}
-                      className="px-4 py-2 rounded-lg text-[14px] font-semibold text-white"
+                      className="px-8 py-3 rounded-xl text-[15px] font-semibold text-white"
                       style={{ background: 'var(--brand)' }}>
                       Confirm
                     </button>
