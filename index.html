@@ -588,9 +588,9 @@
     /* Toggle child rows (digital license): keep 1fr auto side-by-side */
     .mobile-feature-modal .mobile-child-row.is-toggle-child { grid-template-columns: 1fr auto !important; align-items: center !important; }
 
-    /* Non-toggle, non-multicheck child rows (individual-resolution): stack like top-level */
-    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) { grid-template-columns: 1fr !important; gap: 8px !important; align-items: stretch !important; }
-    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) .control-end { justify-content: flex-start !important; align-items: stretch !important; }
+    /* Non-toggle, non-multicheck child rows (individual-resolution): column sized to label text width */
+    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) { grid-template-columns: max-content !important; gap: 8px !important; }
+    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) .control-end { justify-content: flex-start !important; }
     .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) .v5-select-wrap,
     .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) .v5-select-btn { width: 100% !important; min-width: 0 !important; }
 
