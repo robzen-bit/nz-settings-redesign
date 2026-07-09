@@ -3669,30 +3669,31 @@
     );
 
     // Mobile section nav — replaces the inner sidebar on small screens.
-    const MobileSectionNav = ({ activeSection, onSelectSection, contactsCount }) => (
-      <div className="mobile-section-nav mobile-only mb-4 rounded-md p-1 bg-white border overflow-x-auto"
-        style={{ borderColor: 'var(--card-border)' }}>
-        {[
-          { id: 'access', label: 'Access' },
-          { id: 'features', label: 'Features' },
-          { id: 'contacts', label: `Contacts (${contactsCount})` },
-          { id: 'store', label: 'Store' },
-          { id: 'presets', label: 'Presets' },
-        ].map(item => {
-          const active = activeSection === item.id;
-          return (
-            <button key={item.id} onClick={() => onSelectSection(item.id)}
-              className="flex-1 text-[11px] font-bold tracking-wider uppercase py-2 rounded transition-colors whitespace-nowrap"
-              style={{
-                background: active ? 'var(--brand-cream)' : 'transparent',
-                color: active ? 'var(--brand)' : 'var(--text-secondary)',
-              }}>
-              {item.label}
-            </button>
-          );
-        })}
-      </div>
-    );
+    const MobileSectionNav = ({ activeSection, onSelectSection, contactsCount }) => {
+      const items = [
+        { id: 'access', label: 'Access' },
+        { id: 'features', label: 'Gallery Features' },
+        { id: 'contacts', label: `Contacts (${contactsCount})` },
+        { id: 'store', label: 'Store' },
+        { id: 'presets', label: 'Setting Presets' },
+      ];
+      const current = items.find(i => i.id === activeSection) || items[1];
+      return (
+        <div className="mobile-section-nav mobile-only mb-4" style={{ position: 'relative' }}>
+          <div className="flex items-center justify-between px-4 py-3 bg-white rounded-xl border w-full"
+            style={{ borderColor: 'var(--card-border)', pointerEvents: 'none' }}>
+            <span className="text-[13px] font-bold" style={{ color: 'var(--text-primary)' }}>{current.label}</span>
+            <ChevronDown size={15} style={{ color: 'var(--text-secondary)', flexShrink: 0 }} />
+          </div>
+          <select value={activeSection} onChange={e => onSelectSection(e.target.value)}
+            style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }}>
+            {items.map(item => (
+              <option key={item.id} value={item.id}>{item.label}</option>
+            ))}
+          </select>
+        </div>
+      );
+    };
 
     // Card tile in the Access picker grid. The card surface is the click target.
     const AccessCard = ({ mode, selected, onSelect }) => {
