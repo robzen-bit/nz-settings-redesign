@@ -612,6 +612,9 @@
     .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) .v5-select-wrap,
     .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) .v5-select-btn { width: 100% !important; min-width: 0 !important; }
 
+    /* Number input child rows: full-width input */
+    .mobile-feature-modal input[type="number"] { width: 100% !important; text-align: left !important; }
+
     /* Multicheck internals */
     .mobile-feature-modal .multicheck-opts { flex-direction: column !important; gap: 10px !important; align-items: stretch !important; }
     .mobile-feature-modal .multicheck-opt { width: 100% !important; flex-direction: row !important; align-items: center !important; gap: 12px !important; }
@@ -2774,6 +2777,7 @@
     // Children of dependent settings are rendered inline as indented sub-rows directly under
     // the parent setting they belong to.
     const SimpleSettingsBlock = ({ feature, role, perRole, onUpdate }) => {
+      const isMobile = useIsMobile();
       const visibleSettings = feature.settings.filter(s => isSettingVisibleForRole(s, role.id, feature.id, perRole));
       const topLevel = visibleSettings.filter(s => !s.dependsOn);
       const childrenOf = (id) => visibleSettings.filter(s => s.dependsOn?.settingId === id);
@@ -2817,6 +2821,23 @@
                   c.fullWidth ? (
                     <div key={c.id} style={{ borderTop: '1px solid var(--card-border)', padding: '14px 16px', opacity: roleEnabled ? 1 : 0.5 }}>
                       <SettingControl s={c} value={perRole[role.id]?.[feature.id]?.values?.[c.id]} onChange={(v) => onUpdate(role.id, c.id, v)} compact disabled={!roleEnabled} />
+                    </div>
+                  ) : (isMobile && c.type === 'number') ? (
+                    <div key={c.id} style={{ padding: '6px 0 12px 22px', marginTop: -8, opacity: roleEnabled ? 1 : 0.5 }}>
+                      <div className="flex items-center gap-1.5 text-[12px] mb-2" style={{ color: 'var(--text-secondary)' }}>
+                        <span aria-hidden="true" style={{ color: 'var(--brand)', opacity: 0.7 }}>↳</span>
+                        <span>{c.label}</span>
+                        {c.tooltip && <InfoTooltip content={c.tooltip} />}
+                      </div>
+                      <div style={disabledStyle} aria-disabled={!roleEnabled}>
+                        <SettingControl s={c} value={perRole[role.id]?.[feature.id]?.values?.[c.id]} onChange={(v) => onUpdate(role.id, c.id, v)} compact />
+                        {role.id === 'everyone' && (c.id === 'specific-amount' || c.id === 'video-specific-amount') && (
+                          <p className="text-[11px] leading-snug mt-1" style={{ color: 'var(--danger)' }}>
+                            Visitors may use multiple email addresses to bypass this limit.{' '}
+                            <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--danger)', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
+                          </p>
+                        )}
+                      </div>
                     </div>
                   ) : (
                     <div key={c.id}
