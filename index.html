@@ -1622,7 +1622,7 @@
             style={{ borderColor: 'var(--card-border)', maxHeight: isMobile ? 'calc(100% - 40px)' : 'calc(100vh - 80px)' }} onClick={e => e.stopPropagation()}>
             {step === 'choose' && (
               <>
-                <div className="px-6 pt-6 pb-0 shrink-0">
+                <div className={isMobile ? 'flex-1 overflow-y-auto px-6 pt-6 pb-2' : 'px-6 pt-6 pb-0 shrink-0'}>
                 <h3 className="text-[13px] font-bold tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>ADD A ROLE</h3>
                 {(() => {
                   const basicLock     = viewMode === 'basic';
@@ -1705,7 +1705,7 @@
                 })()}
 
                 </div>{/* end fixed header */}
-                <div className="flex-1 overflow-y-auto px-6">
+                <div className={isMobile ? 'px-6' : 'flex-1 overflow-y-auto px-6'}>
                 {/* ── Saved custom roles ── */}
                 {savedRoles.length > 0 && (() => {
                   const basicLock     = viewMode === 'basic';
