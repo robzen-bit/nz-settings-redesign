@@ -3607,32 +3607,41 @@
             <div style={{ width: 36 }} />
           </header>
           <div className="flex-1 overflow-y-auto mobile-feature-modal" style={{ background: 'var(--soft-bg)' }}>
-            {roles.map(role => {
-              const roleEnabled = !!perRole[role.id]?.[feature.id]?.enabled;
-              return (
-                <div key={role.id}>
-                  {/* Role section header with toggle */}
-                  <div className="flex items-center justify-between px-4 py-3 bg-white border-b"
-                    style={{ borderColor: 'var(--card-border)', borderTop: '1px solid var(--card-border)' }}>
-                    <div className="flex items-center gap-2">
-                      <span style={{
-                        width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
-                        background: roleEnabled ? '#34C759' : 'var(--line)',
-                        display: 'inline-block',
-                      }} />
-                      <span className="text-[11px] font-bold tracking-wider uppercase"
-                        style={{ color: 'var(--text-secondary)' }}>{role.name}</span>
+            {(() => {
+              const anyRoleEnabled = roles.some(r => !!perRole[r.id]?.[feature.id]?.enabled);
+              const isOnlyRole = roles.length === 1;
+              return roles.map(role => {
+                const roleEnabled = !!perRole[role.id]?.[feature.id]?.enabled;
+                const isGeneral = role.id === 'everyone';
+                // General is always expanded if it's the only role, or no role has the feature on,
+                // or General itself has the feature on. Other roles expand only when enabled.
+                const showSettings = isGeneral
+                  ? (isOnlyRole || !anyRoleEnabled || roleEnabled)
+                  : roleEnabled;
+                return (
+                  <div key={role.id}>
+                    {/* Role section header with toggle */}
+                    <div className="flex items-center justify-between px-4 py-3 bg-white border-b"
+                      style={{ borderColor: 'var(--card-border)', borderTop: '1px solid var(--card-border)' }}>
+                      <div className="flex items-center gap-2">
+                        <span style={{
+                          width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                          background: roleEnabled ? '#34C759' : 'var(--line)',
+                          display: 'inline-block',
+                        }} />
+                        <span className="text-[11px] font-bold tracking-wider uppercase"
+                          style={{ color: 'var(--text-secondary)' }}>{role.name}</span>
+                      </div>
+                      <Toggle size="sm" checked={roleEnabled}
+                        onChange={() => onToggleEnabled && onToggleEnabled(role.id)} />
                     </div>
-                    <Toggle size="sm" checked={roleEnabled}
-                      onChange={() => onToggleEnabled && onToggleEnabled(role.id)} />
+                    {showSettings && (
+                      <SimpleSettingsBlock feature={feature} role={role} perRole={perRole} onUpdate={onUpdate} />
+                    )}
                   </div>
-                  {/* Collapsible settings — only visible when role is enabled */}
-                  {roleEnabled && (
-                    <SimpleSettingsBlock feature={feature} role={role} perRole={perRole} onUpdate={onUpdate} />
-                  )}
-                </div>
-              );
-            })}
+                );
+              });
+            })()}
           </div>
           <footer className="border-t bg-white p-3 shrink-0" style={{ borderColor: 'var(--card-border)' }}>
             <button onClick={onClose}
