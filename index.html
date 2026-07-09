@@ -573,19 +573,29 @@
     .is-phone-sim .multicheck-opt { width: auto !important; }
 
     /* ===== Mobile feature settings full-screen modal ===== */
-    .mobile-feature-modal .shared-flat-row { grid-template-columns: 1fr !important; gap: 8px !important; align-items: stretch !important; }
-    .mobile-feature-modal .shared-flat-row .control-end { justify-content: flex-start !important; }
-    .mobile-feature-modal .shared-flat-row select,
-    .mobile-feature-modal .shared-flat-row .v5-select-wrap,
-    .mobile-feature-modal .shared-flat-row .v5-select-btn { width: 100% !important; min-width: 0 !important; }
     .mobile-feature-modal .multi-panel-body { padding-left: 14px !important; padding-right: 14px !important; }
+
+    /* Top-level rows (download-type etc.): stack label above full-width control */
+    .mobile-feature-modal .mobile-top-row { grid-template-columns: 1fr !important; gap: 8px !important; align-items: stretch !important; }
+    .mobile-feature-modal .mobile-top-row .control-end { justify-content: flex-start !important; align-items: stretch !important; }
+    .mobile-feature-modal .mobile-top-row .v5-select-wrap,
+    .mobile-feature-modal .mobile-top-row .v5-select-btn { width: 100% !important; min-width: 0 !important; }
+
+    /* Multicheck child rows (gallery-resolutions): stack, checkboxes left-aligned */
+    .mobile-feature-modal .is-multicheck-row { grid-template-columns: 1fr !important; gap: 6px !important; align-items: stretch !important; }
+    .mobile-feature-modal .is-multicheck-row .control-end { justify-content: flex-start !important; align-items: flex-start !important; width: 100%; }
+
+    /* Non-multicheck child rows (individual-resolution, license): keep 1fr auto side-by-side */
+    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row) { align-items: center !important; }
+    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row) .v5-select-wrap,
+    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row) .v5-select-btn { min-width: 0 !important; }
+
+    /* Multicheck internals */
     .mobile-feature-modal .multicheck-opts { flex-direction: column !important; gap: 10px !important; align-items: stretch !important; }
     .mobile-feature-modal .multicheck-opt { width: 100% !important; flex-direction: row !important; align-items: center !important; gap: 12px !important; }
     .mobile-feature-modal .multicheck-opt label { flex: 1; }
     .mobile-feature-modal .multicheck-suboption { display: block !important; }
-    .mobile-feature-modal .multicheck-suboption select { width: 100% !important; min-width: 0 !important; }
-    .mobile-feature-modal .v5-select-wrap,
-    .mobile-feature-modal .v5-select-btn { width: 100% !important; min-width: 0 !important; }
+    .mobile-feature-modal .multicheck-suboption select { min-width: 0 !important; }
 
     /* ===== Plan Level Picker (top bar) ===== */
     @keyframes mode-panel-down {
@@ -2680,7 +2690,7 @@
                   borderTop: showDivider ? '1px solid var(--card-border)' : 'none',
                   marginTop: showDivider ? 6 : 0,
                 }}>
-                <div className="shared-flat-row grid items-center gap-4"
+                <div className="shared-flat-row grid items-center gap-4 mobile-top-row"
                   style={{
                     gridTemplateColumns: '1fr auto',
                     padding: '14px 0',
@@ -2707,7 +2717,7 @@
                     </div>
                   ) : (
                     <div key={c.id}
-                      className="shared-flat-row grid items-start gap-4"
+                      className={`shared-flat-row grid items-start gap-4 mobile-child-row${c.type === 'multicheck' ? ' is-multicheck-row' : ''}`}
                       style={{
                         gridTemplateColumns: '1fr auto',
                         padding: '6px 0 12px 22px',
