@@ -8292,7 +8292,21 @@
                     </div>
                   </header>
 
-                  {/* Role strip removed on mobile — use Contacts tab to manage roles */}
+                  {/* Mobile role strip — single scrollable line */}
+                  {isMobile && (
+                    <div className="mobile-only mb-3 flex items-center gap-2 overflow-x-auto pb-1"
+                      style={{ WebkitOverflowScrolling: 'touch', flexWrap: 'nowrap' }}>
+                      {roles.map(r => (
+                        <button key={r.id} type="button"
+                          onClick={(e) => { e.stopPropagation(); setOpenMenuRoleId(r.id); }}
+                          className="relative flex items-center rounded-full border bg-white px-3 py-1.5 whitespace-nowrap shrink-0 text-[11px] font-bold uppercase tracking-wider"
+                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-secondary)' }}>
+                          {r.name}
+                          <span className="ml-1" style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>({contacts.filter(c => c.roleId === r.id).length})</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   {/* Mobile bottom-sheet for role actions — replaces the cramped dropdown. */}
                   {isMobile && openMenuRoleId && (() => {
                     const r = roles.find(x => x.id === openMenuRoleId);
