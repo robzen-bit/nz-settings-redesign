@@ -2206,7 +2206,7 @@
                 <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
                 <button onClick={() => { onAdd({ first, last, email, mobile }); onClose(); }} disabled={!canAdd}
                   style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: canAdd ? 'pointer' : 'default', opacity: canAdd ? 1 : 0.4 }}>
-                  Add as {role.name}
+                  Add
                 </button>
               </div>
             ) : (
