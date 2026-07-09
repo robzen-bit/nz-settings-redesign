@@ -1675,8 +1675,10 @@
     );
 
     // Reusable contact form fields (First/Last name, Email, Mobile with US flag select)
-    const ContactFields = ({ first, setFirst, last, setLast, email, setEmail, mobile, setMobile, emailPlaceholder = 'Email' }) => (
-      <div className="contact-fields-grid grid grid-cols-2 gap-3">
+    const ContactFields = ({ first, setFirst, last, setLast, email, setEmail, mobile, setMobile, emailPlaceholder = 'Email' }) => {
+      const isMobile = useIsMobile();
+      return (
+      <div className="grid gap-3" style={{ gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr' }}>
         <input value={first} onChange={e => setFirst(e.target.value)} placeholder="First Name"
           className="text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none"
           style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
@@ -1695,7 +1697,8 @@
             style={{ color: 'var(--text-primary)' }} />
         </div>
       </div>
-    );
+      );
+    };
 
     // Wrapper that renders as a fly-up bottom sheet on mobile, centered modal on desktop.
     const MobileSheetModal = ({ onClose, zIndex = 100, maxWidth = 680, children }) => {
