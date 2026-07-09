@@ -3041,6 +3041,9 @@
     // on top (clickable to expand settings), and each role rendered as a label/toggle row.
     const MatrixRow = ({ feature, roles, perRole, isOpen, onToggleOpen, onToggleEnabled, onUpdateShared, onSetOpen, gridCols, hasSettings, isMobile, onEditSettings }) => {
       if (isMobile) {
+        const watermarkOn = feature.appliesToAll
+          ? (() => { const v = getSharedValue(perRole, roles, feature.id, 'watermark-source'); return !!(v && v !== 'None'); })()
+          : false;
         return (
           <div className="border-t" style={{ borderColor: 'var(--card-border)' }}>
             <div className="feature-row-mobile flex items-center gap-2">
@@ -3053,33 +3056,28 @@
                 <div className="text-[14px] font-medium leading-tight" style={{ color: 'var(--text-primary)' }}>
                   {feature.name}
                 </div>
-                {feature.appliesToAll && !feature.sharedToggle && (
-                  <div className="text-[12px] italic" style={{ color: 'var(--text-tertiary)' }}>Applies to all roles</div>
-                )}
-                {feature.sharedToggle && (
+                {(feature.appliesToAll || feature.sharedToggle) && (
                   <div className="text-[12px] italic" style={{ color: 'var(--text-tertiary)' }}>Applies to all roles</div>
                 )}
               </div>
-              {!feature.sharedToggle && !feature.appliesToAll && hasSettings ? (
+              {hasSettings && (
                 <button onClick={onEditSettings}
                   className="text-[11px] font-bold uppercase tracking-wider px-2 py-1 rounded-md whitespace-nowrap"
                   style={{ color: 'var(--brand)' }}>
                   Edit settings
                 </button>
-              ) : null}
+              )}
+              {feature.sharedToggle && (
+                <Toggle size="sm" checked={!!perRole[roles[0]?.id]?.[feature.id]?.enabled}
+                  onChange={(e) => { e.stopPropagation(); onToggleEnabled(roles[0]?.id); }} />
+              )}
+              {feature.appliesToAll && !feature.sharedToggle && (
+                <Toggle size="sm" checked={watermarkOn}
+                  onChange={(e) => { e.stopPropagation(); onUpdateShared('watermark-source', watermarkOn ? 'None' : 'My Watermark'); }} />
+              )}
             </div>
-            <div className="px-3 pb-3 pt-1">
-              {feature.sharedToggle ? null : feature.appliesToAll ? (
-                (() => {
-                  const v = getSharedValue(perRole, roles, feature.id, 'watermark-source');
-                  return v && v !== 'None' ? (
-                    <div className="rounded-md border bg-white px-3 py-2.5 text-[12px]"
-                      style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', fontWeight: 500 }}>
-                      {v}
-                    </div>
-                  ) : null;
-                })()
-              ) : (
+            {!feature.sharedToggle && !feature.appliesToAll && (
+              <div className="px-3 pb-3 pt-1">
                 <div className="rounded-md border bg-white" style={{ borderColor: 'var(--card-border)' }}>
                   {roles.map((r, idx) => (
                     <div key={r.id}
@@ -3093,8 +3091,8 @@
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         );
       }
