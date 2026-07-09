@@ -3676,6 +3676,8 @@
           { id: 'access', label: 'Access' },
           { id: 'features', label: 'Features' },
           { id: 'contacts', label: `Contacts (${contactsCount})` },
+          { id: 'store', label: 'Store' },
+          { id: 'presets', label: 'Presets' },
         ].map(item => {
           const active = activeSection === item.id;
           return (
@@ -8231,6 +8233,21 @@
                       setPresetConfirm({ roleNames, presetName, rolesToRemove, rolesToAdd, rolesToUpdate });
                     }}
                   />
+                ) : activeSection === 'store' ? (
+                  <main className="main-pane flex-1 px-6 pt-6 pb-12" style={{ maxWidth: 920 }}>
+                    <MobileSectionNav activeSection={activeSection} onSelectSection={setActiveSection} contactsCount={contacts.length} />
+                    <header className="gallery-features-header mb-5">
+                      <h1 className="features-header-h1 text-[18px] font-extrabold tracking-tight uppercase" style={{ color: 'var(--brand)', letterSpacing: '0.02em' }}>Store</h1>
+                      <p className="text-[13px] mt-1" style={{ color: 'var(--text-secondary)' }}>Manage your gallery store settings.</p>
+                    </header>
+                    <div className="flex flex-col gap-3">
+                      <div className="bg-white rounded-xl border px-4 py-4 flex items-center justify-between"
+                        style={{ borderColor: 'var(--card-border)' }}>
+                        <span className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Price List</span>
+                        <span className="text-[12px]" style={{ color: 'var(--text-tertiary)' }}>None</span>
+                      </div>
+                    </div>
+                  </main>
                 ) : activeSection === 'access' ? (
                   <AccessSection
                     mode={accessMode} onSelectMode={setAccessMode}
@@ -8273,22 +8290,7 @@
                     </div>
                   </header>
 
-                  {/* Mobile-only role strip — replaces the desktop column header so users can
-                      still see roles, their counts, and access rename/duplicate/remove menus. */}
-                  {isMobile && (
-                    <div className="mobile-only mb-3 flex items-center gap-2 overflow-x-auto pb-1"
-                      style={{ WebkitOverflowScrolling: 'touch' }}>
-                      {roles.map(r => (
-                        <button key={r.id} type="button"
-                          onClick={(e) => { e.stopPropagation(); setOpenMenuRoleId(r.id); }}
-                          className="relative flex items-center rounded-full border bg-white px-3 py-1.5 whitespace-nowrap shrink-0 text-[11px] font-bold uppercase tracking-wider"
-                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-secondary)' }}>
-                          {r.name}
-                          <span className="ml-1" style={{ color: 'var(--text-tertiary)', fontWeight: 600 }}>({contacts.filter(c => c.roleId === r.id).length})</span>
-                        </button>
-                      ))}
-                    </div>
-                  )}
+                  {/* Role strip removed on mobile — use Contacts tab to manage roles */}
                   {/* Mobile bottom-sheet for role actions — replaces the cramped dropdown. */}
                   {isMobile && openMenuRoleId && (() => {
                     const r = roles.find(x => x.id === openMenuRoleId);
