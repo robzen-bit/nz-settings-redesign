@@ -6072,7 +6072,7 @@
     };
 
     // ===== Gallery Presets View =====
-    const PresetsView = ({ activeSection, onSelectSection, viewMode = 'basic', onApplyPreset }) => {
+    const PresetsView = ({ activeSection, onSelectSection, viewMode = 'basic', onApplyPreset, contactsCount = 0 }) => {
       const [showApplyModal, setShowApplyModal] = useState(false);
       const [appliedPreset, setAppliedPreset] = useState(null);
 
@@ -6083,7 +6083,8 @@
       };
 
       return (
-        <main className="main-pane flex-1 px-8 pt-8 pb-12" style={{ maxWidth: 900 }}>
+        <main className="main-pane flex-1 px-6 pt-6 pb-12" style={{ maxWidth: 900 }}>
+          <MobileSectionNav activeSection={activeSection} onSelectSection={onSelectSection} contactsCount={contactsCount} />
           <h1 className="text-[18px] font-extrabold tracking-tight uppercase mb-1" style={{ color: 'var(--brand)', letterSpacing: '0.02em' }}>Gallery Preset</h1>
           <p className="text-[13px] mb-6" style={{ color: 'var(--text-secondary)' }}>
             Applying a preset will update your gallery settings.{' '}
@@ -8216,7 +8217,7 @@
                 ) : activeSection === 'presets' ? (
                   <PresetsView
                     activeSection={activeSection} onSelectSection={setActiveSection}
-                    viewMode={viewMode}
+                    viewMode={viewMode} contactsCount={contacts.length}
                     onApplyPreset={(roleNames, presetName) => {
                       const currentCustomRoles = roles.filter(r => r.id !== 'everyone');
                       const rolesToRemove = currentCustomRoles
