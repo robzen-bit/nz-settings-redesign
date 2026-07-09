@@ -481,6 +481,7 @@
       .gallery-features-header { align-items: center !important; }
       .gallery-features-desc { display: none !important; }
       .compare-all-btn { display: none !important; }
+      .contact-fields-grid { grid-template-columns: 1fr !important; }
       /* Feature row on mobile uses card stack instead of grid */
       .feature-row-mobile {
         display: flex !important;
@@ -564,6 +565,7 @@
     .is-phone-sim .gallery-features-header { align-items: center !important; }
     .is-phone-sim .gallery-features-desc { display: none !important; }
     .is-phone-sim .compare-all-btn { display: none !important; }
+    .is-phone-sim .contact-fields-grid { grid-template-columns: 1fr !important; }
     .is-phone-sim .feature-row-mobile { display: flex !important; align-items: center !important; gap: 8px !important; padding: 16px 14px !important; background: transparent !important; cursor: pointer; }
     .is-phone-sim .feature-row-mobile.is-open { background: var(--soft-bg) !important; }
     .is-phone-sim .multi-panel-strip { padding-left: 14px !important; padding-right: 14px !important; }
@@ -1674,7 +1676,7 @@
 
     // Reusable contact form fields (First/Last name, Email, Mobile with US flag select)
     const ContactFields = ({ first, setFirst, last, setLast, email, setEmail, mobile, setMobile, emailPlaceholder = 'Email' }) => (
-      <div className="grid grid-cols-2 gap-3">
+      <div className="contact-fields-grid grid grid-cols-2 gap-3">
         <input value={first} onChange={e => setFirst(e.target.value)} placeholder="First Name"
           className="text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none"
           style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
