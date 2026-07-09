@@ -6613,10 +6613,7 @@
       );
 
       return (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4"
-          style={{ background: 'rgba(27,28,31,0.55)' }} onClick={onClose}>
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-[640px] overflow-hidden modal-card"
-            onClick={e => e.stopPropagation()}>
+        <MobileSheetModal onClose={onClose} zIndex={70} maxWidth={640}>
 
             {/* Header */}
             <div className="relative pt-7 pb-4 px-8 text-center">
@@ -6724,8 +6721,7 @@
                 Buy Now
               </button>
             </div>
-          </div>
-        </div>
+        </MobileSheetModal>
       );
     };
 
