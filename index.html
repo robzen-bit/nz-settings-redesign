@@ -2090,7 +2090,7 @@
                 {isMobile ? (
                   <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
                     <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
-                    <button onClick={submit} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Create Role</button>
+                    <button onClick={submit} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>{presetId === 'custom' ? 'Create Role' : 'Add Role'}</button>
                   </div>
                 ) : (
                   <div className="flex justify-end gap-2 mt-5 flex-wrap">
@@ -2100,7 +2100,7 @@
                     <button onClick={submit}
                       className="text-[12px] font-bold tracking-wider px-4 py-2 rounded-full text-white transition-all whitespace-nowrap"
                       style={{ background: 'var(--brand)', boxShadow: 'var(--shadow-sm)' }}>
-                      CREATE ROLE
+                      {presetId === 'custom' ? 'CREATE ROLE' : 'ADD ROLE'}
                     </button>
                   </div>
                 )}
