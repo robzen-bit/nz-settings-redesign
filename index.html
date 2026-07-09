@@ -533,6 +533,9 @@
       /* Sticky tabs + nav */
       .tabs-row { position: sticky !important; top: 0; z-index: 15; background: #fff; }
       .mobile-section-nav { position: sticky !important; top: 52px; z-index: 14; background: #fff; padding: 8px 12px 8px !important; margin-bottom: 0 !important; }
+      /* Shadow when stuck */
+      body.nav-stuck .tabs-row { box-shadow: none; }
+      body.nav-stuck .mobile-section-nav { box-shadow: 0 4px 8px -2px rgba(0,0,0,0.10); }
     }
 
     /* ============ Phone simulation mode (.is-phone-sim mirrors the 768px media query) ============ */
@@ -575,6 +578,7 @@
     .is-phone-sim .contacts-add-buttons > button, .is-phone-sim .contacts-add-buttons > div { width: 100%; }
     .is-phone-sim .contacts-add-buttons > div > button { width: 100%; }
     .is-phone-sim .mobile-section-nav { display: flex !important; position: sticky !important; top: 52px; z-index: 14; background: #fff; padding: 8px 12px 8px !important; margin-bottom: 0 !important; }
+    body.nav-stuck .is-phone-sim .mobile-section-nav { box-shadow: 0 4px 8px -2px rgba(0,0,0,0.10); }
     .is-phone-sim .features-header-h1 { font-size: 16px !important; }
     .is-phone-sim .access-grid { grid-template-columns: 1fr !important; }
     .is-phone-sim .multicheck-suboption { display: none !important; }
@@ -1346,9 +1350,26 @@
     };
 
     const Tabs = () => {
+      const isMobile = useIsMobile();
+      const tabsRef = React.useRef(null);
+      React.useEffect(() => {
+        if (!isMobile) return;
+        // Find scroll container — phone sim uses an overflow div; real mobile uses window
+        let scrollEl = window;
+        let parent = tabsRef.current && tabsRef.current.parentElement;
+        while (parent) {
+          const ov = getComputedStyle(parent).overflowY;
+          if (ov === 'auto' || ov === 'scroll') { scrollEl = parent; break; }
+          parent = parent.parentElement;
+        }
+        const getScrollTop = () => scrollEl === window ? window.scrollY : scrollEl.scrollTop;
+        const onScroll = () => document.body.classList.toggle('nav-stuck', getScrollTop() > 5);
+        scrollEl.addEventListener('scroll', onScroll, { passive: true });
+        return () => { scrollEl.removeEventListener('scroll', onScroll); document.body.classList.remove('nav-stuck'); };
+      }, [isMobile]);
       const tabs = ['Organize', 'Settings', 'Design', 'Activity'];
       return (
-        <div className="tabs-row flex items-center gap-2 px-8 border-b bg-white" style={{ borderColor: 'var(--card-border)' }}>
+        <div ref={tabsRef} className="tabs-row flex items-center gap-2 px-8 border-b bg-white" style={{ borderColor: 'var(--card-border)' }}>
           {tabs.map(t => (
             <button key={t}
               className={`tab-btn text-[14px] py-3 px-3 ${t === 'Settings' ? 'is-active' : ''}`}
