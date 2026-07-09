@@ -585,10 +585,14 @@
     .mobile-feature-modal .is-multicheck-row { grid-template-columns: 1fr !important; gap: 6px !important; align-items: stretch !important; }
     .mobile-feature-modal .is-multicheck-row .control-end { justify-content: flex-start !important; align-items: flex-start !important; width: 100%; }
 
-    /* Non-multicheck child rows (individual-resolution, license): keep 1fr auto side-by-side */
-    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row) { align-items: center !important; }
-    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row) .v5-select-wrap,
-    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row) .v5-select-btn { min-width: 0 !important; }
+    /* Toggle child rows (digital license): keep 1fr auto side-by-side */
+    .mobile-feature-modal .mobile-child-row.is-toggle-child { grid-template-columns: 1fr auto !important; align-items: center !important; }
+
+    /* Non-toggle, non-multicheck child rows (individual-resolution): stack like top-level */
+    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) { grid-template-columns: 1fr !important; gap: 8px !important; align-items: stretch !important; }
+    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) .control-end { justify-content: flex-start !important; align-items: stretch !important; }
+    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) .v5-select-wrap,
+    .mobile-feature-modal .mobile-child-row:not(.is-multicheck-row):not(.is-toggle-child) .v5-select-btn { width: 100% !important; min-width: 0 !important; }
 
     /* Multicheck internals */
     .mobile-feature-modal .multicheck-opts { flex-direction: column !important; gap: 10px !important; align-items: stretch !important; }
@@ -2717,7 +2721,7 @@
                     </div>
                   ) : (
                     <div key={c.id}
-                      className={`shared-flat-row grid items-start gap-4 mobile-child-row${c.type === 'multicheck' ? ' is-multicheck-row' : ''}`}
+                      className={`shared-flat-row grid items-start gap-4 mobile-child-row${c.type === 'multicheck' ? ' is-multicheck-row' : ''}${c.type === 'toggle' ? ' is-toggle-child' : ''}`}
                       style={{
                         gridTemplateColumns: '1fr auto',
                         padding: '6px 0 12px 22px',
