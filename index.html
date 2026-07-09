@@ -572,6 +572,21 @@
     .is-phone-sim .multicheck-suboption { display: none !important; }
     .is-phone-sim .multicheck-opt { width: auto !important; }
 
+    /* ===== Mobile feature settings full-screen modal ===== */
+    .mobile-feature-modal .shared-flat-row { grid-template-columns: 1fr !important; gap: 8px !important; align-items: stretch !important; }
+    .mobile-feature-modal .shared-flat-row .control-end { justify-content: flex-start !important; }
+    .mobile-feature-modal .shared-flat-row select,
+    .mobile-feature-modal .shared-flat-row .v5-select-wrap,
+    .mobile-feature-modal .shared-flat-row .v5-select-btn { width: 100% !important; min-width: 0 !important; }
+    .mobile-feature-modal .multi-panel-body { padding-left: 14px !important; padding-right: 14px !important; }
+    .mobile-feature-modal .multicheck-opts { flex-direction: column !important; gap: 10px !important; align-items: stretch !important; }
+    .mobile-feature-modal .multicheck-opt { width: 100% !important; flex-direction: row !important; align-items: center !important; gap: 12px !important; }
+    .mobile-feature-modal .multicheck-opt label { flex: 1; }
+    .mobile-feature-modal .multicheck-suboption { display: block !important; }
+    .mobile-feature-modal .multicheck-suboption select { width: 100% !important; min-width: 0 !important; }
+    .mobile-feature-modal .v5-select-wrap,
+    .mobile-feature-modal .v5-select-btn { width: 100% !important; min-width: 0 !important; }
+
     /* ===== Plan Level Picker (top bar) ===== */
     @keyframes mode-panel-down {
       from { opacity: 0; transform: translateY(-6px) scale(0.97); }
@@ -2391,7 +2406,7 @@
           : {};
         if (hasSubOpts) {
           return (
-            <div className="flex items-start gap-4 flex-wrap">
+            <div className="multicheck-opts flex items-start gap-4 flex-wrap">
               {s.options.map(opt => {
                 const checked = selectedArr.includes(opt);
                 const subs = s.subOptions[opt];
@@ -3577,7 +3592,7 @@
             </div>
             <div style={{ width: 36 }} />
           </header>
-          <div className="flex-1 overflow-y-auto" style={{ background: 'var(--soft-bg)' }}>
+          <div className="flex-1 overflow-y-auto mobile-feature-modal" style={{ background: 'var(--soft-bg)' }}>
             {roles.map(role => {
               const roleEnabled = !!perRole[role.id]?.[feature.id]?.enabled;
               return (
