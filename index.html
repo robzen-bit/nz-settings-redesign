@@ -468,6 +468,8 @@
       .tabs-row .tab-btn.is-active { color: var(--brand) !important; font-weight: 700 !important; }
       .tabs-row .tab-btn.is-active::after { left: 0 !important; right: 0 !important; height: 3px !important; }
       .tabs-row::-webkit-scrollbar { display: none; }
+      .role-pills-scroll::-webkit-scrollbar { display: none; }
+      .role-pills-scroll { -ms-overflow-style: none; scrollbar-width: none; }
       .layout-pane { flex-direction: column !important; }
       .inner-sidebar { display: none !important; }
       .main-pane {
@@ -8320,7 +8322,7 @@
 
                   {/* Mobile role strip — single scrollable line */}
                   {isMobile && (
-                    <div className="mobile-only mb-3 flex items-center gap-2 overflow-x-auto pb-1"
+                    <div className="mobile-only mb-3 flex items-center gap-2 overflow-x-auto role-pills-scroll"
                       style={{ WebkitOverflowScrolling: 'touch', flexWrap: 'nowrap' }}>
                       {roles.map(r => (
                         <button key={r.id} type="button"
