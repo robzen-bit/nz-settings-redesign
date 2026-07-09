@@ -1996,20 +1996,16 @@
 
                 </div>{/* end scroll area */}
                 {isMobile ? (
-                  <div style={{ padding: '6px 16px 14px', position: 'sticky', bottom: 0, background: '#fff', borderTop: '1px solid var(--card-border)' }}>
-                    {selectedCards.size > 0 && (
-                      <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
-                        <button onClick={handleAddRoles} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-                          {selectedCards.size === 1 ? 'Add Role' : `Add ${selectedCards.size} Roles`}
-                        </button>
-                        {canDelete && (
-                          <button onClick={handleDelete} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#e53935', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Delete</button>
-                        )}
-                      </div>
+                  <div style={{ display: 'flex', gap: 12, padding: '6px 16px 14px', position: 'sticky', bottom: 0, background: '#fff', borderTop: '1px solid var(--card-border)' }}>
+                    <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
+                    {selectedCards.size > 0 && canDelete && (
+                      <button onClick={handleDelete} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#e53935', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Delete</button>
                     )}
-                    <div style={{ display: 'flex' }}>
-                      <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
-                    </div>
+                    {selectedCards.size > 0 && (
+                      <button onClick={handleAddRoles} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+                        {selectedCards.size === 1 ? 'Add Role' : `Add ${selectedCards.size} Roles`}
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="px-6 pb-6 pt-4 border-t" style={{ borderColor: 'var(--line-2)' }}>
