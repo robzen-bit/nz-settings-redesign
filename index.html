@@ -535,7 +535,7 @@
       .mobile-section-nav { position: sticky !important; top: 52px; z-index: 14; background: #fff; padding: 8px 12px 8px !important; margin-bottom: 0 !important; }
       /* Shadow when stuck */
       body.nav-stuck .tabs-row { box-shadow: none; }
-      body.nav-stuck .mobile-section-nav { box-shadow: 0 4px 8px -2px rgba(0,0,0,0.10); }
+      body.nav-stuck .mobile-section-nav { border-bottom: 1px solid var(--card-border); }
     }
 
     /* ============ Phone simulation mode (.is-phone-sim mirrors the 768px media query) ============ */
@@ -578,7 +578,7 @@
     .is-phone-sim .contacts-add-buttons > button, .is-phone-sim .contacts-add-buttons > div { width: 100%; }
     .is-phone-sim .contacts-add-buttons > div > button { width: 100%; }
     .is-phone-sim .mobile-section-nav { display: flex !important; position: sticky !important; top: 52px; z-index: 14; background: #fff; padding: 8px 12px 8px !important; margin-bottom: 0 !important; }
-    body.nav-stuck .is-phone-sim .mobile-section-nav { box-shadow: 0 4px 8px -2px rgba(0,0,0,0.10); }
+    body.nav-stuck .is-phone-sim .mobile-section-nav { border-bottom: 1px solid var(--card-border); }
     .is-phone-sim .features-header-h1 { font-size: 16px !important; }
     .is-phone-sim .access-grid { grid-template-columns: 1fr !important; }
     .is-phone-sim .multicheck-suboption { display: none !important; }
