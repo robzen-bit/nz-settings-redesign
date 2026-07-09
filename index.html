@@ -1079,10 +1079,12 @@
                 </div>
               ))}
             </div>
-            <button onClick={onClose}
-              style={{ width: '100%', padding: '16px', borderRadius: 14, background: '#1B1C1F', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-              Cancel
-            </button>
+            <div style={{ display: 'flex', padding: '6px 0 8px' }}>
+              <button onClick={onClose}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       );
@@ -1994,16 +1996,20 @@
 
                 </div>{/* end scroll area */}
                 {isMobile ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: '12px 16px 16px', position: 'sticky', bottom: 0, background: '#fff', borderTop: '1px solid var(--card-border)' }}>
-                    {selectedCards.size > 0 && <>
-                      <button onClick={handleAddRoles} style={{ width: '100%', padding: '16px', borderRadius: 14, background: 'var(--brand)', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-                        {selectedCards.size === 1 ? 'ADD ROLE' : `ADD ${selectedCards.size} ROLES`}
-                      </button>
-                      {canDelete && (
-                        <button onClick={handleDelete} style={{ width: '100%', padding: '16px', borderRadius: 14, background: '#e53935', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>DELETE</button>
-                      )}
-                    </>}
-                    <button onClick={onClose} style={{ width: '100%', padding: '16px', borderRadius: 14, background: '#1B1C1F', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
+                  <div style={{ padding: '6px 16px 14px', position: 'sticky', bottom: 0, background: '#fff', borderTop: '1px solid var(--card-border)' }}>
+                    {selectedCards.size > 0 && (
+                      <div style={{ display: 'flex', gap: 12, marginBottom: 10 }}>
+                        <button onClick={handleAddRoles} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+                          {selectedCards.size === 1 ? 'Add Role' : `Add ${selectedCards.size} Roles`}
+                        </button>
+                        {canDelete && (
+                          <button onClick={handleDelete} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#e53935', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Delete</button>
+                        )}
+                      </div>
+                    )}
+                    <div style={{ display: 'flex' }}>
+                      <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
+                    </div>
                   </div>
                 ) : (
                   <div className="px-6 pb-6 pt-4 border-t" style={{ borderColor: 'var(--line-2)' }}>
@@ -2046,9 +2052,9 @@
                   style={{ borderColor: nameTaken ? 'var(--brand)' : 'var(--card-border)', color: 'var(--text-primary)' }} />
                 {nameTaken && <p className="text-[12px] mt-2" style={{ color: 'var(--brand-deep)' }}>A role named "{trimmed}" already exists.</p>}
                 {isMobile ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
-                    <button disabled={!trimmed || nameTaken} onClick={() => goDetail('custom')} style={{ width: '100%', padding: '16px', borderRadius: 14, background: 'var(--brand)', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer', opacity: (!trimmed || nameTaken) ? 0.4 : 1 }}>Next</button>
-                    <button onClick={() => setStep('choose')} style={{ width: '100%', padding: '16px', borderRadius: 14, background: '#1B1C1F', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Back</button>
+                  <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+                    <button onClick={() => setStep('choose')} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Back</button>
+                    <button disabled={!trimmed || nameTaken} onClick={() => goDetail('custom')} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', opacity: (!trimmed || nameTaken) ? 0.4 : 1 }}>Next</button>
                   </div>
                 ) : (
                   <div className="flex justify-end gap-2 mt-5">
@@ -2083,9 +2089,9 @@
                   emailPlaceholder="Email (required to add contact)"
                 />
                 {isMobile ? (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
-                    <button onClick={submit} style={{ width: '100%', padding: '16px', borderRadius: 14, background: 'var(--brand)', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Create Role</button>
-                    <button onClick={onClose} style={{ width: '100%', padding: '16px', borderRadius: 14, background: '#1B1C1F', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
+                  <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+                    <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
+                    <button onClick={submit} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Create Role</button>
                   </div>
                 ) : (
                   <div className="flex justify-end gap-2 mt-5 flex-wrap">
@@ -2200,12 +2206,12 @@
               mobile={mobile} setMobile={setMobile}
             />
             {isMobile ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 20 }}>
+              <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
+                <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
                 <button onClick={() => { onAdd({ first, last, email, mobile }); onClose(); }} disabled={!canAdd}
-                  style={{ width: '100%', padding: '16px', borderRadius: 14, background: 'var(--brand)', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: canAdd ? 'pointer' : 'default', opacity: canAdd ? 1 : 0.4 }}>
+                  style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: canAdd ? 'pointer' : 'default', opacity: canAdd ? 1 : 0.4 }}>
                   Add as {role.name}
                 </button>
-                <button onClick={onClose} style={{ width: '100%', padding: '16px', borderRadius: 14, background: '#1B1C1F', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
               </div>
             ) : (
               <>
@@ -2298,10 +2304,12 @@
               )}
             </div>
             {/* Cancel button */}
+            <div style={{ display: 'flex', padding: '2px 0 4px' }}>
             <button type="button" onClick={onClose}
-              style={{ width: '100%', padding: '16px', borderRadius: 14, background: '#1B1C1F', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+              style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
               Cancel
             </button>
+            </div>
           </div>
         </div>
       );
@@ -6756,15 +6764,14 @@
             </div>
 
             {/* Footer */}
-            <div className="px-4 pb-4" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button
-                onClick={() => { onSelectPlan(localPlan); onClose(); }}
-                style={{ width: '100%', padding: '16px', borderRadius: 14, background: 'var(--orange)', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-                Buy Now
-              </button>
+            <div style={{ display: 'flex', gap: 12, padding: '6px 16px 14px' }}>
               <button onClick={onClose}
-                style={{ width: '100%', padding: '16px', borderRadius: 14, background: '#1B1C1F', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+                style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
                 Cancel
+              </button>
+              <button onClick={() => { onSelectPlan(localPlan); onClose(); }}
+                style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--orange)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+                Buy Now
               </button>
             </div>
         </MobileSheetModal>
