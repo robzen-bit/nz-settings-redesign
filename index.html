@@ -3552,13 +3552,12 @@
     // Full-screen sheet that hosts a feature's settings when triggered from the mobile
     // matrix. Uses the same MultiRoleSettingsBlock / SimpleSettingsBlock components so
     // changes flow back through the same update callbacks. Lock body scroll while open.
-    const MobileFeatureSettingsModal = ({ feature, roles, perRole, onClose, onUpdate, onUpdateShared }) => {
+    const MobileFeatureSettingsModal = ({ feature, roles, perRole, onClose, onUpdate, onUpdateShared, onToggleEnabled }) => {
       useEffect(() => {
         const prev = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
         return () => { document.body.style.overflow = prev; };
       }, []);
-      const isMultiRole = roles.length > 1;
       return (
         <div className="fixed inset-0 z-50 flex flex-col bg-white" role="dialog" aria-modal="true">
           <header className="flex items-center justify-between px-3 h-14 border-b shrink-0"
@@ -3576,17 +3575,35 @@
                 {feature.name}
               </h2>
             </div>
-            {/* Spacer to balance the close button so the title stays centered */}
             <div style={{ width: 36 }} />
           </header>
-          <div className="flex-1 overflow-y-auto is-phone-sim" style={{ background: 'var(--soft-bg)' }}>
-            {isMultiRole ? (
-              <MultiRoleSettingsBlock feature={feature} roles={roles} perRole={perRole}
-                onUpdate={onUpdate} onUpdateShared={onUpdateShared} />
-            ) : (
-              <SimpleSettingsBlock feature={feature} role={roles[0]} perRole={perRole}
-                onUpdate={onUpdate} />
-            )}
+          <div className="flex-1 overflow-y-auto" style={{ background: 'var(--soft-bg)' }}>
+            {roles.map(role => {
+              const roleEnabled = !!perRole[role.id]?.[feature.id]?.enabled;
+              return (
+                <div key={role.id}>
+                  {/* Role section header with toggle */}
+                  <div className="flex items-center justify-between px-4 py-3 bg-white border-b"
+                    style={{ borderColor: 'var(--card-border)', borderTop: '1px solid var(--card-border)' }}>
+                    <div className="flex items-center gap-2">
+                      <span style={{
+                        width: 8, height: 8, borderRadius: '50%', flexShrink: 0,
+                        background: roleEnabled ? '#34C759' : 'var(--line)',
+                        display: 'inline-block',
+                      }} />
+                      <span className="text-[11px] font-bold tracking-wider uppercase"
+                        style={{ color: 'var(--text-secondary)' }}>{role.name}</span>
+                    </div>
+                    <Toggle size="sm" checked={roleEnabled}
+                      onChange={() => onToggleEnabled && onToggleEnabled(role.id)} />
+                  </div>
+                  {/* Collapsible settings — only visible when role is enabled */}
+                  {roleEnabled && (
+                    <SimpleSettingsBlock feature={feature} role={role} perRole={perRole} onUpdate={onUpdate} />
+                  )}
+                </div>
+              );
+            })}
           </div>
           <footer className="border-t bg-white p-3 shrink-0" style={{ borderColor: 'var(--card-border)' }}>
             <button onClick={onClose}
@@ -8368,7 +8385,8 @@
                 feature={feature} roles={roles} perRole={perRole}
                 onClose={() => setMobileEditFeatureId(null)}
                 onUpdate={(rId, sId, v) => updateValue(feature.id, rId, sId, v)}
-                onUpdateShared={(sId, v) => updateSharedValue(feature.id, sId, v)} />
+                onUpdateShared={(sId, v) => updateSharedValue(feature.id, sId, v)}
+                onToggleEnabled={(rId) => toggleEnabled(feature.id, rId)} />
             );
           })()}
 
