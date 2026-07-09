@@ -530,6 +530,9 @@
       /* Mobile section nav */
       .mobile-section-nav { display: flex !important; }
       .features-header-h1 { font-size: 16px !important; }
+      /* Sticky tabs + nav */
+      .tabs-row { position: sticky !important; top: 0; z-index: 15; background: #fff; }
+      .mobile-section-nav { position: sticky !important; top: 52px; z-index: 14; background: #fff; padding: 8px 12px 8px !important; margin-bottom: 0 !important; }
     }
 
     /* ============ Phone simulation mode (.is-phone-sim mirrors the 768px media query) ============ */
@@ -542,6 +545,7 @@
       overflow-x: auto; -webkit-overflow-scrolling: touch;
       flex-wrap: nowrap !important; gap: 16px !important;
       justify-content: space-between;
+      position: sticky !important; top: 0; z-index: 15; background: #fff;
     }
     .is-phone-sim .tabs-row .tab-btn { font-size: 16px !important; padding: 14px 4px !important; }
     .is-phone-sim .tabs-row .tab-btn.is-active { color: var(--brand) !important; font-weight: 700 !important; }
@@ -570,7 +574,7 @@
     .is-phone-sim .contacts-add-buttons { flex-direction: column; align-items: stretch !important; }
     .is-phone-sim .contacts-add-buttons > button, .is-phone-sim .contacts-add-buttons > div { width: 100%; }
     .is-phone-sim .contacts-add-buttons > div > button { width: 100%; }
-    .is-phone-sim .mobile-section-nav { display: flex !important; }
+    .is-phone-sim .mobile-section-nav { display: flex !important; position: sticky !important; top: 52px; z-index: 14; background: #fff; padding: 8px 12px 8px !important; margin-bottom: 0 !important; }
     .is-phone-sim .features-header-h1 { font-size: 16px !important; }
     .is-phone-sim .access-grid { grid-template-columns: 1fr !important; }
     .is-phone-sim .multicheck-suboption { display: none !important; }
