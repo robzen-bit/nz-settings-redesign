@@ -2254,9 +2254,10 @@
       useEffect(() => {
         const prev = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
+        document.body.classList.add('sheet-open');
         const onKey = (e) => { if (e.key === 'Escape') onClose(); };
         window.addEventListener('keydown', onKey);
-        return () => { document.body.style.overflow = prev; window.removeEventListener('keydown', onKey); };
+        return () => { document.body.style.overflow = prev; document.body.classList.remove('sheet-open'); window.removeEventListener('keydown', onKey); };
       }, []);
       const Item = ({ icon, label, color, bg, danger, onClick, first }) => (
         <button type="button" onClick={onClick}
@@ -2288,9 +2289,13 @@
             {/* Actions card */}
             <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid var(--card-border)', background: '#fff', marginBottom: 12 }}>
               <Item first icon={<PlusUserIcon size={18} />} label={`Add contact to ${role.name}`} color="#FFFFFF" bg="var(--brand)" onClick={onAddContact} />
-              <Item icon={<PencilIcon size={18} stroke={1.7} />} label="Rename" color="#FFFFFF" bg="#3B82F6" onClick={onRename} />
-              <Item icon={<BookIcon size={18} stroke={1.7} />} label="Save for later use" color="#FFFFFF" bg="#F59E0B" onClick={onSaveLater} />
-              <Item icon={<CopyIcon size={18} />} label="Duplicate" color="#FFFFFF" bg="#8B5CF6" onClick={onDuplicate} />
+              {role.isCustom && (
+                <>
+                  <Item icon={<PencilIcon size={18} stroke={1.7} />} label="Rename" color="#FFFFFF" bg="#3B82F6" onClick={onRename} />
+                  <Item icon={<BookIcon size={18} stroke={1.7} />} label="Save for later use" color="#FFFFFF" bg="#F59E0B" onClick={onSaveLater} />
+                  <Item icon={<CopyIcon size={18} />} label="Duplicate" color="#FFFFFF" bg="#8B5CF6" onClick={onDuplicate} />
+                </>
+              )}
               {role.removable && (
                 <Item icon={<TrashIcon size={18} />} label="Remove" color="#FFFFFF" bg="var(--danger)" danger onClick={onRemove} />
               )}
@@ -8526,7 +8531,7 @@
                       style={{ WebkitOverflowScrolling: 'touch', flexWrap: 'nowrap' }}>
                       {roles.map(r => (
                         <button key={r.id} type="button"
-                          onClick={(e) => { e.stopPropagation(); setOpenMenuRoleId(r.id); }}
+                          onClick={(e) => { e.stopPropagation(); if (r.id === 'everyone') { setContactRoleId(r.id); } else { setOpenMenuRoleId(r.id); } }}
                           className="relative flex items-center rounded-full border bg-white px-3 py-1.5 whitespace-nowrap shrink-0 text-[11px] font-bold uppercase tracking-wider"
                           style={{ borderColor: 'var(--card-border)', color: 'var(--text-secondary)' }}>
                           {r.name}
