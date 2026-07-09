@@ -1034,7 +1034,8 @@
     // document.body so it escapes any overflow:hidden / clip ancestors (e.g. the
     // rounded per-role settings card). Coordinates are computed from the trigger's
     // getBoundingClientRect() and re-measured on scroll / resize.
-    const V5Select = ({ value, options, onChange, disabled, minWidth = 220, fullWidth }) => {
+    const V5Select = ({ value, options, onChange, disabled, minWidth = 220, fullWidth, label }) => {
+      const isMobile = useIsMobile();
       const [open, setOpen] = useState(false);
       const [pos, setPos] = useState(null); // { top, left, width, openUp }
       const wrapRef = React.useRef(null);
@@ -1081,6 +1082,42 @@
       }, [open, measure]);
 
       const display = value || (options && options[0]) || '';
+
+      // Mobile: bottom sheet action sheet
+      const mobileSheet = (open && isMobile) ? ReactDOM.createPortal(
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+          <div onClick={() => setOpen(false)}
+            style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} />
+          <div style={{ position: 'relative', background: '#fff', borderRadius: '20px 20px 0 0', padding: '12px 16px 32px', maxHeight: '80vh', overflowY: 'auto' }}>
+            {label && (
+              <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', paddingBottom: 12, borderBottom: '1px solid var(--card-border)', marginBottom: 4 }}>
+                {label}
+              </div>
+            )}
+            <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid var(--card-border)', marginBottom: 12 }}>
+              {options.map((o, i) => (
+                <div key={o}
+                  onClick={() => { onChange(o); setOpen(false); }}
+                  style={{
+                    padding: '16px 20px', textAlign: 'center', fontSize: 16,
+                    color: 'var(--brand)', fontWeight: o === value ? 700 : 400,
+                    borderTop: i > 0 ? '1px solid var(--card-border)' : 'none',
+                    background: '#fff', cursor: 'pointer',
+                  }}>
+                  {o}
+                </div>
+              ))}
+            </div>
+            <button onClick={() => setOpen(false)}
+              style={{ width: '100%', padding: '16px', borderRadius: 14, background: '#1B1C1F', color: '#fff', fontSize: 16, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+              Cancel
+            </button>
+          </div>
+        </div>,
+        document.body
+      ) : null;
+
+      // Desktop: positioned popover menu
       const menuStyle = pos
         ? {
             position: 'fixed',
@@ -1091,7 +1128,7 @@
             zIndex: 1000,
           }
         : { display: 'none' };
-      const menu = open ? ReactDOM.createPortal(
+      const desktopMenu = (open && !isMobile) ? ReactDOM.createPortal(
         <div ref={menuRef} className="v5-select-menu" role="listbox" style={menuStyle}>
           {options.map(o => {
             const selected = o === value;
@@ -1120,7 +1157,8 @@
             <span className="v5-select-value">{display}</span>
             <span className={`v5-select-chev ${open ? 'is-open' : ''}`}><ChevronDown size={14} /></span>
           </button>
-          {menu}
+          {mobileSheet}
+          {desktopMenu}
         </div>
       );
     };
