@@ -1618,11 +1618,11 @@
         <>
         <div className="modal-backdrop fixed inset-0 flex items-center justify-center px-4"
           style={{ background: 'rgba(27, 28, 31, 0.45)', zIndex: 100 }} onClick={onClose}>
-          <div className="modal-card bg-white rounded-2xl border shadow-xl w-full max-w-[680px] flex flex-col"
+          <div className={`modal-card bg-white rounded-2xl border shadow-xl w-full max-w-[680px] ${isMobile ? 'overflow-y-auto' : 'flex flex-col'}`}
             style={{ borderColor: 'var(--card-border)', maxHeight: isMobile ? 'calc(100% - 40px)' : 'calc(100vh - 80px)' }} onClick={e => e.stopPropagation()}>
             {step === 'choose' && (
               <>
-                <div className={isMobile ? 'flex-1 overflow-y-auto px-6 pt-6 pb-2' : 'px-6 pt-6 pb-0 shrink-0'}>
+                <div className="px-6 pt-6 pb-0">
                 <h3 className="text-[13px] font-bold tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>ADD A ROLE</h3>
                 {(() => {
                   const basicLock     = viewMode === 'basic';
@@ -1704,8 +1704,8 @@
                   );
                 })()}
 
-                </div>{/* end fixed header */}
-                <div className={isMobile ? 'px-6' : 'flex-1 overflow-y-auto px-6'}>
+                </div>{/* end header */}
+                <div className="px-6">
                 {/* ── Saved custom roles ── */}
                 {savedRoles.length > 0 && (() => {
                   const basicLock     = viewMode === 'basic';
@@ -1805,7 +1805,7 @@
                 })()}
 
                 </div>{/* end scroll area */}
-                <div className="shrink-0 px-6 pb-6 pt-4 border-t" style={{ borderColor: 'var(--line-2)' }}>
+                <div className="px-6 pb-6 pt-4 border-t" style={{ borderColor: 'var(--line-2)', ...(isMobile ? { position: 'sticky', bottom: 0, background: '#fff' } : {}) }}>
                 <div className={`flex ${selectedCards.size > 0 ? 'justify-between' : 'justify-end'} items-center`}>
                   <button onClick={onClose}
                     className="text-[12px] font-bold tracking-wider px-4 py-2 rounded-full border bg-white transition-all hover:bg-[var(--bg)]"
