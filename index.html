@@ -1695,6 +1695,45 @@
       </div>
     );
 
+    // Wrapper that renders as a fly-up bottom sheet on mobile, centered modal on desktop.
+    const MobileSheetModal = ({ onClose, zIndex = 100, maxWidth = 680, children }) => {
+      const isMobile = useIsMobile();
+      React.useEffect(() => {
+        if (isMobile) {
+          document.body.classList.add('sheet-open');
+          return () => document.body.classList.remove('sheet-open');
+        }
+      }, [isMobile]);
+      if (isMobile) {
+        return (
+          <div style={{ position: 'fixed', inset: 0, zIndex, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+            <div onClick={onClose} style={{ position: 'absolute', inset: 0 }} />
+            <div className="sheet-panel" style={{
+              position: 'relative', background: '#fff',
+              borderTop: '1px solid var(--card-border)', borderRadius: '20px 20px 0 0',
+              maxHeight: '92vh', overflowY: 'auto',
+              boxShadow: '0 -4px 24px rgba(0,0,0,0.10)',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px' }}>
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--card-border)' }} />
+              </div>
+              {children}
+            </div>
+          </div>
+        );
+      }
+      return (
+        <div className="modal-backdrop fixed inset-0 flex items-center justify-center px-4"
+          style={{ background: 'rgba(27, 28, 31, 0.45)', zIndex }} onClick={onClose}>
+          <div className="modal-card bg-white rounded-2xl border shadow-xl w-full flex flex-col"
+            style={{ borderColor: 'var(--card-border)', maxWidth, maxHeight: 'calc(100vh - 80px)' }}
+            onClick={e => e.stopPropagation()}>
+            {children}
+          </div>
+        </div>
+      );
+    };
+
     const AddRoleModal = ({ onClose, onSelect, onSelectBulk, onDeleteSaved, onOpenPlans, existingNames, viewMode, customRoleCount = 0, savedRoles = [] }) => {
       const isMobile = useIsMobile();
       const [step, setStep] = useState('choose');
@@ -1768,10 +1807,7 @@
 
       return (
         <>
-        <div className="modal-backdrop fixed inset-0 flex items-center justify-center px-4"
-          style={{ background: 'rgba(27, 28, 31, 0.45)', zIndex: 100 }} onClick={onClose}>
-          <div className={`modal-card bg-white rounded-2xl border shadow-xl w-full max-w-[680px] ${isMobile ? 'overflow-y-auto' : 'flex flex-col'}`}
-            style={{ borderColor: 'var(--card-border)', maxHeight: isMobile ? 'calc(100% - 40px)' : 'calc(100vh - 80px)' }} onClick={e => e.stopPropagation()}>
+        <MobileSheetModal onClose={onClose} zIndex={100} maxWidth={680}>
             {step === 'choose' && (
               <>
                 <div className="px-6 pt-6 pb-0">
@@ -2037,8 +2073,7 @@
                 </div>
               </div>
             )}
-          </div>
-        </div>
+        </MobileSheetModal>
         {/* ── Delete confirmation modal ── */}
         {pendingDelete && (() => {
           const count = pendingDelete.length;
@@ -2110,10 +2145,8 @@
       const canAdd = email.trim().length > 0;
       const upper = role.name.toUpperCase();
       return (
-        <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4"
-          style={{ background: 'rgba(27, 28, 31, 0.45)' }} onClick={onClose}>
-          <div className="modal-card bg-white rounded-2xl border shadow-xl w-full max-w-[600px] p-6"
-            style={{ borderColor: 'var(--card-border)' }} onClick={e => e.stopPropagation()}>
+        <MobileSheetModal onClose={onClose} zIndex={50} maxWidth={600}>
+          <div className="p-6">
             <div className="flex items-start justify-between mb-4">
               <h3 className="text-[13px] font-bold tracking-wider flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -2145,7 +2178,7 @@
               </button>
             </div>
           </div>
-        </div>
+        </MobileSheetModal>
       );
     };
 
