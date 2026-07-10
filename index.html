@@ -4024,6 +4024,12 @@
         !(roles || []).some(r => r.name.toLowerCase() === s.name.toLowerCase())
       ) : [];
       const [showAdvanced, setShowAdvanced] = useState(false);
+      const [requireSignIn, setRequireSignIn] = useState(true);
+      const [searchEngines, setSearchEngines] = useState(false);
+      const [zenfolioSearch, setZenfolioSearch] = useState(true);
+      const [folderSearch, setFolderSearch] = useState(false);
+      const [galleryStatus, setGalleryStatus] = useState('active');
+      const [expirationDate, setExpirationDate] = useState('');
       const isMobile = useIsMobile();
 
       const [feeDetailsOpen, setFeeDetailsOpen] = useState(false);
@@ -4367,9 +4373,86 @@
             </span>
           </button>
           {showAdvanced && (
-            <div className="mt-3 rounded-lg border bg-white p-4 text-[12px] italic"
-              style={{ borderColor: 'var(--card-border)', color: 'var(--text-tertiary)' }}>
-              Advanced settings placeholder.
+            <div className="mt-3 flex flex-col" style={{ gap: 0 }}>
+
+              {/* Client & Guest Privileges */}
+              <div className="flex items-start justify-between py-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
+                <div style={{ flex: 1, paddingRight: 16 }}>
+                  <div className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Client &amp; Guest Privileges require account sign-in.</div>
+                  <div className="text-[12px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>Clients &amp; Guest will only need to enter their email.</div>
+                </div>
+                <Toggle size="sm" checked={requireSignIn} onChange={() => setRequireSignIn(v => !v)} />
+              </div>
+
+              {/* Search results sub-checkboxes */}
+              {allowSearch && (
+                <div className="py-4 flex flex-col gap-3" style={{ borderBottom: '1px solid var(--card-border)' }}>
+                  <div className="text-[12px] font-semibold" style={{ color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>This gallery can appear in the searches selected below.</div>
+                  {[
+                    { key: 'engines', label: 'Search Engines (Bing, Google, Yahoo)', link: 'learn about SEO', val: searchEngines, set: setSearchEngines },
+                    { key: 'zenfolio', label: 'Zenfolio Sitewide Search', link: 'click here to learn more', val: zenfolioSearch, set: setZenfolioSearch },
+                    { key: 'folder', label: 'Folder Search', link: 'click here to learn more', val: folderSearch, set: setFolderSearch },
+                  ].map(item => (
+                    <label key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                      <button type="button" onClick={() => item.set(v => !v)}
+                        style={{ width: 18, height: 18, borderRadius: 4, border: `2px solid ${item.val ? 'var(--brand)' : 'var(--card-border)'}`, background: item.val ? 'var(--brand)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
+                        {item.val && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
+                      </button>
+                      <span className="text-[13px]" style={{ color: 'var(--text-primary)' }}>
+                        {item.label} — <span style={{ color: 'var(--brand)', cursor: 'pointer', fontWeight: 500 }}>{item.link}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+
+              {/* EXPIRATION */}
+              <div className="py-4 flex flex-col gap-3">
+                <div>
+                  <div className="text-[15px] font-bold tracking-wider mb-1" style={{ color: 'var(--text-primary)' }}>EXPIRATION</div>
+                  <div className="text-[13px]" style={{ color: 'var(--text-secondary)' }}>An active gallery is live and visible, based on the Access Settings. The gallery will become inactive on the date selected below.</div>
+                </div>
+
+                {/* Active radio */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 6 }}>
+                    <button type="button" onClick={() => setGalleryStatus('active')}
+                      style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${galleryStatus === 'active' ? 'var(--brand)' : 'var(--card-border)'}`, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
+                      {galleryStatus === 'active' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)' }} />}
+                    </button>
+                    <span className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>Active</span>
+                  </label>
+                  <div className="text-[13px] mb-3 ml-7" style={{ color: 'var(--text-secondary)' }}>An active gallery is live and visible, based on the Access Settings. The gallery will become inactive on the date selected below.</div>
+
+                  {galleryStatus === 'active' && (
+                    <div className="ml-7">
+                      <div className="text-[13px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>
+                        Set Expiration Date <span style={{ color: 'var(--text-tertiary)', fontWeight: 400 }}>(optional)</span>
+                      </div>
+                      <div style={{ position: 'relative', maxWidth: 320 }}>
+                        <input type="date" value={expirationDate} onChange={e => setExpirationDate(e.target.value)}
+                          placeholder="Expiration Date"
+                          className="w-full px-3 py-2 rounded border text-[13px] outline-none"
+                          style={{ borderColor: 'var(--card-border)', color: expirationDate ? 'var(--text-primary)' : 'var(--text-tertiary)', paddingRight: 36 }} />
+                      </div>
+                      <div className="text-[12px] mt-1.5" style={{ color: 'var(--text-secondary)' }}>Choose a date for gallery to move automatically from Active to Inactive</div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Inactive radio */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 6 }}>
+                    <button type="button" onClick={() => setGalleryStatus('inactive')}
+                      style={{ width: 18, height: 18, borderRadius: '50%', border: `2px solid ${galleryStatus === 'inactive' ? 'var(--brand)' : 'var(--card-border)'}`, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
+                      {galleryStatus === 'inactive' && <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--brand)' }} />}
+                    </button>
+                    <span className="text-[14px] font-semibold" style={{ color: 'var(--text-primary)' }}>Inactive</span>
+                  </label>
+                  <div className="text-[13px] ml-7" style={{ color: 'var(--text-secondary)' }}>Inactive galleries are offline and only visible to you.</div>
+                </div>
+              </div>
+
             </div>
           )}
 
