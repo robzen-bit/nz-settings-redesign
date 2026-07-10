@@ -7524,7 +7524,7 @@
       }
 
       return (
-        <div className={`flex flex-col ${isMobile ? '' : 'min-h-screen'}`} style={{ background: '#fff' }} onClick={() => { addFieldMenuOpen && setAddFieldMenuOpen(false); blockMenuOpen && setBlockMenuOpen(null); blockAddMenuOpen && setBlockAddMenuOpen(null); }}>
+        <div className={`flex flex-col ${isMobile ? '' : 'flex-1 min-h-screen'}`} style={{ background: '#fff' }} onClick={() => { addFieldMenuOpen && setAddFieldMenuOpen(false); blockMenuOpen && setBlockMenuOpen(null); blockAddMenuOpen && setBlockAddMenuOpen(null); }}>
           {/* Header */}
           <div className={`flex items-center px-4 py-3 border-b shrink-0 ${isMobile ? '' : 'justify-center px-6 py-4'}`} style={{ borderColor: 'var(--card-border)', position: 'relative' }}>
             <button onClick={onBack} className={`flex items-center gap-1.5 text-[13px] font-semibold ${isMobile ? '' : 'absolute left-6'}`}
