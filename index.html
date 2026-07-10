@@ -1444,7 +1444,7 @@
       );
     };
 
-    const Tabs = () => {
+    const Tabs = ({ activeTab = 'Settings', onTabChange }) => {
       const isMobile = useIsMobile();
       const tabsRef = React.useRef(null);
       React.useEffect(() => {
@@ -1467,8 +1467,9 @@
         <div ref={tabsRef} className="tabs-row flex items-center gap-2 px-8 border-b bg-white" style={{ borderColor: 'var(--card-border)' }}>
           {tabs.map(t => (
             <button key={t}
-              className={`tab-btn text-[14px] py-3 px-3 ${t === 'Settings' ? 'is-active' : ''}`}
-              style={{ color: t === 'Settings' ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
+              onClick={() => onTabChange && onTabChange(t)}
+              className={`tab-btn text-[14px] py-3 px-3 ${t === activeTab ? 'is-active' : ''}`}
+              style={{ color: t === activeTab ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
               {t}
             </button>
           ))}
@@ -4444,6 +4445,40 @@
       );
     };
 
+    // 18 placeholder photos for the Organize tab demo grid.
+    // override: null = no override, { accessLevel, selectedRoleIds }
+    // Invalid state demo: p3, p5, p8 use role IDs that don't exist in the gallery.
+    const FAKE_PHOTOS = [
+      { id:'fp1',  label:'1 - 1',  bg:'linear-gradient(135deg,#C9A86C 0%,#7A5230 100%)' },
+      { id:'fp2',  label:'2 - 2',  bg:'linear-gradient(135deg,#1E90FF 0%,#0A2463 100%)' },
+      { id:'fp3',  label:'3 - 3',  bg:'linear-gradient(135deg,#FF9A8B 0%,#C35000 100%)' },
+      { id:'fp4',  label:'4 - 4',  bg:'linear-gradient(135deg,#BDC3C7 0%,#7F8C8D 100%)' },
+      { id:'fp5',  label:'5 - 5',  bg:'linear-gradient(135deg,#2C3E50 0%,#4CA1AF 100%)' },
+      { id:'fp6',  label:'6 - pexels-yankrukov-5791377.jpg', bg:'linear-gradient(135deg,#1A1A2E 0%,#16213E 100%)' },
+      { id:'fp7',  label:'7 - pexels-yankrukov-5791378.jpg', bg:'linear-gradient(135deg,#D4A76A 0%,#8B5E3C 100%)' },
+      { id:'fp8',  label:'8 - pexels-yankrukov-5791379.jpg', bg:'linear-gradient(135deg,#F7B733 0%,#FC4A1A 100%)' },
+      { id:'fp9',  label:'9 - pexels-yankrukov-5791380.jpg', bg:'linear-gradient(135deg,#11998E 0%,#38EF7D 100%)' },
+      { id:'fp10', label:'10 - pexels-yankrukov-5791382.jpg',bg:'linear-gradient(135deg,#834D9B 0%,#D04ED6 100%)' },
+      { id:'fp11', label:'11 - pexels-yankrukov-5791384.jpg',bg:'linear-gradient(135deg,#20BDFF 0%,#5433FF 100%)' },
+      { id:'fp12', label:'12 - pexels-yankrukov-5791386.jpg',bg:'linear-gradient(135deg,#ED213A 0%,#93291E 100%)' },
+      { id:'fp13', label:'13 - pexels-yankrukov-5791387.jpg',bg:'linear-gradient(135deg,#4776E6 0%,#8E54E9 100%)' },
+      { id:'fp14', label:'14 - pexels-yankrukov-5791388.jpg',bg:'linear-gradient(135deg,#F953C6 0%,#B91D73 100%)' },
+      { id:'fp15', label:'15 - pexels-yankrukov-5791389.jpg',bg:'linear-gradient(135deg,#A8C0FF 0%,#3F2B96 100%)' },
+      { id:'fp16', label:'16 - pexels-yankrukov-5791390.jpg',bg:'linear-gradient(135deg,#74EBD5 0%,#9FACE6 100%)' },
+      { id:'fp17', label:'17 - pexels-yankrukov-5791391.jpg',bg:'linear-gradient(135deg,#FDDB92 0%,#D1FDFF 100%)' },
+      { id:'fp18', label:'18 - pexels-yankrukov-5791394.jpg',bg:'linear-gradient(135deg,#D4FC79 0%,#96E6A1 100%)' },
+    ];
+    // Initial overrides for the demo:
+    //   fp2, fp7 → valid Selected Roles Only (role 'everyone' always exists)
+    //   fp3, fp5, fp8 → INVALID Selected Roles Only (role IDs not in gallery → triggers warning)
+    const INITIAL_PHOTO_OVERRIDES = {
+      fp2: { accessLevel: 'selectedRoles', selectedRoleIds: ['everyone'] },
+      fp7: { accessLevel: 'selectedRoles', selectedRoleIds: ['everyone'] },
+      fp3: { accessLevel: 'selectedRoles', selectedRoleIds: ['__gone_1__'] },
+      fp5: { accessLevel: 'selectedRoles', selectedRoleIds: ['__gone_2__'] },
+      fp8: { accessLevel: 'selectedRoles', selectedRoleIds: ['__gone_3__'] },
+    };
+
     // ── Fake contact list for the "Add from Contacts" modal ──────────────────
     const FAKE_CONTACTS = (() => {
       const firsts = ['Aaron','Abby','Adam','Alice','Amanda','Andrew','Anna','Barbara','Beth','Brian','Carlos','Carol','Chris','Dana','David','Diana','Edward','Elena','Emily','Eric','Fiona','Frank','Grace','Hannah','Henry','Isabel','Jack','Jane','Jennifer','John','Julia','Karen','Kevin','Laura','Lisa','Mark','Mary','Michael','Nancy','Nick','Olivia','Paul','Peter','Rachel','Rebecca','Robert','Sandra','Sarah','Scott','Sophie','Stephanie','Steve','Susan','Thomas','Tina','Tom','Victoria','Will','Zoe'];
@@ -6474,6 +6509,185 @@
       );
     };
 
+    // ===== Organize Tab — Photo Grid =====
+    const OrganizeGrid = ({ photos, photoOverrides, roles, onOpenPermissions }) => {
+      const isInvalid = (photoId) => {
+        const ov = photoOverrides[photoId];
+        if (!ov || ov.accessLevel !== 'selectedRoles') return false;
+        return ov.selectedRoleIds.filter(id => roles.some(r => r.id === id)).length === 0;
+      };
+      return (
+        <div style={{ flex: 1, overflowY: 'auto', background: '#fff', padding: '16px 20px' }}>
+          {/* Toolbar */}
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <span className="text-[13px] font-semibold" style={{ color: 'var(--text-secondary)' }}>
+              All Media <span style={{ color: 'var(--text-tertiary)' }}>(Photos {photos.length})</span>
+            </span>
+            <button className="flex items-center gap-1.5 text-[12px] font-bold tracking-wider px-4 py-2 rounded-full text-white"
+              style={{ background: 'var(--brand)' }}>
+              ADD MEDIA
+            </button>
+          </div>
+          {/* Grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: 10 }}>
+            {photos.map(photo => {
+              const ov = photoOverrides[photo.id];
+              const hasOverride = !!ov;
+              const invalid = isInvalid(photo.id);
+              return (
+                <div key={photo.id}>
+                  <div style={{ position: 'relative', paddingBottom: '75%', borderRadius: 6, overflow: 'hidden', background: photo.bg, cursor: 'default' }}>
+                    {/* Photo fill — dimmed when invalid */}
+                    <div style={{ position: 'absolute', inset: 0, background: photo.bg, opacity: invalid ? 0.35 : 1, filter: invalid ? 'grayscale(60%)' : 'none', transition: 'opacity 0.2s, filter 0.2s' }} />
+                    {/* Hover zoom icon (top-left, non-interactive decoration) */}
+                    <div className="organize-hover-overlay" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', padding: 6, pointerEvents: 'none', opacity: 0 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/></svg>
+                    </div>
+                    {/* Badge — bottom-left */}
+                    {hasOverride && (
+                      <div style={{ position: 'absolute', bottom: 5, left: 5, zIndex: 2, width: 22, height: 22, borderRadius: 5, display: 'flex', alignItems: 'center', justifyContent: 'center', background: invalid ? 'var(--danger)' : 'var(--brand)' }}>
+                        {invalid
+                          ? <WarningIcon size={13} color="#fff" />
+                          : <span style={{ color: '#fff', display: 'flex' }}><GearIcon size={12} /></span>
+                        }
+                      </div>
+                    )}
+                    {/* Check Access Level overlay — invalid only */}
+                    {invalid && (
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3 }}>
+                        <button type="button" onClick={() => onOpenPermissions(photo.id)}
+                          style={{ background: 'rgba(255,255,255,0.93)', borderRadius: 6, padding: '4px 9px', fontSize: 11, fontWeight: 700, color: 'var(--danger)', border: '1.5px solid var(--danger)', cursor: 'pointer', lineHeight: 1.4, textAlign: 'center', boxShadow: '0 1px 6px rgba(0,0,0,0.18)' }}>
+                          Check Access Level
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'center' }}>
+                    {photo.label}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    };
+
+    // ===== Custom Permissions Modal =====
+    const PHOTO_ACCESS_LEVELS = [
+      { id: 'public',        label: 'PUBLIC',               desc: 'Anyone with the link has access.',          Icon: PeopleIcon },
+      { id: 'password',      label: 'PASSWORD PROTECTED',   desc: 'Requires password for access.',             Icon: LockIcon   },
+      { id: 'selectedRoles', label: 'SELECTED ROLES ONLY',  desc: 'Restricted to people you invite.',          Icon: LockIcon   },
+      { id: 'offline',       label: 'OFFLINE',              desc: 'Only visible to you, no one else can access.', Icon: BlockIcon },
+    ];
+    const CustomPermissionsModal = ({ photoId, photoOverrides, roles, onClose, onSave, onReset }) => {
+      const isMobile = useIsMobile();
+      const existingOv = photoOverrides[photoId] || { accessLevel: 'public', selectedRoleIds: [] };
+      const [activeTab, setActiveTab] = useState('access');
+      const [selectedLevel, setSelectedLevel] = useState(existingOv.accessLevel);
+      const [selectedRoleIds, setSelectedRoleIds] = useState(
+        (existingOv.selectedRoleIds || []).filter(id => roles.some(r => r.id === id))
+      );
+      const canSave = selectedLevel !== 'selectedRoles' || selectedRoleIds.length > 0;
+      const toggleRole = (id) => setSelectedRoleIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+      const handleSave = () => { onSave(photoId, { accessLevel: selectedLevel, selectedRoleIds }); onClose(); };
+      const handleReset = () => { onReset(photoId); onClose(); };
+
+      const body = (
+        <div style={{ display: 'flex', flexDirection: 'column', maxHeight: isMobile ? '88vh' : 'calc(100vh - 80px)' }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b shrink-0" style={{ borderColor: 'var(--card-border)' }}>
+            <h3 className="text-[15px] font-bold" style={{ color: 'var(--text-primary)' }}>Custom Permissions for 1 Item</h3>
+            <button onClick={onClose} style={{ color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          {/* Tabs */}
+          <div className="flex border-b shrink-0" style={{ borderColor: 'var(--card-border)' }}>
+            {['access','download'].map(t => (
+              <button key={t} onClick={() => setActiveTab(t)}
+                className="px-5 py-3 text-[13px] font-semibold relative"
+                style={{ color: activeTab === t ? 'var(--text-primary)' : 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                {t === 'access' ? 'Access Level' : 'Download'}
+                {activeTab === t && <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: 'var(--brand)', borderRadius: 2 }} />}
+              </button>
+            ))}
+          </div>
+          {/* Body */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+            {activeTab === 'access' ? (
+              <>
+                {/* OR SET A CUSTOM OVERRIDE divider */}
+                <div className="flex items-center gap-3 mb-4">
+                  <div style={{ flex: 1, height: 1, background: 'var(--card-border)' }} />
+                  <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.07em', color: 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>OR SET A CUSTOM OVERRIDE</span>
+                  <div style={{ flex: 1, height: 1, background: 'var(--card-border)' }} />
+                </div>
+                {/* Access level cards */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {PHOTO_ACCESS_LEVELS.map(lvl => {
+                    const selected = selectedLevel === lvl.id;
+                    return (
+                      <React.Fragment key={lvl.id}>
+                        <button type="button" onClick={() => setSelectedLevel(lvl.id)}
+                          style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 8, border: `1.5px solid ${selected ? 'var(--brand)' : 'var(--card-border)'}`, background: selected ? 'var(--brand-cream, #FFF3EC)' : '#fff', cursor: 'pointer', textAlign: 'left', width: '100%', transition: 'border-color 0.15s, background 0.15s' }}>
+                          <div style={{ width: 40, height: 40, borderRadius: 8, background: selected ? 'var(--brand)' : 'var(--soft-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <span style={{ color: selected ? '#fff' : 'var(--text-secondary)' }}><lvl.Icon size={20} /></span>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.04em', color: selected ? 'var(--brand)' : 'var(--text-primary)', marginBottom: 2 }}>{lvl.label}</div>
+                            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{lvl.desc}</div>
+                          </div>
+                        </button>
+                        {/* Role checkboxes — only under Selected Roles Only when it's selected */}
+                        {lvl.id === 'selectedRoles' && selected && (
+                          <div style={{ marginLeft: 14, marginTop: -2, marginBottom: 4, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                            {roles.map(r => (
+                              <label key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '4px 0' }}>
+                                <button type="button" onClick={() => toggleRole(r.id)}
+                                  style={{ width: 18, height: 18, borderRadius: 4, border: `2px solid ${selectedRoleIds.includes(r.id) ? 'var(--brand)' : 'var(--card-border)'}`, background: selectedRoleIds.includes(r.id) ? 'var(--brand)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
+                                  {selectedRoleIds.includes(r.id) && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
+                                </button>
+                                <span style={{ fontSize: 13, color: 'var(--text-primary)', fontWeight: 500 }}>{r.name}</span>
+                              </label>
+                            ))}
+                            {roles.length === 0 && <p style={{ fontSize: 12, color: 'var(--text-tertiary)', fontStyle: 'italic' }}>No roles on this gallery yet.</p>}
+                          </div>
+                        )}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 13 }}>Download permissions settings coming soon.</div>
+            )}
+          </div>
+          {/* Footer */}
+          <div className="flex items-center justify-between px-5 py-4 border-t shrink-0" style={{ borderColor: 'var(--card-border)' }}>
+            <button type="button" onClick={handleReset} style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>Reset all Overrides</button>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button type="button" onClick={onClose} style={{ padding: '8px 18px', borderRadius: 9999, border: '1.5px solid var(--card-border)', background: '#fff', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', cursor: 'pointer' }}>Cancel</button>
+              <button type="button" onClick={handleSave} disabled={!canSave}
+                style={{ padding: '8px 18px', borderRadius: 9999, background: canSave ? 'var(--brand)' : 'var(--soft-bg)', color: canSave ? '#fff' : 'var(--text-tertiary)', fontSize: 13, fontWeight: 700, border: 'none', cursor: canSave ? 'pointer' : 'not-allowed', opacity: canSave ? 1 : 0.6 }}>
+                Save Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+
+      if (isMobile) return <MobileSheetModal onClose={onClose} zIndex={300}>{body}</MobileSheetModal>;
+      return ReactDOM.createPortal(
+        <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(27,28,31,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
+          <div onClick={e => e.stopPropagation()} className="bg-white rounded-2xl border shadow-xl" style={{ borderColor: 'var(--card-border)', width: '100%', maxWidth: 520, overflow: 'hidden' }}>
+            {body}
+          </div>
+        </div>,
+        document.body
+      );
+    };
+
     const ContactsView = ({ contacts, roles, viewMode, savedRoles, onEnsureRoles, onAdd, onRemoveContact, onOverwrite, activeSection, onSelectSection, onAddRole }) => {
       const isMobile = useIsMobile();
       const [first, setFirst] = useState('');
@@ -8251,6 +8465,9 @@
       const [toast, setToast] = useState(null);
       const [contacts, setContacts] = useState([]);
       const [activeSection, setActiveSection] = useState('features'); // 'access' | 'features' | 'contacts'
+      const [activeMainTab, setActiveMainTab] = useState('Settings');
+      const [photoOverrides, setPhotoOverrides] = useState(INITIAL_PHOTO_OVERRIDES);
+      const [permModalPhotoId, setPermModalPhotoId] = useState(null);
       const [mobileEditFeatureId, setMobileEditFeatureId] = useState(null);
       // Compare-All modal (v4 — opt-in scanning view). Single boolean that opens an
       // almost-full-screen matrix showing every feature × every role at once.
@@ -8623,8 +8840,16 @@
             ) : (
             <div className={`flex-1 flex flex-col bg-white${simulateMobile ? '' : ' border-l'}`} style={{ borderColor: 'var(--card-border)' }}>
               <GalleryHeader />
-              <Tabs />
+              <Tabs activeTab={activeMainTab} onTabChange={setActiveMainTab} />
               {isMobile && <MobileBottomBar />}
+              {activeMainTab === 'Organize' ? (
+                <OrganizeGrid
+                  photos={FAKE_PHOTOS}
+                  photoOverrides={photoOverrides}
+                  roles={roles}
+                  onOpenPermissions={(photoId) => setPermModalPhotoId(photoId)}
+                />
+              ) : (
               <div className="layout-pane flex flex-1" style={{ background: '#fff', paddingBottom: isMobile ? 140 : 0 }}>
                 <InnerSidebar features={features} roles={roles} perRole={perRole}
                   activeSection={activeSection} onSelectSection={setActiveSection}
@@ -8827,6 +9052,7 @@
                 </main>
                 )}
               </div>
+              )}
             </div>
       );
 
@@ -8841,6 +9067,17 @@
               onOpenPlans={() => { setShowModal(false); setShowPlansModal(true); }}
               existingNames={existingNames} viewMode={viewMode}
               customRoleCount={roles.filter(r => r.isCustom).length} savedRoles={savedRoles} />
+          )}
+
+          {permModalPhotoId && (
+            <CustomPermissionsModal
+              photoId={permModalPhotoId}
+              photoOverrides={photoOverrides}
+              roles={roles}
+              onClose={() => setPermModalPhotoId(null)}
+              onSave={(photoId, ov) => setPhotoOverrides(prev => ({ ...prev, [photoId]: ov }))}
+              onReset={(photoId) => setPhotoOverrides(prev => { const next = { ...prev }; delete next[photoId]; return next; })}
+            />
           )}
 
           {contactRoleId && (() => {
