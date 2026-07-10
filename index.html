@@ -4024,7 +4024,6 @@
         !(roles || []).some(r => r.name.toLowerCase() === s.name.toLowerCase())
       ) : [];
       const [showAdvanced, setShowAdvanced] = useState(false);
-      const [requireSignIn, setRequireSignIn] = useState(true);
       const [searchEngines, setSearchEngines] = useState(false);
       const [zenfolioSearch, setZenfolioSearch] = useState(true);
       const [folderSearch, setFolderSearch] = useState(false);
@@ -4396,15 +4395,6 @@
           </button>
           {showAdvanced && (
             <div className="mt-3 flex flex-col" style={{ gap: 0 }}>
-
-              {/* Client & Guest Privileges */}
-              <div className="flex items-start justify-between py-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
-                <div style={{ flex: 1, paddingRight: 16 }}>
-                  <div className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>Client &amp; Guest Privileges require account sign-in.</div>
-                  <div className="text-[12px] mt-0.5" style={{ color: 'var(--text-secondary)' }}>Clients &amp; Guest will only need to enter their email.</div>
-                </div>
-                <Toggle size="sm" checked={requireSignIn} onChange={() => setRequireSignIn(v => !v)} />
-              </div>
 
               {/* EXPIRATION */}
               <div className="py-4 flex flex-col gap-3">
