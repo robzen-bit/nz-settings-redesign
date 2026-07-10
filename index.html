@@ -4356,12 +4356,34 @@
             </div>
           )}
 
-          {/* Search results toggle */}
-          <div className="flex items-center justify-between py-3" style={{ borderBottom: '1px solid var(--card-border)' }}>
-            <div className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
-              Allow gallery to appear in search results: <span style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>{allowSearch ? 'On' : 'Off'}</span>
+          {/* Search results toggle + sub-checkboxes */}
+          <div style={{ borderBottom: allowSearch ? 'none' : '1px solid var(--card-border)' }}>
+            <div className="flex items-center justify-between py-3">
+              <div className="text-[13px] font-semibold" style={{ color: 'var(--text-primary)' }}>
+                Allow gallery to appear in search results: <span style={{ color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 700 }}>{allowSearch ? 'On' : 'Off'}</span>
+              </div>
+              <Toggle size="sm" checked={allowSearch} onChange={onToggleSearch} />
             </div>
-            <Toggle size="sm" checked={allowSearch} onChange={onToggleSearch} />
+            {allowSearch && (
+              <div className="flex flex-col gap-3 pb-4" style={{ borderBottom: '1px solid var(--card-border)' }}>
+                <div className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>This gallery can appear in the searches selected below.</div>
+                {[
+                  { key: 'engines',  label: 'Search Engines (Bing, Google, Yahoo)', link: 'learn about SEO',       val: searchEngines,  set: setSearchEngines  },
+                  { key: 'zenfolio', label: 'Zenfolio Sitewide Search',             link: 'click here to learn more', val: zenfolioSearch, set: setZenfolioSearch },
+                  { key: 'folder',   label: 'Folder Search',                        link: 'click here to learn more', val: folderSearch,   set: setFolderSearch   },
+                ].map(item => (
+                  <div key={item.key} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }} onClick={() => item.set(v => !v)}>
+                    <div style={{ width: 20, height: 20, borderRadius: 5, border: `2px solid ${item.val ? 'var(--brand)' : 'var(--card-border)'}`, background: item.val ? 'var(--brand)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+                      {item.val && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
+                    </div>
+                    <div>
+                      <div className="text-[13px]" style={{ color: 'var(--text-primary)' }}>{item.label}</div>
+                      <div className="text-[12px] mt-0.5" style={{ color: 'var(--brand)', fontWeight: 500 }}>{item.link}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           <button type="button" onClick={() => setShowAdvanced(!showAdvanced)}
@@ -4383,28 +4405,6 @@
                 </div>
                 <Toggle size="sm" checked={requireSignIn} onChange={() => setRequireSignIn(v => !v)} />
               </div>
-
-              {/* Search results sub-checkboxes */}
-              {allowSearch && (
-                <div className="py-4 flex flex-col gap-3" style={{ borderBottom: '1px solid var(--card-border)' }}>
-                  <div className="text-[12px] font-semibold" style={{ color: 'var(--text-secondary)', letterSpacing: '0.04em' }}>This gallery can appear in the searches selected below.</div>
-                  {[
-                    { key: 'engines', label: 'Search Engines (Bing, Google, Yahoo)', link: 'learn about SEO', val: searchEngines, set: setSearchEngines },
-                    { key: 'zenfolio', label: 'Zenfolio Sitewide Search', link: 'click here to learn more', val: zenfolioSearch, set: setZenfolioSearch },
-                    { key: 'folder', label: 'Folder Search', link: 'click here to learn more', val: folderSearch, set: setFolderSearch },
-                  ].map(item => (
-                    <label key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                      <button type="button" onClick={() => item.set(v => !v)}
-                        style={{ width: 18, height: 18, borderRadius: 4, border: `2px solid ${item.val ? 'var(--brand)' : 'var(--card-border)'}`, background: item.val ? 'var(--brand)' : '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer' }}>
-                        {item.val && <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
-                      </button>
-                      <span className="text-[13px]" style={{ color: 'var(--text-primary)' }}>
-                        {item.label} — <span style={{ color: 'var(--brand)', cursor: 'pointer', fontWeight: 500 }}>{item.link}</span>
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
 
               {/* EXPIRATION */}
               <div className="py-4 flex flex-col gap-3">
