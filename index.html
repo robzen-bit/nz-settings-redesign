@@ -3997,6 +3997,29 @@
       );
     };
 
+    // Extracted sub-component so useState is called at the top level (not inside an IIFE).
+    const FeeBypassMobileAdder = ({ availRoles, feeBypassRoles, onChangeFeeBypassRoles }) => {
+      const [open, setOpen] = useState(false);
+      if (!availRoles.length) return null;
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)} className="text-[12px]"
+            style={{ color: feeBypassRoles.length ? 'var(--brand)' : 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px' }}>
+            {feeBypassRoles.length ? '+ Add role…' : 'Select roles…'}
+          </button>
+          {open && (
+            <BottomSheet
+              options={availRoles.map(r => r.name)}
+              value=""
+              label="Fee Bypass — Add Role"
+              onChange={name => { const r = availRoles.find(x => x.name === name); if (r) onChangeFeeBypassRoles([...feeBypassRoles, r.id]); setOpen(false); }}
+              onClose={() => setOpen(false)}
+            />
+          )}
+        </>
+      );
+    };
+
     const AccessSection = ({
       mode, onSelectMode,
       showRegistration, onToggleRegistration,
@@ -4267,28 +4290,13 @@
                               </span>
                             ) : null;
                           })}
-                          {isMobile ? (() => {
-                            const availRoles = [...systemRoles, ...galleryCustomRoles, ...savedNotInGallery].filter(r => !feeBypassRoles.includes(r.id));
-                            const [bypassSheetOpen, setBypassSheetOpen] = useState(false);
-                            return availRoles.length > 0 ? (
-                              <>
-                                <button type="button" onClick={() => setBypassSheetOpen(true)}
-                                  className="text-[12px]"
-                                  style={{ color: feeBypassRoles.length ? 'var(--brand)' : 'var(--text-secondary)', background: 'none', border: 'none', cursor: 'pointer', padding: '2px 4px' }}>
-                                  {feeBypassRoles.length ? '+ Add role…' : 'Select roles…'}
-                                </button>
-                                {bypassSheetOpen && (
-                                  <BottomSheet
-                                    options={availRoles.map(r => r.name)}
-                                    value=""
-                                    label="Fee Bypass — Add Role"
-                                    onChange={name => { const r = availRoles.find(x => x.name === name); if (r) onChangeFeeBypassRoles([...feeBypassRoles, r.id]); setBypassSheetOpen(false); }}
-                                    onClose={() => setBypassSheetOpen(false)}
-                                  />
-                                )}
-                              </>
-                            ) : null;
-                          })() : (
+                          {isMobile ? (
+                            <FeeBypassMobileAdder
+                              availRoles={[...systemRoles, ...galleryCustomRoles, ...savedNotInGallery].filter(r => !feeBypassRoles.includes(r.id))}
+                              feeBypassRoles={feeBypassRoles}
+                              onChangeFeeBypassRoles={onChangeFeeBypassRoles}
+                            />
+                          ) : (
                           <select
                             value=""
                             onChange={e => {
