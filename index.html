@@ -4449,24 +4449,24 @@
     // override: null = no override, { accessLevel, selectedRoleIds }
     // Invalid state demo: p3, p5, p8 use role IDs that don't exist in the gallery.
     const FAKE_PHOTOS = [
-      { id:'fp1',  label:'1 - 1',  bg:'linear-gradient(135deg,#C9A86C 0%,#7A5230 100%)' },
-      { id:'fp2',  label:'2 - 2',  bg:'linear-gradient(135deg,#1E90FF 0%,#0A2463 100%)' },
-      { id:'fp3',  label:'3 - 3',  bg:'linear-gradient(135deg,#FF9A8B 0%,#C35000 100%)' },
-      { id:'fp4',  label:'4 - 4',  bg:'linear-gradient(135deg,#BDC3C7 0%,#7F8C8D 100%)' },
-      { id:'fp5',  label:'5 - 5',  bg:'linear-gradient(135deg,#2C3E50 0%,#4CA1AF 100%)' },
-      { id:'fp6',  label:'6 - pexels-yankrukov-5791377.jpg', bg:'linear-gradient(135deg,#1A1A2E 0%,#16213E 100%)' },
-      { id:'fp7',  label:'7 - pexels-yankrukov-5791378.jpg', bg:'linear-gradient(135deg,#D4A76A 0%,#8B5E3C 100%)' },
-      { id:'fp8',  label:'8 - pexels-yankrukov-5791379.jpg', bg:'linear-gradient(135deg,#F7B733 0%,#FC4A1A 100%)' },
-      { id:'fp9',  label:'9 - pexels-yankrukov-5791380.jpg', bg:'linear-gradient(135deg,#11998E 0%,#38EF7D 100%)' },
-      { id:'fp10', label:'10 - pexels-yankrukov-5791382.jpg',bg:'linear-gradient(135deg,#834D9B 0%,#D04ED6 100%)' },
-      { id:'fp11', label:'11 - pexels-yankrukov-5791384.jpg',bg:'linear-gradient(135deg,#20BDFF 0%,#5433FF 100%)' },
-      { id:'fp12', label:'12 - pexels-yankrukov-5791386.jpg',bg:'linear-gradient(135deg,#ED213A 0%,#93291E 100%)' },
-      { id:'fp13', label:'13 - pexels-yankrukov-5791387.jpg',bg:'linear-gradient(135deg,#4776E6 0%,#8E54E9 100%)' },
-      { id:'fp14', label:'14 - pexels-yankrukov-5791388.jpg',bg:'linear-gradient(135deg,#F953C6 0%,#B91D73 100%)' },
-      { id:'fp15', label:'15 - pexels-yankrukov-5791389.jpg',bg:'linear-gradient(135deg,#A8C0FF 0%,#3F2B96 100%)' },
-      { id:'fp16', label:'16 - pexels-yankrukov-5791390.jpg',bg:'linear-gradient(135deg,#74EBD5 0%,#9FACE6 100%)' },
-      { id:'fp17', label:'17 - pexels-yankrukov-5791391.jpg',bg:'linear-gradient(135deg,#FDDB92 0%,#D1FDFF 100%)' },
-      { id:'fp18', label:'18 - pexels-yankrukov-5791394.jpg',bg:'linear-gradient(135deg,#D4FC79 0%,#96E6A1 100%)' },
+      { id:'fp1',  label:'1 - 1',  src:'https://picsum.photos/seed/gal101/400/300' },
+      { id:'fp2',  label:'2 - 2',  src:'https://picsum.photos/seed/gal102/400/300' },
+      { id:'fp3',  label:'3 - 3',  src:'https://picsum.photos/seed/gal103/400/300' },
+      { id:'fp4',  label:'4 - 4',  src:'https://picsum.photos/seed/gal104/400/300' },
+      { id:'fp5',  label:'5 - 5',  src:'https://picsum.photos/seed/gal105/400/300' },
+      { id:'fp6',  label:'6 - pexels-yankrukov-5791377.jpg', src:'https://picsum.photos/seed/gal106/400/300' },
+      { id:'fp7',  label:'7 - pexels-yankrukov-5791378.jpg', src:'https://picsum.photos/seed/gal107/400/300' },
+      { id:'fp8',  label:'8 - pexels-yankrukov-5791379.jpg', src:'https://picsum.photos/seed/gal108/400/300' },
+      { id:'fp9',  label:'9 - pexels-yankrukov-5791380.jpg', src:'https://picsum.photos/seed/gal109/400/300' },
+      { id:'fp10', label:'10 - pexels-yankrukov-5791382.jpg',src:'https://picsum.photos/seed/gal110/400/300' },
+      { id:'fp11', label:'11 - pexels-yankrukov-5791384.jpg',src:'https://picsum.photos/seed/gal111/400/300' },
+      { id:'fp12', label:'12 - pexels-yankrukov-5791386.jpg',src:'https://picsum.photos/seed/gal112/400/300' },
+      { id:'fp13', label:'13 - pexels-yankrukov-5791387.jpg',src:'https://picsum.photos/seed/gal113/400/300' },
+      { id:'fp14', label:'14 - pexels-yankrukov-5791388.jpg',src:'https://picsum.photos/seed/gal114/400/300' },
+      { id:'fp15', label:'15 - pexels-yankrukov-5791389.jpg',src:'https://picsum.photos/seed/gal115/400/300' },
+      { id:'fp16', label:'16 - pexels-yankrukov-5791390.jpg',src:'https://picsum.photos/seed/gal116/400/300' },
+      { id:'fp17', label:'17 - pexels-yankrukov-5791391.jpg',src:'https://picsum.photos/seed/gal117/400/300' },
+      { id:'fp18', label:'18 - pexels-yankrukov-5791394.jpg',src:'https://picsum.photos/seed/gal118/400/300' },
     ];
     // Initial overrides for the demo:
     //   fp2, fp7 → valid Selected Roles Only (role 'everyone' always exists)
@@ -6536,9 +6536,9 @@
               const invalid = isInvalid(photo.id);
               return (
                 <div key={photo.id}>
-                  <div style={{ position: 'relative', paddingBottom: '75%', borderRadius: 6, overflow: 'hidden', background: photo.bg, cursor: 'default' }}>
+                  <div style={{ position: 'relative', paddingBottom: '75%', borderRadius: 6, overflow: 'hidden', background: '#e5e7eb', cursor: 'default' }}>
                     {/* Photo fill — dimmed when invalid */}
-                    <div style={{ position: 'absolute', inset: 0, background: photo.bg, opacity: invalid ? 0.35 : 1, filter: invalid ? 'grayscale(60%)' : 'none', transition: 'opacity 0.2s, filter 0.2s' }} />
+                    <div style={{ position: 'absolute', inset: 0, backgroundImage: `url(${photo.src})`, backgroundSize: 'cover', backgroundPosition: 'center', opacity: invalid ? 0.35 : 1, filter: invalid ? 'grayscale(60%)' : 'none', transition: 'opacity 0.2s, filter 0.2s' }} />
                     {/* Hover zoom icon (top-left, non-interactive decoration) */}
                     <div className="organize-hover-overlay" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start', padding: 6, pointerEvents: 'none', opacity: 0 }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35M11 8v6M8 11h6"/></svg>
@@ -6557,7 +6557,7 @@
                       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3 }}>
                         <button type="button" onClick={() => onOpenPermissions(photo.id)}
                           style={{ background: 'rgba(255,255,255,0.93)', borderRadius: 6, padding: '4px 9px', fontSize: 11, fontWeight: 700, color: 'var(--danger)', border: '1.5px solid var(--danger)', cursor: 'pointer', lineHeight: 1.4, textAlign: 'center', boxShadow: '0 1px 6px rgba(0,0,0,0.18)' }}>
-                          Check Access Level
+                          Custom Permission Issue
                         </button>
                       </div>
                     )}
@@ -6663,6 +6663,15 @@
               <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 13 }}>Download permissions settings coming soon.</div>
             )}
           </div>
+          {/* Inline warning — shown when Selected Roles Only but no role checked */}
+          {selectedLevel === 'selectedRoles' && selectedRoleIds.length === 0 && (
+            <div style={{ margin: '0 20px 12px', padding: '10px 12px', borderRadius: 8, background: 'var(--danger-soft)', border: '1px solid var(--danger)', display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+              <WarningIcon size={14} color="var(--danger)" />
+              <span style={{ fontSize: 12, color: 'var(--danger)', fontWeight: 500, lineHeight: 1.5 }}>
+                To use Selected Roles Only, at least one role must be selected.
+              </span>
+            </div>
+          )}
           {/* Footer */}
           <div className="flex items-center justify-between px-5 py-4 border-t shrink-0" style={{ borderColor: 'var(--card-border)' }}>
             <button type="button" onClick={handleReset} style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 0' }}>Reset all Overrides</button>
