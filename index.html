@@ -4156,6 +4156,28 @@
                       </div>
                     </div>
                   )}
+                  {m.id === 'invite' && mode === 'invite' && contactsCount === 0 && (
+                    <div className="px-1 pb-2">
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: '#FFF0F0', border: '1px solid #F5C6C6' }}>
+                        <WarningIcon size={16} color="#DC2626" />
+                        <div className="text-[13px]" style={{ color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                          <strong>Notice:</strong> Gallery Access is set to <strong>Invite Only</strong> but there are no contacts in the Gallery Contact List.<br />
+                          <strong>Tip:</strong> Add a contact to the Gallery Contact List or switch to <strong>Password Protected</strong> instead.
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {m.id === 'offline' && mode === 'offline' && (
+                    <div className="px-1 pb-2">
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: '#FFF0F0', border: '1px solid #F5C6C6' }}>
+                        <WarningIcon size={16} color="#DC2626" />
+                        <div className="text-[13px]" style={{ color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                          <strong>Notice:</strong> This gallery is <strong>Offline</strong> and cannot be accessed by anyone.<br />
+                          <strong>Tip:</strong> To allow access, try switching to a different setting like <strong>Public</strong> or <strong>Password Protected</strong>.
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </React.Fragment>
               ))}
             </div>
@@ -4167,6 +4189,26 @@
                   selected={mode === m.id}
                   onSelect={() => onSelectMode(m.id)} />
               ))}
+            </div>
+          )}
+
+          {/* Access warnings — desktop only (mobile warnings inline above) */}
+          {!isMobile && mode === 'invite' && contactsCount === 0 && (
+            <div className="mb-5" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: '#FFF0F0', border: '1px solid #F5C6C6' }}>
+              <WarningIcon size={16} color="#DC2626" />
+              <div className="text-[13px]" style={{ color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                <strong>Notice:</strong> Gallery Access is set to <strong>Invite Only</strong> but there are no contacts in the Gallery Contact List.<br />
+                <strong>Tip:</strong> Add a contact to the Gallery Contact List or switch to <strong>Password Protected</strong> instead.
+              </div>
+            </div>
+          )}
+          {!isMobile && mode === 'offline' && (
+            <div className="mb-5" style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 14px', borderRadius: 8, background: '#FFF0F0', border: '1px solid #F5C6C6' }}>
+              <WarningIcon size={16} color="#DC2626" />
+              <div className="text-[13px]" style={{ color: 'var(--text-primary)', lineHeight: 1.5 }}>
+                <strong>Notice:</strong> This gallery is <strong>Offline</strong> and cannot be accessed by anyone.<br />
+                <strong>Tip:</strong> To allow access, try switching to a different setting like <strong>Public</strong> or <strong>Password Protected</strong>.
+              </div>
             </div>
           )}
 
