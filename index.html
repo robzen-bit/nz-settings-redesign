@@ -785,7 +785,7 @@
             placeholder: 'e.g. 5', def: 5, min: 1,
             dependsOn: { settingId: 'video-download-type', values: ['Specific amount download'] } },
           { id: 'video-resolutions', type: 'multicheck', label: 'Video Download Resolutions',
-            options: ['Original','1080p Full HD'], def: ['Original'],
+            options: ['Original','1080p Full HD'], def: ['Original'], vertical: true,
             dependsOn: { settingId: 'video-download-type', values: ['All videos and individual download', 'All videos', 'Specific amount download'] } },
           { id: 'video-individual-resolution', type: 'select', label: 'Individual Allowed Resolution',
             options: ['Original','1080p Full HD'], def: 'Original',
@@ -2673,7 +2673,7 @@
           );
         }
         return (
-          <div className="flex items-center gap-5 flex-wrap">
+          <div className={s.vertical ? 'flex flex-col gap-2' : 'flex items-center gap-5 flex-wrap'}>
             {s.options.map(opt => {
               const checked = (value || []).includes(opt);
               return (
@@ -3828,6 +3828,7 @@
             position: 'relative', background: '#fff',
             borderRadius: '20px 20px 0 0',
             maxHeight: '92vh', display: 'flex', flexDirection: 'column',
+            overflow: 'hidden',
             boxShadow: '0 -4px 24px rgba(0,0,0,0.10)',
           }}>
             {/* drag handle */}
@@ -3843,7 +3844,7 @@
               )}
               <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{feature.name}</span>
             </div>
-          <div className="flex-1 overflow-y-auto mobile-feature-modal" style={{ background: 'var(--soft-bg)' }}>
+          <div className="flex-1 overflow-y-auto mobile-feature-modal" style={{ background: 'var(--soft-bg)', minHeight: 0 }}>
             {(() => {
               const anyRoleEnabled = roles.some(r => !!perRole[r.id]?.[feature.id]?.enabled);
               const isOnlyRole = roles.length === 1;
