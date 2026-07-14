@@ -1108,7 +1108,7 @@
     };
 
     // Mobile-aware select: bottom sheet on mobile, native <select> on desktop.
-    const MobileSelect = ({ value, options, onChange, disabled, className, style: styleProp }) => {
+    const MobileSelect = ({ value, options, onChange, disabled, className, style: styleProp, sheetTitle }) => {
       const isMobile = useIsMobile();
       const [open, setOpen] = React.useState(false);
       if (!isMobile) {
@@ -1128,7 +1128,7 @@
             <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{value}</span>
             <ChevronDown size={12} style={{ flexShrink: 0 }} />
           </button>
-          {open && <BottomSheet options={options} value={value} onChange={onChange} onClose={() => setOpen(false)} />}
+          {open && <BottomSheet options={options} value={value} title={sheetTitle} onChange={onChange} onClose={() => setOpen(false)} />}
         </>
       );
     };
@@ -2914,6 +2914,7 @@
                           onChange={v => onChange({ selected: selectedArr, sub: { ...subSel, [opt]: v } })}
                           className="text-[12px] px-2 py-1 rounded border bg-white outline-none"
                           style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', width: '100%' }}
+                          sheetTitle="Choose Download Resolution"
                         />
                       </div>
                     )}
