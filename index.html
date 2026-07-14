@@ -1844,13 +1844,19 @@
       const canDelete = selectedCards.size > 0 && [...selectedCards].every(id => savedIds.has(id));
 
       const handleAddRoles = () => {
+        const ids = Array.from(selectedCards);
+        if (ids.length === 1) {
+          const id = ids[0];
+          if (id === 'guest' || id === 'client') { goDetail(id); return; }
+          const saved = savedRoles.find(r => r.id === id);
+          if (saved) { selectSaved(saved); return; }
+        }
         const basicLock     = viewMode === 'basic';
         const proLimit      = viewMode === 'professional' && customRoleCount >= 2;
         const advancedLimit = viewMode === 'advanced'     && customRoleCount >= 10;
         const selections = [];
         if (selectedCards.has('guest'))  selections.push({ presetId: 'guest' });
         if (selectedCards.has('client')) selections.push({ presetId: 'client' });
-        // Only add saved custom roles that aren't plan-blocked
         if (!basicLock && !proLimit && !advancedLimit) {
           savedRoles.filter(r => selectedCards.has(r.id))
             .forEach(r => selections.push({ presetId: 'custom', customName: r.name, perRoleState: r.perRoleState || null }));
@@ -1920,11 +1926,11 @@
                         <>
                           <div className="flex flex-col gap-3">
                             <RoleCard icon={UserIcon} title="GUEST" desc={PRESETS.guest.desc}
-                              disabled={existingNames.includes('guest')} onClick={() => goDetail('guest')}
+                              disabled={existingNames.includes('guest')} onClick={() => toggleCard('guest')}
                               selectable={!existingNames.includes('guest')} selected={selectedCards.has('guest')}
                               onToggleSelect={() => toggleCard('guest')} horizontal={true} />
                             <RoleCard icon={StarIcon} title="CLIENT" desc={PRESETS.client.desc}
-                              disabled={existingNames.includes('client')} onClick={() => goDetail('client')}
+                              disabled={existingNames.includes('client')} onClick={() => toggleCard('client')}
                               selectable={!existingNames.includes('client')} selected={selectedCards.has('client')}
                               onToggleSelect={() => toggleCard('client')} horizontal={true} />
                             <RoleCard icon={SlidersIcon} title="CREATE YOUR OWN" desc={PRESETS.custom.desc}
@@ -1999,7 +2005,7 @@
                               const isSavedSelected = selectedCards.has(saved.id);
                               return (
                                 <button key={saved.id}
-                                  onClick={isVisuallyDisabled ? undefined : () => selectSaved(saved)}
+                                  onClick={isVisuallyDisabled ? undefined : () => toggleCard(saved.id)}
                                   className={`role-card-hover ${isVisuallyDisabled ? 'is-disabled' : ''} flex items-stretch text-left rounded-xl border transition-colors`}
                                   style={{
                                     borderColor: isSavedSelected ? 'var(--orange)' : 'var(--card-border)',
@@ -2151,11 +2157,11 @@
                         {/* ── cards grid / stack ── */}
                         <div className={isMobile ? 'flex flex-col gap-3' : 'grid grid-cols-3 gap-3'}>
                           <RoleCard icon={UserIcon} title="GUEST" desc={PRESETS.guest.desc}
-                            disabled={existingNames.includes('guest')} onClick={() => goDetail('guest')}
+                            disabled={existingNames.includes('guest')} onClick={() => toggleCard('guest')}
                             selectable={!existingNames.includes('guest')} selected={selectedCards.has('guest')}
                             onToggleSelect={() => toggleCard('guest')} horizontal={isMobile} />
                           <RoleCard icon={StarIcon} title="CLIENT" desc={PRESETS.client.desc}
-                            disabled={existingNames.includes('client')} onClick={() => goDetail('client')}
+                            disabled={existingNames.includes('client')} onClick={() => toggleCard('client')}
                             selectable={!existingNames.includes('client')} selected={selectedCards.has('client')}
                             onToggleSelect={() => toggleCard('client')} horizontal={isMobile} />
                           <RoleCard icon={SlidersIcon} title="CREATE YOUR OWN" desc={PRESETS.custom.desc}
@@ -2247,63 +2253,60 @@
                             const isSavedSelected = selectedCards.has(saved.id);
                             return (
                               <button key={saved.id}
-                                onClick={isVisuallyDisabled ? undefined : () => selectSaved(saved)}
-                                className={`role-card-hover ${isVisuallyDisabled ? 'is-disabled' : ''} text-left px-4 py-4 rounded-xl border transition-colors relative`}
+                                onClick={isVisuallyDisabled ? undefined : () => toggleCard(saved.id)}
+                                className={`role-card-hover ${isVisuallyDisabled ? 'is-disabled' : ''} flex items-stretch text-left rounded-xl border transition-colors`}
                                 style={{
                                   borderColor: isSavedSelected ? 'var(--orange)' : 'var(--card-border)',
                                   background: isSavedSelected ? 'var(--orange-soft)' : '#fff',
                                   boxShadow: isSavedSelected ? '0 0 0 1.5px var(--orange)' : 'none',
                                   cursor: alreadyInGallery ? 'default' : 'pointer',
                                 }}>
-                                {/* Checkbox — always shown for saved roles so they can be selected for deletion */}
-                                {(
-                                  <span
-                                    onClick={e => { e.stopPropagation(); toggleCard(saved.id); }}
-                                    className="absolute top-3 left-3 flex items-center justify-center rounded-full border-2 transition-all"
-                                    style={{
-                                      width: 17, height: 17,
-                                      borderColor: isSavedSelected ? 'var(--orange)' : 'var(--line)',
-                                      background: isSavedSelected ? 'var(--orange)' : '#fff',
-                                    }}>
+                                <span
+                                  onClick={e => { e.stopPropagation(); toggleCard(saved.id); }}
+                                  style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <span className="flex items-center justify-center rounded-full border-2 transition-all"
+                                    style={{ width: 17, height: 17, borderColor: isSavedSelected ? 'var(--orange)' : 'var(--line)', background: isSavedSelected ? 'var(--orange)' : '#fff' }}>
                                     {isSavedSelected && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
                                   </span>
-                                )}
-                                {badge && (
-                                  <span className="absolute top-2.5 right-2.5 flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
-                                    style={{ background: '#E8E8ED', color: '#86868B' }}>
-                                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                    </svg>
-                                    {badge}
-                                  </span>
-                                )}
-                                {/* Name — indented to clear the checkbox */}
-                                <div className="text-[12px] font-bold tracking-wider mb-2"
-                                  style={{ color: 'var(--text-primary)', paddingLeft: 24, paddingRight: badge ? 60 : 0 }}>
-                                  {saved.name.toUpperCase()}
-                                </div>
-                                {/* Enabled features list */}
-                                {saved.enabledFeatures && saved.enabledFeatures.length > 0 ? (
-                                  <div>
-                                    {saved.enabledFeatures.map(f => (
-                                      <div key={f} className="text-[11px] leading-snug" style={{ color: 'var(--text-secondary)' }}>{f}</div>
-                                    ))}
-                                  </div>
-                                ) : (
-                                  <div className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>No features enabled</div>
-                                )}
-                                {/* Delete icon — bottom right */}
-                                <span
-                                  onClick={e => { e.stopPropagation(); setPendingDelete([saved.id]); }}
-                                  title="Delete saved role"
-                                  className="absolute bottom-2.5 right-2.5 flex items-center justify-center rounded-md transition-colors"
-                                  style={{ width: 22, height: 22, color: 'var(--text-tertiary)', cursor: 'pointer' }}
-                                  onMouseEnter={e => e.currentTarget.style.color = '#e53935'}
-                                  onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
-                                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/><path d="M9,6V4a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/>
-                                  </svg>
                                 </span>
+                                <div className="flex-1 min-w-0 py-3 pr-3">
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <div className="text-[12px] font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>
+                                      {saved.name.toUpperCase()}
+                                    </div>
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      {badge && (
+                                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
+                                          style={{ background: '#E8E8ED', color: '#86868B' }}>
+                                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                          </svg>
+                                          {badge}
+                                        </span>
+                                      )}
+                                      <span
+                                        onClick={e => { e.stopPropagation(); setPendingDelete([saved.id]); }}
+                                        title="Delete saved role"
+                                        className="flex items-center justify-center rounded-md transition-colors"
+                                        style={{ width: 22, height: 22, color: 'var(--text-tertiary)', cursor: 'pointer' }}
+                                        onMouseEnter={e => e.currentTarget.style.color = '#e53935'}
+                                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/><path d="M9,6V4a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/>
+                                        </svg>
+                                      </span>
+                                    </div>
+                                  </div>
+                                  {saved.enabledFeatures && saved.enabledFeatures.length > 0 ? (
+                                    <div>
+                                      {saved.enabledFeatures.map(f => (
+                                        <div key={f} className="text-[11px] leading-snug" style={{ color: 'var(--text-secondary)' }}>{f}</div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>No features enabled</div>
+                                  )}
+                                </div>
                               </button>
                             );
                           })}
