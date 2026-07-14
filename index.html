@@ -2879,6 +2879,7 @@
 
     // ===== Setting Control =====
     const SettingControl = ({ s, value, onChange, disabled, compact }) => {
+      const isMobile = useIsMobile();
       if (s.type === 'check') {
         return (
           <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer whitespace-nowrap">
@@ -2897,8 +2898,8 @@
         return (
           <input type="text" value={value || ''} disabled={disabled}
             onChange={(e) => onChange(e.target.value)}
-            className="text-[13px] rounded-md border bg-white px-3 py-2 outline-none"
-            style={{ borderColor: 'var(--card-border)', minWidth: 240 }} />
+            className={`text-[13px] rounded-md border bg-white px-3 py-2 outline-none${isMobile ? ' w-full' : ''}`}
+            style={{ borderColor: 'var(--card-border)', ...(isMobile ? {} : { minWidth: 240 }) }} />
         );
       }
       if (s.type === 'number') {
