@@ -9045,15 +9045,14 @@
                 <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-secondary)', lineHeight: 1, width: 24 }}>×</button>
               </div>
               <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, padding: '20px 24px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: hasRightCol ? '1fr 1fr' : '1fr', gap: 24, alignItems: 'start' }}>
-                  {/* Column A — radio buttons */}
-                  <div>
+                <div style={{ display: 'grid', gridTemplateColumns: hasRightCol ? '1fr 1fr' : '1fr', columnGap: 24, alignItems: 'start' }}>
+                  {/* ── Row 1: Applies to ── */}
+                  <div style={{ paddingBottom: 16 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10 }}>Applies to</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 6 }}>
                       <RadioBtn checked={appliesToMode === 'all'} onChange={() => setAppliesToMode('all')} label="All Contacts and Roles" />
                       <RadioBtn checked={appliesToMode === 'selected-roles'} onChange={() => setAppliesToMode('selected-roles')} label="Selected Roles Only" />
                     </div>
-                    {/* mobile inline roles section */}
                     {isMobile && appliesToMode === 'selected-roles' && (
                       <div style={{ marginTop: 12, marginBottom: 4 }}>
                         <button onClick={() => setShowRolesPicker(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '6px 14px', borderRadius: 9999, background: 'var(--brand)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 600 }}>
@@ -9062,14 +9061,31 @@
                         <RolesList />
                       </div>
                     )}
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, marginBottom: 16, lineHeight: 1.5 }}>Allow specific roles or all contacts to use this coupon.</p>
-                    <div style={{ borderTop: '1px solid var(--card-border)', marginBottom: 16 }} />
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>Allow specific roles or all contacts to use this coupon.</p>
+                  </div>
+                  {/* ── Row 1 Col B: Selected Roles ── */}
+                  {hasRightCol && (
+                    <div style={{ paddingBottom: 16 }}>
+                      {appliesToMode === 'selected-roles' && (
+                        <>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Selected Roles</div>
+                          <button onClick={() => setShowRolesPicker(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '6px 14px', borderRadius: 9999, background: 'var(--brand)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 600 }}>
+                            <span style={{ fontSize: 17, lineHeight: 1, fontWeight: 300 }}>+</span> Roles
+                          </button>
+                          <RolesList />
+                        </>
+                      )}
+                    </div>
+                  )}
+                  {/* ── Divider spanning both columns ── */}
+                  <div style={{ gridColumn: '1 / -1', borderTop: '1px solid var(--card-border)', marginBottom: 16 }} />
+                  {/* ── Row 2: Options ── */}
+                  <div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10 }}>Options</div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 6 }}>
                       <RadioBtn checked={galleriesMode === 'all'} onChange={() => setGalleriesMode('all')} label="All Galleries" />
                       <RadioBtn checked={galleriesMode === 'selected'} onChange={() => setGalleriesMode('selected')} label="Selected Galleries Only" />
                     </div>
-                    {/* mobile inline galleries section */}
                     {isMobile && galleriesMode === 'selected' && (
                       <div style={{ marginTop: 12, marginBottom: 4 }}>
                         <button onClick={() => setShowGalleriesPicker(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '6px 14px', borderRadius: 9999, background: 'var(--brand)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 600 }}>
@@ -9080,26 +9096,17 @@
                     )}
                     <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>Apply coupon to all galleries, or restrict to specific galleries only.</p>
                   </div>
-                  {/* Column B — contextual add + list (desktop only) */}
+                  {/* ── Row 2 Col B: Selected Galleries ── */}
                   {hasRightCol && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-                      {appliesToMode === 'selected-roles' && (
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Selected Roles</div>
-                          <button onClick={() => setShowRolesPicker(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '6px 14px', borderRadius: 9999, background: 'var(--brand)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 600 }}>
-                            <span style={{ fontSize: 17, lineHeight: 1, fontWeight: 300 }}>+</span> Roles
-                          </button>
-                          <RolesList />
-                        </div>
-                      )}
+                    <div>
                       {galleriesMode === 'selected' && (
-                        <div>
+                        <>
                           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Selected Galleries</div>
                           <button onClick={() => setShowGalleriesPicker(true)} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '6px 14px', borderRadius: 9999, background: 'var(--brand)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 600 }}>
                             <span style={{ fontSize: 17, lineHeight: 1, fontWeight: 300 }}>+</span> Galleries
                           </button>
                           <GalleriesList />
-                        </div>
+                        </>
                       )}
                     </div>
                   )}
