@@ -9059,12 +9059,23 @@
 
       const handleGalleriesModeChange = (mode) => {
         if (mode === galleriesMode) return;
-        if (mode === 'selected' && selectedGalleries.length > 0) {
-          withConflictCheck(
-            selectedGalleries,
-            () => setGalleriesMode(mode),
-            roles => `Switching to "Selected Galleries Only" will remove ${roles.length} selected role${roles.length > 1 ? 's' : ''} not available in your current galleries: ${roles.join(', ')}.`
-          );
+        if (mode === 'selected' && appliesToMode === 'selected-roles' && selectedRoles.length > 0) {
+          const rolesToLose = selectedGalleries.length > 0 ? getRolesToLose(selectedGalleries) : [];
+          const msg = rolesToLose.length > 0
+            ? `Switching to "Selected Galleries Only" will remove ${rolesToLose.length} selected role${rolesToLose.length > 1 ? 's' : ''} not available in your current galleries: ${rolesToLose.join(', ')}.`
+            : `Switching to "Selected Galleries Only" means role availability will be limited to your selected galleries. Your selected role${selectedRoles.length > 1 ? 's' : ''} (${selectedRoles.join(', ')}) may be affected as you add or remove galleries.`;
+          setGalleryWarning({
+            message: msg,
+            onConfirm: () => {
+              if (rolesToLose.length > 0) {
+                const s = new Set();
+                selectedGalleries.forEach(g => (GALLERY_ROLES[g] || []).forEach(r => s.add(r)));
+                setSelectedRoles(prev => prev.filter(r => s.has(r)));
+              }
+              setGalleriesMode(mode);
+              setGalleryWarning(null);
+            },
+          });
         } else {
           setGalleriesMode(mode);
         }
@@ -9225,10 +9236,19 @@
                 </div>
               </div>
               <div style={{ padding: '12px 24px', borderTop: '1px solid var(--card-border)', background: '#fff', flexShrink: 0 }}>
-                <button onClick={() => onApply({ appliesToMode, selectedRoles, galleriesMode, selectedGalleries })}
-                  style={{ width: '100%', padding: '11px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-                  Apply
-                </button>
+                {(() => {
+                  const disabled =
+                    (galleriesMode === 'selected' && selectedGalleries.length === 0) ||
+                    (appliesToMode === 'selected-roles' && selectedRoles.length === 0);
+                  return (
+                    <button
+                      disabled={disabled}
+                      onClick={() => !disabled && onApply({ appliesToMode, selectedRoles, galleriesMode, selectedGalleries })}
+                      style={{ width: '100%', padding: '11px 0', borderRadius: 9999, background: disabled ? 'var(--line)' : 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1 }}>
+                      Apply
+                    </button>
+                  );
+                })()}
               </div>
             </div>
           </MobileSheetModal>
