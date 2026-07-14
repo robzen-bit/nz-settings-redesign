@@ -134,7 +134,7 @@
     @keyframes sheet-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
     @keyframes backdrop-fade-in { from { opacity: 0; } to { opacity: 1; } }
     .sheet-backdrop { animation: backdrop-fade-in 0.2s ease-out; }
-    .sheet-panel { animation: sheet-slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); }
+    .sheet-panel { animation: sheet-slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); overscroll-behavior: contain; }
     .sheet-item { transition: background-color 0.12s; }
     .sheet-item:active { background-color: #F4F3EF; }
     .role-card-hover:hover:not(.is-disabled) { border-color: var(--brand) !important; background: var(--brand-cream) !important; }
@@ -541,6 +541,7 @@
       /* Shadow when stuck */
       body.nav-stuck .tabs-row { box-shadow: none; }
       body.nav-stuck .mobile-section-nav { border-bottom: 1px solid var(--card-border); margin-left: -12px !important; margin-right: -12px !important; padding-left: 20px !important; padding-right: 20px !important; }
+      body.sheet-open { overflow: hidden; }
       body.sheet-open .mobile-bottom-bar { display: none !important; }
     }
 
