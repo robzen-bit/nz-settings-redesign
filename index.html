@@ -1269,7 +1269,7 @@
         {NAV_ITEMS.map((item) => {
           const Cmp = item.icon;
           const isActive = item.id === activeView || (activeView === 'gallery' && item.id === 'galleries');
-          const clickable = item.id === 'galleries' || item.id === 'booking' || item.id === 'volume-workflow' || item.id === 'qr-code-workflow';
+          const clickable = item.id === 'galleries' || item.id === 'booking' || item.id === 'volume-workflow' || item.id === 'qr-code-workflow' || item.id === 'selling';
           return (
             <button key={item.id}
               onClick={clickable ? () => setActiveView(item.id === 'galleries' ? 'gallery' : item.id) : undefined}
@@ -8883,6 +8883,481 @@
       );
     };
 
+    // ===== SELLING / COUPONS =====
+
+    const COUPON_SAMPLE_ROLES = [
+      'Best Friend', 'Bride', "Bride's Mother", 'Client', 'Coach',
+      'Florist', 'General', 'Guest', 'League Admin', 'Mom',
+      'Parent', 'Player', 'Wedding Planner',
+    ];
+
+    const COUPON_SAMPLE_GALLERIES = [
+      'Client Gallery Testing', 'Client Test', 'Erwrwrwr',
+      'Gallery A', 'Gallery B', 'Role Test',
+      'User Keywords', 'fsad 01', 'fsad 03', 'tim', 'x',
+    ];
+
+    const RadioBtn = ({ checked, onChange, label }) => (
+      <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', userSelect: 'none' }}>
+        <span onClick={onChange} style={{
+          width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
+          border: `2px solid ${checked ? 'var(--brand)' : 'var(--line)'}`,
+          background: checked ? 'var(--brand)' : '#fff',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'all 0.15s',
+        }}>
+          {checked && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff' }} />}
+        </span>
+        <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{label}</span>
+      </label>
+    );
+
+    const RolesPickerModal = ({ onClose, onSelect, currentRoles = [] }) => {
+      const [checked, setChecked] = useState(new Set(currentRoles));
+      const allChecked = COUPON_SAMPLE_ROLES.every(r => checked.has(r));
+      const toggleAll = () => allChecked ? setChecked(new Set()) : setChecked(new Set(COUPON_SAMPLE_ROLES));
+      const toggle = r => setChecked(prev => { const n = new Set(prev); n.has(r) ? n.delete(r) : n.add(r); return n; });
+      return (
+        <MobileSheetModal onClose={onClose} zIndex={220} maxWidth={440}>
+          <div style={{ display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 80px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: '1px solid var(--card-border)', flexShrink: 0 }}>
+              <div style={{ width: 24 }} />
+              <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-primary)' }}>SELECT ROLES</span>
+              <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-secondary)', lineHeight: 1, width: 24 }}>×</button>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+              {COUPON_SAMPLE_ROLES.map(r => (
+                <label key={r} onClick={() => toggle(r)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 20px', borderBottom: '1px solid var(--card-border)', cursor: 'pointer' }}>
+                  <span className={`check-box ${checked.has(r) ? 'is-on' : ''}`} />
+                  <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{r}</span>
+                </label>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderTop: '1px solid var(--card-border)', background: '#fff', flexShrink: 0 }}>
+              <label onClick={toggleAll} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <span className={`check-box ${allChecked ? 'is-on' : ''}`} />
+                <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>Select All</span>
+              </label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={onClose} style={{ padding: '7px 16px', borderRadius: 9999, border: '1px solid var(--card-border)', background: '#fff', fontSize: 13, color: 'var(--text-primary)', cursor: 'pointer' }}>Cancel</button>
+                <button disabled={checked.size === 0} onClick={() => onSelect([...checked])}
+                  style={{ padding: '7px 20px', borderRadius: 9999, border: 'none', background: checked.size > 0 ? 'var(--brand)' : 'var(--line)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: checked.size > 0 ? 'pointer' : 'default', opacity: checked.size === 0 ? 0.5 : 1 }}>
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </MobileSheetModal>
+      );
+    };
+
+    const GalleriesPickerModal = ({ onClose, onSelect, currentGalleries = [] }) => {
+      const [checked, setChecked] = useState(new Set(currentGalleries));
+      const allChecked = COUPON_SAMPLE_GALLERIES.every(g => checked.has(g));
+      const toggleAll = () => allChecked ? setChecked(new Set()) : setChecked(new Set(COUPON_SAMPLE_GALLERIES));
+      const toggle = g => setChecked(prev => { const n = new Set(prev); n.has(g) ? n.delete(g) : n.add(g); return n; });
+      return (
+        <MobileSheetModal onClose={onClose} zIndex={220} maxWidth={480}>
+          <div style={{ display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 80px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: '1px solid var(--card-border)', flexShrink: 0 }}>
+              <div style={{ width: 24 }} />
+              <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-primary)' }}>ASSIGN TO A GALLERY</span>
+              <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-secondary)', lineHeight: 1, width: 24 }}>×</button>
+            </div>
+            <div style={{ padding: '10px 20px', borderBottom: '1px solid var(--card-border)', flexShrink: 0 }}>
+              <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Choose a gallery(s) to assign to:</p>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+              {COUPON_SAMPLE_GALLERIES.map(g => (
+                <label key={g} onClick={() => toggle(g)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 20px', borderBottom: '1px solid var(--card-border)', cursor: 'pointer' }}>
+                  <span className={`check-box ${checked.has(g) ? 'is-on' : ''}`} />
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2" style={{ flexShrink: 0 }}><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M1 8l3-5h16l3 5"/></svg>
+                  <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{g}</span>
+                </label>
+              ))}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', borderTop: '1px solid var(--card-border)', background: '#fff', flexShrink: 0 }}>
+              <label onClick={toggleAll} style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                <span className={`check-box ${allChecked ? 'is-on' : ''}`} />
+                <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>Select All</span>
+              </label>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={onClose} style={{ padding: '7px 16px', borderRadius: 9999, border: '1px solid var(--card-border)', background: '#fff', fontSize: 13, color: 'var(--text-primary)', cursor: 'pointer' }}>Cancel</button>
+                <button disabled={checked.size === 0} onClick={() => onSelect([...checked])}
+                  style={{ padding: '7px 20px', borderRadius: 9999, border: 'none', background: checked.size > 0 ? 'var(--brand)' : 'var(--line)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: checked.size > 0 ? 'pointer' : 'default', opacity: checked.size === 0 ? 0.5 : 1 }}>
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        </MobileSheetModal>
+      );
+    };
+
+    const CouponAppliesToModal = ({ onClose, onApply }) => {
+      const [appliesToMode, setAppliesToMode] = useState('all');
+      const [selectedRoles, setSelectedRoles] = useState([]);
+      const [showRolesPicker, setShowRolesPicker] = useState(false);
+      const [galleriesMode, setGalleriesMode] = useState('all');
+      const [selectedGalleries, setSelectedGalleries] = useState([]);
+      const [showGalleriesPicker, setShowGalleriesPicker] = useState(false);
+      const removeRole = r => setSelectedRoles(p => p.filter(x => x !== r));
+      const removeGallery = g => setSelectedGalleries(p => p.filter(x => x !== g));
+      return (
+        <>
+          <MobileSheetModal onClose={onClose} zIndex={160} maxWidth={680}>
+            <div style={{ display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 80px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderBottom: '1px solid var(--card-border)', flexShrink: 0 }}>
+                <div style={{ width: 24 }} />
+                <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '0.06em', color: 'var(--text-primary)' }}>APPLIES TO</span>
+                <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-secondary)', lineHeight: 1, width: 24 }}>×</button>
+              </div>
+              <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, padding: '20px 24px' }}>
+                {/* — Applies to — */}
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>Applies to</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 10 }}>
+                    <RadioBtn checked={appliesToMode === 'all'} onChange={() => setAppliesToMode('all')} label="All Contacts and Roles" />
+                    <RadioBtn checked={appliesToMode === 'selected-roles'} onChange={() => setAppliesToMode('selected-roles')} label="Selected Roles Only" />
+                  </div>
+                  {appliesToMode === 'selected-roles' && (
+                    <div style={{ display: 'flex', gap: 16, marginTop: 12, alignItems: 'flex-start' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                        <button onClick={() => setShowRolesPicker(true)} style={{ width: 34, height: 34, borderRadius: '50%', background: 'var(--brand)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 22, fontWeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>+</button>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>Roles</span>
+                      </div>
+                      {selectedRoles.length > 0 && (
+                        <div style={{ flex: 1, border: '1px solid var(--card-border)', borderRadius: 6, overflow: 'hidden', maxHeight: 180, overflowY: 'auto' }}>
+                          {selectedRoles.map(r => (
+                            <div key={r} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderBottom: '1px solid var(--card-border)' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                                <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{r}</span>
+                              </div>
+                              <button onClick={() => removeRole(r)} style={{ background: 'none', border: '1.5px solid var(--line)', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1, padding: 0 }}>−</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 10, lineHeight: 1.5 }}>Allow specific roles or all contacts to use this coupon.</p>
+                </div>
+                <div style={{ borderTop: '1px solid var(--card-border)', marginBottom: 20 }} />
+                {/* — Options — */}
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>Options</div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 10 }}>
+                    <RadioBtn checked={galleriesMode === 'all'} onChange={() => setGalleriesMode('all')} label="All Galleries" />
+                    <RadioBtn checked={galleriesMode === 'selected'} onChange={() => setGalleriesMode('selected')} label="Selected Galleries Only" />
+                  </div>
+                  {galleriesMode === 'selected' && (
+                    <div style={{ display: 'flex', gap: 16, marginTop: 12, alignItems: 'flex-start' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+                        <button onClick={() => setShowGalleriesPicker(true)} style={{ width: 34, height: 34, borderRadius: '50%', background: 'var(--brand)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 22, fontWeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>+</button>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--text-secondary)' }}>Galleries</span>
+                      </div>
+                      {selectedGalleries.length > 0 && (
+                        <div style={{ flex: 1, border: '1px solid var(--card-border)', borderRadius: 6, overflow: 'hidden', maxHeight: 180, overflowY: 'auto' }}>
+                          {selectedGalleries.map(g => (
+                            <div key={g} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderBottom: '1px solid var(--card-border)' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M1 8l3-5h16l3 5"/></svg>
+                                <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{g}</span>
+                              </div>
+                              <button onClick={() => removeGallery(g)} style={{ background: 'none', border: '1.5px solid var(--line)', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1, padding: 0 }}>−</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 10, lineHeight: 1.5 }}>Apply coupon to all galleries, or restrict to specific galleries only.</p>
+                </div>
+              </div>
+              <div style={{ padding: '12px 24px', borderTop: '1px solid var(--card-border)', background: '#fff', flexShrink: 0 }}>
+                <button onClick={() => onApply({ appliesToMode, selectedRoles, galleriesMode, selectedGalleries })}
+                  style={{ width: '100%', padding: '11px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+                  Apply
+                </button>
+              </div>
+            </div>
+          </MobileSheetModal>
+          {showRolesPicker && <RolesPickerModal onClose={() => setShowRolesPicker(false)} currentRoles={selectedRoles} onSelect={roles => { setSelectedRoles(roles); setShowRolesPicker(false); }} />}
+          {showGalleriesPicker && <GalleriesPickerModal onClose={() => setShowGalleriesPicker(false)} currentGalleries={selectedGalleries} onSelect={gals => { setSelectedGalleries(gals); setShowGalleriesPicker(false); }} />}
+        </>
+      );
+    };
+
+    const CreateCouponModal = ({ onClose }) => {
+      const [step, setStep] = useState('discount');
+      const [discountType, setDiscountType] = useState('% OFF');
+      const [discountVal, setDiscountVal] = useState('20');
+      const [minOrder, setMinOrder] = useState('0.00');
+      const [freeShipping, setFreeShipping] = useState(false);
+      const [description, setDescription] = useState('');
+      const [couponCode, setCouponCode] = useState('SAVE20!!!!!');
+      const [unlimited, setUnlimited] = useState(true);
+      const [useLimit, setUseLimit] = useState('');
+      const [limitProducts, setLimitProducts] = useState(false);
+      const [limitPackages, setLimitPackages] = useState(false);
+      const genCode = () => {
+        const c = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        setCouponCode(Array.from({ length: 8 }, () => c[Math.floor(Math.random() * c.length)]).join(''));
+      };
+      if (step === 'applies-to') return <CouponAppliesToModal onClose={onClose} onApply={() => onClose()} />;
+      return (
+        <MobileSheetModal onClose={onClose} zIndex={150} maxWidth={700}>
+          <div style={{ display: 'flex', flexDirection: 'column', maxHeight: 'calc(100vh - 80px)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderBottom: '1px solid var(--card-border)', flexShrink: 0 }}>
+              <div style={{ width: 24 }} />
+              <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '0.06em', color: 'var(--text-primary)' }}>DISCOUNT TYPE</span>
+              <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-secondary)', lineHeight: 1, width: 24 }}>×</button>
+            </div>
+            <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, padding: '20px 24px' }}>
+              {/* Top row */}
+              <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1.4fr', gap: 12, marginBottom: 18 }}>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>Discount Type</label>
+                  <div style={{ position: 'relative' }}>
+                    <select value={discountType} onChange={e => setDiscountType(e.target.value)}
+                      style={{ width: '100%', padding: '8px 28px 8px 10px', border: '1px solid var(--card-border)', borderRadius: 4, fontSize: 13, color: 'var(--text-primary)', background: '#fff', appearance: 'none', cursor: 'pointer', outline: 'none' }}>
+                      <option>% OFF</option><option>$ OFF</option><option>Fixed Price</option>
+                    </select>
+                    <ChevronDown size={13} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)', pointerEvents: 'none' }} />
+                  </div>
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>Discount ( % )</label>
+                  <input type="number" value={discountVal} onChange={e => setDiscountVal(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--card-border)', borderRadius: 4, fontSize: 13, color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>Minimum Order Amount ( £ )</label>
+                  <input type="number" value={minOrder} onChange={e => setMinOrder(e.target.value)}
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--card-border)', borderRadius: 4, fontSize: 13, color: 'var(--text-primary)', outline: 'none', boxSizing: 'border-box' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 200px', gap: 24 }}>
+                {/* Left */}
+                <div>
+                  <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 16, cursor: 'pointer' }}>
+                    <span className={`check-box mt-0.5 ${freeShipping ? 'is-on' : ''}`} onClick={() => setFreeShipping(v => !v)} style={{ flexShrink: 0, marginTop: 2 }} />
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)' }}>Include FREE shipping</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 2, lineHeight: 1.4 }}>You will be charged the shipping fee. Valid only for lowest-cost shipping.</div>
+                    </div>
+                  </label>
+                  <div style={{ borderTop: '1px solid var(--card-border)', marginBottom: 16 }} />
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 5 }}>Description</label>
+                    <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="e.g. 20% Off All Products!" rows={3}
+                      style={{ width: '100%', padding: '8px 10px', border: '1px solid var(--card-border)', borderRadius: 4, fontSize: 13, color: 'var(--text-primary)', resize: 'vertical', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit' }} />
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 }}>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)' }}>Coupon Code</label>
+                      <span style={{ fontSize: 12, color: 'var(--brand)', cursor: 'pointer' }}>List of samples ℹ</span>
+                    </div>
+                    <div style={{ display: 'flex' }}>
+                      <input value={couponCode} onChange={e => setCouponCode(e.target.value)}
+                        style={{ flex: 1, padding: '8px 10px', border: '1px solid var(--card-border)', borderRadius: '4px 0 0 4px', fontSize: 13, color: 'var(--text-primary)', outline: 'none', borderRight: 'none' }} />
+                      <button onClick={genCode} style={{ padding: '8px 12px', background: '#1B1C1F', border: 'none', borderRadius: '0 4px 4px 0', cursor: 'pointer', color: '#fff', display: 'flex', alignItems: 'center' }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-2.3M22 12.5a10 10 0 0 1-18.8 2.2"/></svg>
+                      </button>
+                    </div>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>Code your client needs to enter at checkout to use this coupon.</p>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-secondary)', display: 'block', marginBottom: 8 }}>Number of times each user can use this code:</label>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <input type="number" value={unlimited ? '99999' : useLimit} disabled={unlimited} onChange={e => setUseLimit(e.target.value)}
+                        style={{ width: 140, padding: '8px 10px', border: '1px solid var(--card-border)', borderRadius: 4, fontSize: 13, color: unlimited ? 'var(--text-tertiary)' : 'var(--text-primary)', background: unlimited ? '#f5f5f5' : '#fff', outline: 'none' }} />
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 7, cursor: 'pointer' }}>
+                        <span className={`check-box ${unlimited ? 'is-on' : ''}`} onClick={() => setUnlimited(v => !v)} />
+                        <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>Unlimited</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                {/* Right — Optional */}
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.1em', color: 'var(--text-secondary)', marginBottom: 12, textTransform: 'uppercase' }}>Optional</div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, cursor: 'pointer' }}>
+                    <span className={`check-box ${limitProducts ? 'is-on' : ''}`} onClick={() => setLimitProducts(v => !v)} />
+                    <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>Limit to specific products</span>
+                  </label>
+                  {limitProducts && (
+                    <button style={{ marginLeft: 26, marginBottom: 10, padding: '5px 12px', border: '1px solid var(--card-border)', borderRadius: 4, background: '#fff', fontSize: 12, cursor: 'pointer', color: 'var(--text-primary)' }}>Select Products</button>
+                  )}
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <span className={`check-box ${limitPackages ? 'is-on' : ''}`} onClick={() => setLimitPackages(v => !v)} />
+                    <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>Limit to Packages</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div style={{ padding: '12px 24px', borderTop: '1px solid var(--card-border)', background: '#fff', flexShrink: 0 }}>
+              <button onClick={() => setStep('applies-to')}
+                style={{ width: '100%', padding: '11px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+                Apply
+              </button>
+            </div>
+          </div>
+        </MobileSheetModal>
+      );
+    };
+
+    const SELLING_TABS = ['Orders', 'Price Lists', 'Self-Fulfilled', 'Product Builder', 'Coupons & Campaigns', 'Shipping', 'Taxes', 'Settings'];
+    const COUPON_FILTER_TABS = ['All', 'Draft', 'Scheduled', 'Active', 'Ended'];
+    const SAMPLE_COUPONS = [
+      { id: 1, type: 'General Coupon', code: 'ClientsOnly', status: 'Active', duration: '—', uses: 0, profit: '£0.00' },
+      { id: 2, type: 'General Coupon', code: '', status: 'Draft', duration: 'N/A', uses: 0, profit: '£0.00' },
+      { id: 3, type: 'General Coupon', code: 'SAVE20!!!!!', status: 'Draft', duration: 'N/A', uses: 0, profit: '£0.00' },
+      { id: 4, type: 'General Coupon', code: 'SAVE20!!!!!', status: 'Draft', duration: 'N/A', uses: 0, profit: '£0.00' },
+    ];
+
+    const SellingView = () => {
+      const [sellingTab, setSellingTab] = useState('Coupons & Campaigns');
+      const [filterTab, setFilterTab] = useState('All');
+      const [search, setSearch] = useState('');
+      const [showCreateCoupon, setShowCreateCoupon] = useState(false);
+      const statusBadge = status => {
+        const s = status === 'Active'
+          ? { bg: '#E8F5E9', color: '#2E7D32', dot: '#4CAF50' }
+          : { bg: '#FFF9E6', color: '#C77B00', dot: '#F5C842' };
+        return (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 9999, background: s.bg, fontSize: 12, fontWeight: 600, color: s.color }}>
+            <span style={{ width: 7, height: 7, borderRadius: '50%', background: s.dot }} />
+            {status}
+          </span>
+        );
+      };
+      const filtered = SAMPLE_COUPONS.filter(c => {
+        if (filterTab !== 'All' && c.status !== filterTab) return false;
+        if (search && !c.code.toLowerCase().includes(search.toLowerCase()) && !c.type.toLowerCase().includes(search.toLowerCase())) return false;
+        return true;
+      });
+      return (
+        <div className="flex-1 flex flex-col bg-white border-l" style={{ borderColor: 'var(--card-border)', overflow: 'hidden' }}>
+          {/* Page header */}
+          <div style={{ padding: '20px 28px 0', borderBottom: '1px solid var(--card-border)', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>SELLING</h1>
+              <button style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '6px 14px', border: '1.5px solid var(--card-border)', borderRadius: 6, background: '#fff', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', cursor: 'pointer' }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 3h15v13H1zM16 8l7 5-7 5V8z"/></svg>
+                Preview Shop
+              </button>
+            </div>
+            <div style={{ display: 'flex', overflowX: 'auto' }}>
+              {SELLING_TABS.map(tab => (
+                <button key={tab} onClick={() => setSellingTab(tab)} style={{
+                  padding: '8px 14px', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+                  fontSize: 13, fontWeight: sellingTab === tab ? 600 : 400,
+                  color: sellingTab === tab ? 'var(--brand)' : 'var(--text-secondary)',
+                  borderBottom: sellingTab === tab ? '2.5px solid var(--brand)' : '2.5px solid transparent',
+                  transition: 'all 0.15s',
+                }}>{tab}</button>
+              ))}
+            </div>
+          </div>
+          {/* Body */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '24px 28px' }}>
+            {sellingTab === 'Coupons & Campaigns' ? (
+              <>
+                <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>Coupons & Campaigns</h2>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 20 }}>Boost your sales with a custom discount coupon or pick from one of our ready-to-go campaigns.</p>
+                {/* Cards */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 300px))', gap: 16, marginBottom: 28 }}>
+                  <div style={{ border: '1px solid var(--card-border)', borderRadius: 8, padding: 20, background: '#fafafa' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 6, background: '#E8F5E9', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E7D32" strokeWidth="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: 'var(--text-primary)', marginBottom: 8 }}>COUPONS</div>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 14 }}>You can create and distribute any number of coupons. Coupons can discount product prices by a specified value or percentage.</p>
+                    <button onClick={() => setShowCreateCoupon(true)} style={{ display: 'inline-flex', alignItems: 'stretch', border: 'none', borderRadius: 6, overflow: 'hidden', cursor: 'pointer', padding: 0 }}>
+                      <span style={{ background: 'var(--brand)', color: '#fff', padding: '8px 16px', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center' }}>Create a Coupon</span>
+                      <span style={{ background: 'var(--brand)', color: '#fff', padding: '8px 10px', borderLeft: '1px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center' }}><ChevronDown size={14} /></span>
+                    </button>
+                  </div>
+                  <div style={{ border: '1px solid var(--card-border)', borderRadius: 8, padding: 20, background: '#fafafa' }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 6, background: '#E3F2FD', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1565C0" strokeWidth="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                    </div>
+                    <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.1em', color: 'var(--text-primary)', marginBottom: 8 }}>AUTOMATED CAMPAIGNS</div>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 14 }}>Campaigns are ready-to-go marketing strategies to help you save time and increase your sales.</p>
+                    <button style={{ background: 'var(--brand)', color: '#fff', padding: '8px 16px', fontSize: 13, fontWeight: 600, border: 'none', borderRadius: 6, cursor: 'pointer' }}>Setup a Campaign</button>
+                  </div>
+                </div>
+                {/* Filter row */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+                  <div style={{ display: 'flex', gap: 4 }}>
+                    {COUPON_FILTER_TABS.map(tab => (
+                      <button key={tab} onClick={() => setFilterTab(tab)} style={{
+                        padding: '5px 14px', borderRadius: 9999, fontSize: 13, fontWeight: 500, cursor: 'pointer',
+                        border: '1px solid', transition: 'all 0.12s',
+                        borderColor: filterTab === tab ? 'var(--brand)' : 'var(--card-border)',
+                        background: filterTab === tab ? 'rgba(242,107,58,0.08)' : '#fff',
+                        color: filterTab === tab ? 'var(--brand)' : 'var(--text-secondary)',
+                      }}>{tab}</button>
+                    ))}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, border: '1px solid var(--card-border)', borderRadius: 6, padding: '5px 10px', background: '#fff' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search"
+                      style={{ border: 'none', outline: 'none', fontSize: 13, color: 'var(--text-primary)', background: 'transparent', width: 130 }} />
+                  </div>
+                </div>
+                {/* Table */}
+                <div style={{ border: '1px solid var(--card-border)', borderRadius: 8, overflow: 'hidden' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1fr 0.9fr 0.8fr 0.8fr 0.6fr 0.8fr 0.5fr', padding: '9px 16px', background: '#f8f8f6', borderBottom: '1px solid var(--card-border)' }}>
+                    {['COUPON TYPE','CODE','STATUS','DURATION','EMAILS','BANNERS','USES','PROFIT','MORE'].map(h => (
+                      <div key={h} style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-secondary)' }}>{h}</div>
+                    ))}
+                  </div>
+                  {filtered.map(c => (
+                    <div key={c.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1.4fr 1fr 0.9fr 0.8fr 0.8fr 0.6fr 0.8fr 0.5fr', padding: '12px 16px', borderBottom: '1px solid var(--card-border)', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                        <span style={{ padding: '2px 5px', background: '#4CAF50', color: '#fff', borderRadius: 3, fontSize: 10, fontWeight: 700, flexShrink: 0 }}>SALE</span>
+                        <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{c.type}</span>
+                      </div>
+                      <div style={{ fontSize: 13, color: 'var(--text-primary)' }}>{c.code}</div>
+                      <div>{statusBadge(c.status)}</div>
+                      <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>{c.duration}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>0/0</span>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>0/0</span>
+                      </div>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{c.uses}</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{c.profit}</div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: 0 }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                        </button>
+                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-tertiary)', padding: 0 }}><ChevronDown size={16} /></button>
+                      </div>
+                    </div>
+                  ))}
+                  {filtered.length === 0 && (
+                    <div style={{ padding: 32, textAlign: 'center', fontSize: 13, color: 'var(--text-tertiary)' }}>No coupons match your filter.</div>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 200 }}>
+                <p style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>{sellingTab} — coming soon</p>
+              </div>
+            )}
+          </div>
+          {showCreateCoupon && <CreateCouponModal onClose={() => setShowCreateCoupon(false)} />}
+        </div>
+      );
+    };
+
     function App() {
       const [simulateMobile, setSimulateMobile] = useState(false);
       // useIsMobile() can't read this component's own context, so OR simulateMobile directly
@@ -9270,6 +9745,8 @@
               <VolumeWizardModal onClose={() => setActiveView('gallery')} savedRoles={savedRoles} viewMode={viewMode} />
             ) : activeView === 'qr-code-workflow' ? (
               <QRCodeWorkflowModal onClose={() => setActiveView('gallery')} savedRoles={savedRoles} viewMode={viewMode} />
+            ) : activeView === 'selling' ? (
+              <SellingView />
             ) : activeView === 'booking' ? (
               <BookingView onBack={() => setActiveView('gallery')} viewMode={viewMode} savedRoles={savedRoles} />
             ) : (
