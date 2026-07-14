@@ -754,7 +754,7 @@
     const FEATURE_DEFS = [
       { id: 'photo-downloads', name: 'Photo Downloads', icon: 'image',
         settings: [
-          { id: 'download-type', type: 'select', label: 'Download Type Allowed', subRow: true,
+          { id: 'download-type', type: 'select', label: 'Download Type Allowed', sheetTitle: 'Choose Download Type', subRow: true,
             options: ['All photos and individual download', 'All photos', 'Specific amount download', 'Individual download only'],
             def: 'All photos and individual download',
             tooltip: 'Below are the following download types and how they function.\n\nAll photos — The all photo download mode will allow a download of the entire gallery that will be downloaded as a ZIP file.\n\nIndividual download — Allows photos to be downloaded one at a time rather than in bulk.\n\nSpecific amount download — Allows you to set how many photos are allowed to be downloaded per person in a specific role.' },
@@ -766,7 +766,7 @@
             subOptions: { High: ['3264 (8MP)', '3872 (10MP)'], Medium: ['2048 (3MP)', '2560 (5MP)'], Low: ['640 (0.3MP)', '800 (0.5MP)', '1280 (1MP)'] },
             subDef: { High: '3264 (8MP)', Medium: '2048 (3MP)', Low: '640 (0.3MP)' },
             dependsOn: { settingId: 'download-type', values: ['All photos and individual download', 'All photos', 'Specific amount download'] } },
-          { id: 'individual-resolution', type: 'select', label: 'Individual Allowed Resolution',
+          { id: 'individual-resolution', type: 'select', label: 'Individual Allowed Resolution', sheetTitle: 'Choose Download Resolution',
             options: ['Original','High','Medium','Low'], def: 'Original',
             dependsOn: { settingId: 'download-type', values: ['All photos and individual download', 'Individual download only'] } },
           { id: 'license', type: 'toggle',
@@ -778,7 +778,7 @@
       },
       { id: 'video-downloads', name: 'Video Downloads', icon: 'video',
         settings: [
-          { id: 'video-download-type', type: 'select', label: 'Video Download Type', subRow: true,
+          { id: 'video-download-type', type: 'select', label: 'Video Download Type', sheetTitle: 'Choose Download Type', subRow: true,
             options: ['All videos and individual download', 'All videos', 'Specific amount download', 'Individual download only'],
             def: 'All videos and individual download',
             tooltip: 'Below are the following download types and how they function.\n\nAll videos — The all video download mode will allow a download of the entire gallery that will be downloaded as a ZIP file.\n\nIndividual download — Allows videos to be downloaded one at a time rather than in bulk.\n\nSpecific amount download — Allows you to set how many videos are allowed to be downloaded per person in a specific role.' },
@@ -788,7 +788,7 @@
           { id: 'video-resolutions', type: 'multicheck', label: 'Video Download Resolutions',
             options: ['Original','1080p Full HD'], def: ['Original'], vertical: true,
             dependsOn: { settingId: 'video-download-type', values: ['All videos and individual download', 'All videos', 'Specific amount download'] } },
-          { id: 'video-individual-resolution', type: 'select', label: 'Individual Allowed Resolution',
+          { id: 'video-individual-resolution', type: 'select', label: 'Individual Allowed Resolution', sheetTitle: 'Choose Download Resolution',
             options: ['Original','1080p Full HD'], def: 'Original',
             dependsOn: { settingId: 'video-download-type', values: ['All videos and individual download', 'Individual download only'] } },
         ],
@@ -1133,7 +1133,7 @@
       );
     };
 
-    const V5Select = ({ value, options, onChange, disabled, minWidth = 220, fullWidth, label }) => {
+    const V5Select = ({ value, options, onChange, disabled, minWidth = 220, fullWidth, label, sheetTitle }) => {
       const isMobile = useIsMobile();
       const [open, setOpen] = useState(false);
       const [pos, setPos] = useState(null); // { top, left, width, openUp }
@@ -1184,7 +1184,7 @@
 
       // Mobile: bottom sheet (inline — position:fixed scoped to phone-sim container via its transform)
       const mobileSheet = (open && isMobile)
-        ? <BottomSheet options={options} value={value} label={label} onChange={(o) => { onChange(o); setOpen(false); }} onClose={() => setOpen(false)} />
+        ? <BottomSheet options={options} value={value} title={sheetTitle} label={label} onChange={(o) => { onChange(o); setOpen(false); }} onClose={() => setOpen(false)} />
         : null;
 
       // Desktop: positioned popover menu
@@ -2874,6 +2874,7 @@
             disabled={disabled}
             onChange={onChange}
             minWidth={compact ? 220 : 240}
+            sheetTitle={s.sheetTitle}
           />
         );
       }
