@@ -1046,7 +1046,7 @@
     // getBoundingClientRect() and re-measured on scroll / resize.
 
     // Shared mobile bottom-sheet picker — renders inline (position:fixed scoped to phone-sim container).
-    const BottomSheet = ({ options, value, onChange, onClose, label }) => {
+    const BottomSheet = ({ options, value, onChange, onClose, label, title }) => {
       React.useEffect(() => {
         document.body.classList.add('sheet-open');
         return () => document.body.classList.remove('sheet-open');
@@ -1068,7 +1068,12 @@
             <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px' }}>
               <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--card-border)' }} />
             </div>
-            {label && (
+            {title && (
+              <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', padding: '8px 0 12px', borderBottom: '1px solid var(--card-border)', marginBottom: 12 }}>
+                {title}
+              </div>
+            )}
+            {!title && label && (
               <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', padding: '8px 0 12px' }}>
                 {label}
               </div>
@@ -3966,6 +3971,7 @@
           </button>
           {sheetOpen && (
             <BottomSheet
+              title="Settings"
               options={items.map(i => i.label)}
               value={current.label}
               onChange={label => { const item = items.find(i => i.label === label); if (item) onSelectSection(item.id); }}
