@@ -1899,7 +1899,7 @@
         <>
         {isMobile ? (
           <div style={{ position:'fixed', inset:0, zIndex:100, display:'flex', flexDirection:'column', justifyContent:'flex-end' }}>
-            <div onClick={onClose} style={{ position:'absolute', inset:0 }} />
+            <div onClick={onClose} onTouchMove={e => e.preventDefault()} style={{ position:'absolute', inset:0 }} />
             <div className="sheet-panel" style={{
               position:'relative', background:'#fff',
               borderRadius:'20px 20px 0 0',
@@ -2084,7 +2084,7 @@
                   <div className="p-6">
                     <p className="text-[13px] mb-4" style={{ color: 'var(--text-secondary)' }}>Choose a name your viewers won't see — it's just for you.</p>
                     <input
-                      autoFocus value={customName}
+                      autoFocus={!isMobile} value={customName}
                       onChange={e => setCustomName(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && trimmed && !nameTaken) goDetail('custom'); }}
                       placeholder="e.g. Family, VIP, Player" maxLength={32}
