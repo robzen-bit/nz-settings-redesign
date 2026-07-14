@@ -910,7 +910,7 @@
 
     // Some settings are only relevant when another setting has a particular value
     // (e.g. Gallery Allowed Resolutions only matters when Download Type = Full Gallery + Individual).
-    const isSettingVisibleForRole = (setting, roleId, featureId, perRole) => {
+    const isSettingVisibleForRole = (setting, roleId, featureId, perRole, allSettings = []) => {
       if (!setting.dependsOn) return true;
       const dep = setting.dependsOn;
       const allowed = Array.isArray(dep.values)
@@ -919,7 +919,13 @@
       // dependsOn without a value constraint is purely structural — used so the child
       // setting nests under its parent in the rendered UI without affecting visibility.
       if (allowed === null) return true;
-      const depVal = perRole[roleId]?.[featureId]?.values?.[dep.settingId];
+      let depVal = perRole[roleId]?.[featureId]?.values?.[dep.settingId];
+      // When no value is stored yet, fall back to the parent setting's declared default
+      // or its first option — this is what SettingControl displays visually.
+      if (depVal === undefined && allSettings.length) {
+        const parent = allSettings.find(s => s.id === dep.settingId);
+        if (parent) depVal = parent.def ?? parent.options?.[0];
+      }
       return allowed.includes(depVal);
     };
 
@@ -1008,7 +1014,7 @@
         if (s.optional) return;
         if (s.type === 'multicheck') return; // skip resolutions/multi-check lists from the summary
         if (/resolution/i.test(s.id) || /resolution/i.test(s.label || '')) return; // skip any resolution setting
-        if (!isSettingVisibleForRole(s, roleId, feature.id, perRole)) return;
+        if (!isSettingVisibleForRole(s, roleId, feature.id, perRole, feature.settings)) return;
         const v = values[s.id];
         if (v === undefined || v === null || v === '') return;
         if (s.type === 'select') {
@@ -2887,7 +2893,7 @@
     // the parent setting they belong to.
     const SimpleSettingsBlock = ({ feature, role, perRole, onUpdate }) => {
       const isMobile = useIsMobile();
-      const visibleSettings = feature.settings.filter(s => isSettingVisibleForRole(s, role.id, feature.id, perRole));
+      const visibleSettings = feature.settings.filter(s => isSettingVisibleForRole(s, role.id, feature.id, perRole, feature.settings));
       const topLevel = visibleSettings.filter(s => !s.dependsOn);
       const childrenOf = (id) => visibleSettings.filter(s => s.dependsOn?.settingId === id);
       // Mirror the per-role behavior: when the single role has the feature off, dim the
@@ -3063,7 +3069,7 @@
           {visibleRoles.map((r, idx) => {
             const value = perRole[r.id]?.[featureId]?.values?.[s.id];
             const roleEnabled = !!perRole[r.id]?.[featureId]?.enabled;
-            const visibleChildren = childSettings.filter(c => isSettingVisibleForRole(c, r.id, featureId, perRole));
+            const visibleChildren = childSettings.filter(c => isSettingVisibleForRole(c, r.id, featureId, perRole, childSettings));
             const disabledStyle = roleEnabled ? null : { opacity: 0.5, pointerEvents: 'none' };
             return (
               <React.Fragment key={r.id}>
@@ -3177,7 +3183,7 @@
               const renderable = topLevel
                 .map(s => ({
                   s,
-                  visibleRoles: roles.filter(r => isSettingVisibleForRole(s, r.id, feature.id, perRole)),
+                  visibleRoles: roles.filter(r => isSettingVisibleForRole(s, r.id, feature.id, perRole, mainSettings)),
                   childSettings: childrenOf(s.id),
                 }))
                 .filter(({ visibleRoles }) => visibleRoles.length > 0);
@@ -3730,7 +3736,7 @@
                             </div>
                           );
                         }
-                        if (s.dependsOn && !roles.some(r => isSettingVisibleForRole(s, r.id, feature.id, perRole))) {
+                        if (s.dependsOn && !roles.some(r => isSettingVisibleForRole(s, r.id, feature.id, perRole, feature.settings))) {
                           return null;
                         }
                         const rowBg = isChild ? 'var(--soft-bg)' : '#fff';
@@ -3754,7 +3760,7 @@
                             </div>
                             {roles.map((r, i) => {
                               const enabled = !!perRole[r.id]?.[feature.id]?.enabled;
-                              const visible = isSettingVisibleForRole(s, r.id, feature.id, perRole);
+                              const visible = isSettingVisibleForRole(s, r.id, feature.id, perRole, feature.settings);
                               const disabledStyle = enabled ? null : { opacity: 0.5, pointerEvents: 'none' };
                               const value = perRole[r.id]?.[feature.id]?.values?.[s.id];
                               return (
