@@ -8837,6 +8837,8 @@
       const [simulateMobile, setSimulateMobile] = useState(false);
       // useIsMobile() can't read this component's own context, so OR simulateMobile directly
       const isMobile = useIsMobile() || simulateMobile;
+      // true only on a real mobile device (not the desktop simulator toggle)
+      const realMobile = isMobile && !simulateMobile;
       const [roles, setRoles] = useState([{ id: 'everyone', name: 'General', removable: false }]);
       const [perRole, setPerRole] = useState({ everyone: buildEveryoneState() });
       const [features, setFeatures] = useState(initialFeatures);
@@ -9221,7 +9223,7 @@
             ) : activeView === 'booking' ? (
               <BookingView onBack={() => setActiveView('gallery')} viewMode={viewMode} savedRoles={savedRoles} />
             ) : (
-            <div className={`flex-1 flex flex-col bg-white${simulateMobile ? '' : ' border-l'}`} style={{ borderColor: 'var(--card-border)' }}>
+            <div className={`flex-1 flex flex-col bg-white${isMobile ? '' : ' border-l'}`} style={{ borderColor: 'var(--card-border)' }}>
               <GalleryHeader />
               <Tabs activeTab={activeMainTab} onTabChange={setActiveMainTab} />
               {isMobile && <MobileBottomBar />}
@@ -9630,12 +9632,17 @@
       return (
         <MobileSimContext.Provider value={simulateMobile}>
         <div className="min-h-screen flex flex-col" style={{ background: 'var(--page-bg)' }}>
-          <TopBar viewMode={viewMode} setViewMode={setViewMode}
-            simulateMobile={simulateMobile} onToggleMobile={() => setSimulateMobile(v => !v)} />
+          {!realMobile && <TopBar viewMode={viewMode} setViewMode={setViewMode}
+            simulateMobile={simulateMobile} onToggleMobile={() => setSimulateMobile(v => !v)} />}
           {simulateMobile ? (
             <div style={{ flex:1, display:'flex', alignItems:'flex-start', justifyContent:'center', padding:'32px 24px', overflowY:'auto', background:'#DEDAD3' }}>
               <IPhoneFrame modals={_modals}>{_mV}</IPhoneFrame>
             </div>
+          ) : realMobile ? (
+            <>
+              {_mV}
+              {_modals}
+            </>
           ) : (
             <>
               <div className="flex flex-1">
