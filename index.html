@@ -1172,7 +1172,7 @@
       }, []);
 
       useEffect(() => {
-        if (!open) return;
+        if (!open || isMobile) return;
         measure();
         const onDoc = (e) => {
           if (
@@ -1193,7 +1193,7 @@
           window.removeEventListener('scroll', onReflow, true);
           window.removeEventListener('resize', onReflow);
         };
-      }, [open, measure]);
+      }, [open, isMobile, measure]);
 
       const display = value || (options && options[0]) || '';
 
