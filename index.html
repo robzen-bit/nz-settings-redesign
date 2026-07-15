@@ -1781,46 +1781,26 @@
     // Wrapper that renders as a fly-up bottom sheet on mobile, centered modal on desktop.
     const MobileSheetModal = ({ onClose, zIndex = 100, maxWidth = 680, children }) => {
       const isMobile = useIsMobile();
-      const myLevel = React.useRef(Infinity);
-      const [globalDepth, setGlobalDepth] = React.useState(0);
-      const prevCoveredRef = React.useRef(false);
-      const [revealKey, setRevealKey] = React.useState(0);
 
       React.useEffect(() => {
         if (!isMobile) return;
         lockBodyScroll();
-        myLevel.current = _sheetDepth;
-        const listener = depth => setGlobalDepth(depth);
-        _sheetListeners.add(listener);
-        return () => {
-          _sheetListeners.delete(listener);
-          unlockBodyScroll();
-        };
+        return () => unlockBodyScroll();
       }, [isMobile]);
-
-      const isCovered = isMobile && globalDepth > myLevel.current;
-
-      React.useEffect(() => {
-        if (isMobile && prevCoveredRef.current && !isCovered) {
-          setRevealKey(k => k + 1);
-        }
-        prevCoveredRef.current = isCovered;
-      }, [isCovered, isMobile]);
 
       if (isMobile) {
         return (
           <div style={{
             position: 'fixed', inset: 0, zIndex,
             display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-            background: isCovered ? 'transparent' : 'rgba(27,28,31,0.45)',
+            background: 'rgba(27,28,31,0.45)',
           }}>
-            {!isCovered && <div onClick={onClose} style={{ position: 'absolute', inset: 0 }} />}
-            <div key={revealKey} className="sheet-panel" style={{
+            <div onClick={onClose} style={{ position: 'absolute', inset: 0 }} />
+            <div className="sheet-panel" style={{
               position: 'relative', background: '#fff',
               borderTop: '1px solid var(--card-border)', borderRadius: '20px 20px 0 0',
               maxHeight: '92vh', overflowY: 'auto',
               boxShadow: '0 -4px 24px rgba(0,0,0,0.10)',
-              visibility: isCovered ? 'hidden' : 'visible',
             }}>
               <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px' }}>
                 <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--card-border)' }} />
