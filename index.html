@@ -3586,7 +3586,7 @@
 
     // on top (clickable to expand settings), and each role rendered as a label/toggle row.
     const MatrixRow = ({ feature, roles, perRole, isOpen, onToggleOpen, onToggleEnabled, onUpdateShared, onSetOpen, gridCols, hasSettings, isMobile, onEditSettings }) => {
-      const SUMMARY_FEATURES = new Set(['photo-downloads', 'video-downloads', 'screenshot-protection']);
+      const SUMMARY_FEATURES = new Set(['photo-downloads', 'video-downloads']);
       if (isMobile) {
         const watermarkOn = feature.appliesToAll
           ? (() => { const v = getSharedValue(perRole, roles, feature.id, 'watermark-source'); return !!(v && v !== 'None'); })()
