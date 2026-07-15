@@ -3578,6 +3578,16 @@
                 {(feature.appliesToAll || feature.sharedToggle) && (
                   <div className="text-[12px] italic" style={{ color: 'var(--text-tertiary)' }}>Applies to all roles</div>
                 )}
+                {SUMMARY_FEATURES.has(feature.id) && (() => {
+                  const lines = buildFeatureStatusLines(feature, roles, perRole);
+                  return lines.length > 0 ? (
+                    <div className="mt-0.5 space-y-0.5">
+                      {lines.map((line, idx) => (
+                        <div key={idx} className="text-[12px] leading-snug italic" style={{ color: 'var(--text-secondary)' }}>{line}</div>
+                      ))}
+                    </div>
+                  ) : null;
+                })()}
               </div>
               {hasSettings && (
                 <button onClick={onEditSettings}
