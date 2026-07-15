@@ -654,16 +654,13 @@
 
     // ===== Body scroll lock (reference-counted so nested sheets don't prematurely unlock) =====
     let _sheetDepth = 0;
-    const _sheetListeners = new Set();
     function lockBodyScroll() {
       _sheetDepth++;
       document.body.classList.add('sheet-open');
-      _sheetListeners.forEach(fn => fn(_sheetDepth));
     }
     function unlockBodyScroll() {
       _sheetDepth = Math.max(0, _sheetDepth - 1);
       if (_sheetDepth === 0) document.body.classList.remove('sheet-open');
-      _sheetListeners.forEach(fn => fn(_sheetDepth));
     }
 
     // ===== Responsive helper =====
