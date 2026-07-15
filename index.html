@@ -2476,7 +2476,36 @@
         {pendingDelete && (() => {
           const count = pendingDelete.length;
           const names = savedRoles.filter(r => pendingDelete.includes(r.id)).map(r => r.name);
-          return ReactDOM.createPortal(
+          const content = isMobile ? (
+            <MobileSheetModal onClose={() => setPendingDelete(null)} zIndex={9000}>
+              <div style={{ padding: '8px 20px 0' }}>
+                <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>
+                  Delete {count === 1 ? 'Saved Role' : `${count} Saved Roles`}
+                </div>
+                <div className="mb-3 px-3 py-2 rounded-lg text-[12px] font-medium" style={{ background: 'var(--soft-bg)', color: 'var(--text-secondary)' }}>
+                  {names.join(', ')}
+                </div>
+                <p className="text-[13px] leading-relaxed mb-2" style={{ color: 'var(--text-secondary)' }}>
+                  {count === 1
+                    ? 'This will permanently remove this role from your saved custom roles.'
+                    : 'This will permanently remove these roles from your saved custom roles.'}
+                </p>
+                <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  {count === 1 ? 'This role' : 'These roles'} will <strong>not</strong> be removed from any galleries where {count === 1 ? 'it has' : 'they have'} already been added.
+                </p>
+              </div>
+              <div style={{ display: 'flex', gap: 12, padding: '16px 20px 20px' }}>
+                <button onClick={() => setPendingDelete(null)}
+                  style={{ flex: 1, padding: '12px', borderRadius: 9999, border: '1px solid var(--card-border)', background: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', color: 'var(--text-primary)' }}>
+                  Cancel
+                </button>
+                <button onClick={confirmDelete}
+                  style={{ flex: 1, padding: '12px', borderRadius: 9999, border: 'none', background: '#e53935', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                  Delete {count === 1 ? 'Role' : `${count} Roles`}
+                </button>
+              </div>
+            </MobileSheetModal>
+          ) : (
             <div className="fixed inset-0 flex items-center justify-center px-4"
               style={{ background: 'rgba(27,28,31,0.55)', zIndex: 9000 }}
               onClick={() => setPendingDelete(null)}>
@@ -2526,9 +2555,9 @@
                   </button>
                 </div>
               </div>
-            </div>,
-            document.body
+            </div>
           );
+          return isMobile ? content : ReactDOM.createPortal(content, document.body);
         })()}
         </>
       );
@@ -9350,22 +9379,41 @@
 
           {/* ── Gallery/role conflict warning ── */}
           {galleryWarning && (
-            <div style={{ position: 'fixed', inset: 0, zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(27,28,31,0.55)', padding: '0 24px' }}>
-              <div style={{ background: '#fff', borderRadius: 12, padding: '24px', maxWidth: 400, width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Gallery Dependency</div>
-                <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20 }}>{galleryWarning.message}</p>
-                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+            isMobile ? (
+              <MobileSheetModal onClose={() => setGalleryWarning(null)} zIndex={400}>
+                <div style={{ padding: '8px 20px 0' }}>
+                  <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>Gallery Dependency</div>
+                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 8 }}>{galleryWarning.message}</p>
+                </div>
+                <div style={{ display: 'flex', gap: 12, padding: '8px 20px 20px' }}>
                   <button onClick={() => setGalleryWarning(null)}
-                    style={{ padding: '8px 18px', borderRadius: 9999, border: '1px solid var(--card-border)', background: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', color: 'var(--text-primary)' }}>
+                    style={{ flex: 1, padding: '12px', borderRadius: 9999, border: '1px solid var(--card-border)', background: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', color: 'var(--text-primary)' }}>
                     Cancel
                   </button>
                   <button onClick={galleryWarning.onConfirm}
-                    style={{ padding: '8px 20px', borderRadius: 9999, border: 'none', background: '#e03f3f', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                    style={{ flex: 1, padding: '12px', borderRadius: 9999, border: 'none', background: '#e03f3f', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                     Confirm
                   </button>
                 </div>
+              </MobileSheetModal>
+            ) : (
+              <div style={{ position: 'fixed', inset: 0, zIndex: 400, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(27,28,31,0.55)', padding: '0 24px' }}>
+                <div style={{ background: '#fff', borderRadius: 12, padding: '24px', maxWidth: 400, width: '100%', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Gallery Dependency</div>
+                  <p style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 20 }}>{galleryWarning.message}</p>
+                  <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                    <button onClick={() => setGalleryWarning(null)}
+                      style={{ padding: '8px 18px', borderRadius: 9999, border: '1px solid var(--card-border)', background: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', color: 'var(--text-primary)' }}>
+                      Cancel
+                    </button>
+                    <button onClick={galleryWarning.onConfirm}
+                      style={{ padding: '8px 20px', borderRadius: 9999, border: 'none', background: '#e03f3f', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                      Confirm
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )
           )}
         </>
       );
@@ -10335,6 +10383,29 @@
           {removeConfirm && (() => {
             const role = roles.find(r => r.id === removeConfirm);
             const count = contacts.filter(c => c.roleId === removeConfirm).length;
+            if (isMobile) return (
+              <MobileSheetModal onClose={() => setRemoveConfirm(null)} zIndex={300}>
+                <div style={{ padding: '8px 20px 0' }}>
+                  <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>
+                    Remove "{role?.name}"?
+                  </div>
+                  <p className="text-[14px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                    {count} {count === 1 ? 'contact has' : 'contacts have'} been added to this gallery in the <strong>{role?.name}</strong> role.
+                    Removing this role will move {count === 1 ? 'that contact' : 'all of those contacts'} to the <strong>General</strong> role.
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: 12, padding: '16px 20px 20px' }}>
+                  <button onClick={() => setRemoveConfirm(null)}
+                    style={{ flex: 1, padding: '12px', borderRadius: 9999, border: '1px solid var(--card-border)', background: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', color: 'var(--text-primary)' }}>
+                    Cancel
+                  </button>
+                  <button onClick={() => { removeRole(removeConfirm); setRemoveConfirm(null); }}
+                    style={{ flex: 1, padding: '12px', borderRadius: 9999, border: 'none', background: '#E53E3E', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                    Remove Role
+                  </button>
+                </div>
+              </MobileSheetModal>
+            );
             const jsx = (
               <div className="fixed inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)', zIndex: 300 }}
                 onClick={() => setRemoveConfirm(null)}>
@@ -10362,7 +10433,7 @@
                 </div>
               </div>
             );
-            return simulateMobile ? jsx : ReactDOM.createPortal(jsx, document.body);
+            return ReactDOM.createPortal(jsx, document.body);
           })()}
 
           {presetConfirm && (() => {
@@ -10383,6 +10454,43 @@
             const tw = (n) => n === 1 ? 'this role' : 'these roles';
             const activeCount = [rolesToAdd.length > 0, rolesToUpdate.length > 0, rolesToRemove.length > 0].filter(Boolean).length;
             const changeWord = activeCount === 1 ? 'change' : 'changes';
+            if (isMobile) return (
+              <MobileSheetModal onClose={() => setPresetConfirm(null)} zIndex={300}>
+                <div style={{ padding: '8px 20px 0' }}>
+                  <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 12 }}>
+                    Apply "{presetName}" Preset?
+                  </div>
+                  <div style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <p>Applying the <strong>"{presetName}"</strong> preset will make the following {changeWord}:</p>
+                    {rolesToAdd.length > 0 && (
+                      <p>The following {rw(rolesToAdd.length)} will be added: {fmtList(rolesToAdd)}.</p>
+                    )}
+                    {rolesToUpdate.length > 0 && (
+                      <p>
+                        The settings may be updated for: {fmtList(rolesToUpdate)}.
+                        {!hasRemovals && <> Contacts in {tw(rolesToUpdate.length)} will remain but their experience may change.</>}
+                      </p>
+                    )}
+                    {rolesToRemove.length > 0 && (
+                      <p>
+                        The following {rw(rolesToRemove.length)} will be removed: {fmtList(rolesToRemove)}.{' '}
+                        {affectedContacts} {cw(affectedContacts)} will be moved to the General role.
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 12, padding: '16px 20px 20px' }}>
+                  <button onClick={() => setPresetConfirm(null)}
+                    style={{ flex: 1, padding: '12px', borderRadius: 9999, border: '1px solid var(--card-border)', background: '#fff', fontSize: 14, fontWeight: 600, cursor: 'pointer', color: 'var(--text-primary)' }}>
+                    Cancel
+                  </button>
+                  <button onClick={() => { applyPreset(roleNames, presetName); setPresetConfirm(null); }}
+                    style={{ flex: 1, padding: '12px', borderRadius: 9999, border: 'none', background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                    Confirm
+                  </button>
+                </div>
+              </MobileSheetModal>
+            );
             const jsx = (
               <div className="fixed inset-0 flex items-center justify-center" style={{ background: 'rgba(0,0,0,0.45)', zIndex: 300 }}
                 onClick={() => setPresetConfirm(null)}>
@@ -10436,7 +10544,7 @@
                 </div>
               </div>
             );
-            return simulateMobile ? jsx : ReactDOM.createPortal(jsx, document.body);
+            return ReactDOM.createPortal(jsx, document.body);
           })()}
 
           {toast && (
