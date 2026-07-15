@@ -131,10 +131,13 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes popIn { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
     /* ============ Bottom-sheet drawer ============ */
-    @keyframes sheet-slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-    @keyframes backdrop-fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes sheet-slide-up   { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    @keyframes sheet-slide-down { from { transform: translateY(0); } to { transform: translateY(100%); } }
+    @keyframes backdrop-fade-in  { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes backdrop-fade-out { from { opacity: 1; } to { opacity: 0; } }
     .sheet-backdrop { animation: backdrop-fade-in 0.2s ease-out; }
     .sheet-panel { animation: sheet-slide-up 0.25s cubic-bezier(0.32, 0.72, 0, 1); overscroll-behavior: contain; }
+    .sheet-panel-closing { animation: sheet-slide-down 0.25s cubic-bezier(0.32, 0.72, 0, 1) forwards !important; }
     .sheet-item { transition: background-color 0.12s; }
     .sheet-item:active { background-color: #F4F3EF; }
     .role-card-hover:hover:not(.is-disabled) { border-color: var(--brand) !important; background: var(--brand-cream) !important; }
@@ -1067,14 +1070,20 @@
 
     // Shared mobile bottom-sheet picker — renders inline (position:fixed scoped to phone-sim container).
     const BottomSheet = ({ options, value, onChange, onClose, label, title }) => {
+      const [closing, setClosing] = React.useState(false);
       React.useEffect(() => {
         lockBodyScroll();
         return () => unlockBodyScroll();
       }, []);
+      const handleClose = React.useCallback(() => {
+        if (closing) return;
+        setClosing(true);
+        setTimeout(onClose, 250);
+      }, [closing, onClose]);
       return ReactDOM.createPortal(
-        <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'rgba(27,28,31,0.45)' }}>
-          <div onClick={onClose} style={{ position: 'absolute', inset: 0 }} />
-          <div className="sheet-panel" style={{
+        <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'rgba(27,28,31,0.45)', animation: closing ? 'backdrop-fade-out 0.25s ease forwards' : 'backdrop-fade-in 0.2s ease' }}>
+          <div onClick={handleClose} style={{ position: 'absolute', inset: 0 }} />
+          <div className={closing ? 'sheet-panel sheet-panel-closing' : 'sheet-panel'} style={{
             position: 'relative',
             background: '#fff',
             borderTop: '1px solid var(--card-border)',
@@ -1100,7 +1109,7 @@
             )}
             <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid var(--card-border)', background: '#fff', marginBottom: 10 }}>
               {options.map((o, i) => (
-                <div key={o} onClick={() => { onChange(o); onClose(); }}
+                <div key={o} onClick={() => { onChange(o); handleClose(); }}
                   style={{ padding: '16px 20px', textAlign: 'center', fontSize: 16, color: 'var(--brand)',
                     fontWeight: o === value ? 700 : 400,
                     borderTop: i > 0 ? '1px solid var(--card-border)' : 'none',
@@ -1110,7 +1119,7 @@
               ))}
             </div>
             <div style={{ display: 'flex', padding: '6px 0 8px' }}>
-              <button onClick={onClose}
+              <button onClick={handleClose}
                 style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
                 Cancel
               </button>
@@ -1779,6 +1788,7 @@
     // Wrapper that renders as a fly-up bottom sheet on mobile, centered modal on desktop.
     const MobileSheetModal = ({ onClose, zIndex = 100, maxWidth = 680, children }) => {
       const isMobile = useIsMobile();
+      const [closing, setClosing] = React.useState(false);
 
       React.useEffect(() => {
         if (!isMobile) return;
@@ -1786,15 +1796,22 @@
         return () => unlockBodyScroll();
       }, [isMobile]);
 
+      const handleClose = React.useCallback(() => {
+        if (closing) return;
+        setClosing(true);
+        setTimeout(onClose, 250);
+      }, [closing, onClose]);
+
       if (isMobile) {
         return (
           <div style={{
             position: 'fixed', inset: 0, zIndex,
             display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
             background: 'rgba(27,28,31,0.45)',
+            animation: closing ? 'backdrop-fade-out 0.25s ease forwards' : 'backdrop-fade-in 0.2s ease',
           }}>
-            <div onClick={onClose} style={{ position: 'absolute', inset: 0 }} />
-            <div className="sheet-panel" style={{
+            <div onClick={handleClose} style={{ position: 'absolute', inset: 0 }} />
+            <div className={closing ? 'sheet-panel sheet-panel-closing' : 'sheet-panel'} style={{
               position: 'relative', background: '#fff',
               borderTop: '1px solid var(--card-border)', borderRadius: '20px 20px 0 0',
               maxHeight: '92vh', overflowY: 'auto',
@@ -1903,12 +1920,19 @@
         onSelect(presetId, presetId === 'custom' ? trimmed : undefined, contact, savedPerRoleState);
       };
 
+      const [closing, setClosing] = React.useState(false);
+      const handleClose = React.useCallback(() => {
+        if (closing) return;
+        setClosing(true);
+        setTimeout(onClose, 250);
+      }, [closing, onClose]);
+
       return (
         <>
         {isMobile ? (
-          <div style={{ position:'fixed', inset:0, zIndex:100, display:'flex', flexDirection:'column', justifyContent:'flex-end', background:'rgba(27,28,31,0.45)' }}>
-            <div onClick={onClose} onTouchMove={e => e.preventDefault()} style={{ position:'absolute', inset:0 }} />
-            <div className="sheet-panel" style={{
+          <div style={{ position:'fixed', inset:0, zIndex:100, display:'flex', flexDirection:'column', justifyContent:'flex-end', background:'rgba(27,28,31,0.45)', animation: closing ? 'backdrop-fade-out 0.25s ease forwards' : 'backdrop-fade-in 0.2s ease' }}>
+            <div onClick={handleClose} onTouchMove={e => e.preventDefault()} style={{ position:'absolute', inset:0 }} />
+            <div className={closing ? 'sheet-panel sheet-panel-closing' : 'sheet-panel'} style={{
               position:'relative', background:'#fff',
               borderRadius:'20px 20px 0 0',
               maxHeight:'92vh', display:'flex', flexDirection:'column',
@@ -4127,14 +4151,20 @@
     // matrix. Uses the same MultiRoleSettingsBlock / SimpleSettingsBlock components so
     // changes flow back through the same update callbacks. Lock body scroll while open.
     const MobileFeatureSettingsModal = ({ feature, roles, perRole, onClose, onUpdate, onUpdateShared, onToggleEnabled }) => {
+      const [closing, setClosing] = React.useState(false);
       useEffect(() => {
         lockBodyScroll();
         return () => unlockBodyScroll();
       }, []);
+      const handleClose = React.useCallback(() => {
+        if (closing) return;
+        setClosing(true);
+        setTimeout(onClose, 250);
+      }, [closing, onClose]);
       return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'rgba(27,28,31,0.45)' }} role="dialog" aria-modal="true">
-          <div onClick={onClose} style={{ position: 'absolute', inset: 0 }} />
-          <div className="sheet-panel" style={{
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'rgba(27,28,31,0.45)', animation: closing ? 'backdrop-fade-out 0.25s ease forwards' : 'backdrop-fade-in 0.2s ease' }} role="dialog" aria-modal="true">
+          <div onClick={handleClose} style={{ position: 'absolute', inset: 0 }} />
+          <div className={closing ? 'sheet-panel sheet-panel-closing' : 'sheet-panel'} style={{
             position: 'relative', background: '#fff',
             borderRadius: '20px 20px 0 0',
             maxHeight: '92vh', display: 'flex', flexDirection: 'column',
