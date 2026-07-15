@@ -1019,6 +1019,33 @@
       });
     };
 
+    const getMobileFeatureSummary = (featureId, roleId, perRole) => {
+      const values = perRole[roleId]?.[featureId]?.values || {};
+      if (featureId === 'photo-downloads') {
+        const dt = values['download-type'];
+        if (dt === 'All photos and individual download') return 'All & Individual';
+        if (dt === 'All photos') return 'All photos';
+        if (dt === 'Specific amount download') return `${values['specific-amount'] ?? 10} photos`;
+        if (dt === 'Individual download only') return 'Individual only';
+      }
+      if (featureId === 'video-downloads') {
+        const dt = values['video-download-type'];
+        if (dt === 'All videos and individual download') return 'All & Individual';
+        if (dt === 'All videos') return 'All videos';
+        if (dt === 'Specific amount download') return `${values['video-specific-amount'] ?? 5} videos`;
+        if (dt === 'Individual download only') return 'Individual only';
+      }
+      return null;
+    };
+
+    const buildMobileFeatureStatusLines = (feature, roles, perRole) =>
+      roles
+        .filter(r => !!perRole[r.id]?.[feature.id]?.enabled)
+        .map(r => {
+          const s = getMobileFeatureSummary(feature.id, r.id, perRole);
+          return s ? `${r.name} – ${s}` : r.name;
+        });
+
     const summarizeFeatureForRole = (feature, roleId, perRole) => {
       const data = perRole[roleId]?.[feature.id];
       if (!data || !data.enabled) return '';
@@ -1034,7 +1061,7 @@
         if (s.type === 'select') {
           parts.push(SHORT_SELECT_LABELS[v] || v);
         } else if (s.type === 'number') {
-          const unit = s.id.includes('video') ? 'videos' : 'images';
+          const unit = s.id.includes('video') ? 'videos' : 'photos';
           parts.push(`${v} ${unit}`);
         } else if (s.type === 'toggle') {
           if (v) parts.push(s.label.replace(/\s*\(OPTIONAL\)\s*/i, ''));
@@ -3580,7 +3607,7 @@
                   <div className="text-[12px] italic" style={{ color: 'var(--text-tertiary)' }}>Applies to all roles</div>
                 )}
                 {SUMMARY_FEATURES.has(feature.id) && (() => {
-                  const lines = buildFeatureStatusLines(feature, roles, perRole);
+                  const lines = buildMobileFeatureStatusLines(feature, roles, perRole);
                   return lines.length > 0 ? (
                     <div className="mt-0.5 space-y-0.5">
                       {lines.map((line, idx) => (
