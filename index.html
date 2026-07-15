@@ -1071,7 +1071,7 @@
         lockBodyScroll();
         return () => unlockBodyScroll();
       }, []);
-      return (
+      return ReactDOM.createPortal(
         <div style={{ position: 'fixed', inset: 0, zIndex: 300, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', background: 'rgba(27,28,31,0.45)' }}>
           <div onClick={onClose} style={{ position: 'absolute', inset: 0 }} />
           <div className="sheet-panel" style={{
@@ -1116,7 +1116,8 @@
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       );
     };
 
