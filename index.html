@@ -2694,7 +2694,7 @@
               Rename Role
             </div>
             <div style={{ padding: '20px 0 8px' }}>
-              <input autoFocus type="text" value={name} maxLength={32}
+              <input type="text" value={name} maxLength={32}
                 onChange={e => setName(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && canSave) { onCommit(trimmed); } }}
                 className="w-full text-[14px] px-3 py-2.5 rounded-[10px] border bg-white outline-none"
