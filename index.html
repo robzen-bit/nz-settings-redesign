@@ -1781,8 +1781,8 @@
     // Wrapper that renders as a fly-up bottom sheet on mobile, centered modal on desktop.
     const MobileSheetModal = ({ onClose, zIndex = 100, maxWidth = 680, children }) => {
       const isMobile = useIsMobile();
-      const myLevel = React.useRef(0);
-      const [globalDepth, setGlobalDepth] = React.useState(() => _sheetDepth);
+      const myLevel = React.useRef(Infinity);
+      const [globalDepth, setGlobalDepth] = React.useState(0);
       const prevCoveredRef = React.useRef(false);
       const [revealKey, setRevealKey] = React.useState(0);
 
