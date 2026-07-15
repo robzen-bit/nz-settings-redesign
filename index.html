@@ -2682,6 +2682,40 @@
       );
     };
 
+    const RenameRoleSheet = ({ role, existingNames, onClose, onCommit }) => {
+      const [name, setName] = React.useState(role.name);
+      const trimmed = name.trim();
+      const taken = existingNames.filter(n => n !== role.name.toLowerCase()).includes(trimmed.toLowerCase());
+      const canSave = trimmed.length > 0 && !taken && trimmed !== role.name;
+      return (
+        <MobileSheetModal onClose={onClose} zIndex={120}>
+          <div style={{ padding: '8px 20px 0' }}>
+            <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', paddingBottom: 16, borderBottom: '1px solid var(--card-border)' }}>
+              Rename Role
+            </div>
+            <div style={{ padding: '20px 0 8px' }}>
+              <input autoFocus type="text" value={name} maxLength={32}
+                onChange={e => setName(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && canSave) { onCommit(trimmed); } }}
+                className="w-full text-[14px] px-3 py-2.5 rounded-[10px] border bg-white outline-none"
+                style={{ borderColor: taken ? 'var(--brand)' : 'var(--card-border)', color: 'var(--text-primary)' }} />
+              {taken && <p className="text-[12px] mt-2" style={{ color: 'var(--brand-deep)' }}>A role named "{trimmed}" already exists.</p>}
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 12, padding: '8px 20px 20px' }}>
+            <button onClick={onClose}
+              style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+              Cancel
+            </button>
+            <button disabled={!canSave} onClick={() => { if (canSave) onCommit(trimmed); }}
+              style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', opacity: canSave ? 1 : 0.4 }}>
+              Save
+            </button>
+          </div>
+        </MobileSheetModal>
+      );
+    };
+
     // ===== Floating Tooltip =====
     const FloatingTooltip = ({ text, x, y, visible }) => {
       if (!text) return null;
@@ -9620,6 +9654,7 @@
       const [contactRoleId, setContactRoleId] = useState(null);
       const [openMenuRoleId, setOpenMenuRoleId] = useState(null);
       const [renamingRoleId, setRenamingRoleId] = useState(null);
+      const [mobileRenameRoleId, setMobileRenameRoleId] = useState(null);
       const [toast, setToast] = useState(null);
       const [contacts, setContacts] = useState([]);
       const [activeSection, setActiveSection] = useState('features'); // 'access' | 'features' | 'contacts'
@@ -10114,6 +10149,19 @@
                     </div>
                   )}
                   {/* Mobile bottom-sheet for role actions — replaces the cramped dropdown. */}
+                  {isMobile && mobileRenameRoleId && (() => {
+                    const r = roles.find(x => x.id === mobileRenameRoleId);
+                    if (!r) return null;
+                    return (
+                      <RenameRoleSheet
+                        role={r}
+                        existingNames={roles.map(x => x.name.toLowerCase())}
+                        onClose={() => setMobileRenameRoleId(null)}
+                        onCommit={(name) => { renameRole(r.id, name); setMobileRenameRoleId(null); }}
+                      />
+                    );
+                  })()}
+
                   {isMobile && openMenuRoleId && (() => {
                     const r = roles.find(x => x.id === openMenuRoleId);
                     if (!r) return null;
@@ -10122,11 +10170,7 @@
                         role={r}
                         onClose={() => setOpenMenuRoleId(null)}
                         onAddContact={() => { setOpenMenuRoleId(null); setContactRoleId(r.id); }}
-                        onRename={() => {
-                          setOpenMenuRoleId(null);
-                          const next = window.prompt('Rename role', r.name);
-                          if (next != null) renameRole(r.id, next);
-                        }}
+                        onRename={() => { setOpenMenuRoleId(null); setMobileRenameRoleId(r.id); }}
                         onSaveLater={() => { saveRoleForLater(r.id); setOpenMenuRoleId(null); }}
                         onDuplicate={() => { duplicateRole(r.id); setOpenMenuRoleId(null); }}
                         onRemove={() => { setOpenMenuRoleId(null); requestRemoveRole(r.id); }}
