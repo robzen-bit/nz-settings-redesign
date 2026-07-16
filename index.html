@@ -5670,11 +5670,12 @@
     };
 
     const VOLUME_PRESET_ROLES = {
-      'Matthews':        ['General', 'Guest', 'Client', 'Student', 'Parent'],
-      'Smith Family':    ['General', 'Guest', 'Client', 'Immediate Family', 'Extended Family'],
-      'Corporate':       ['General', 'Guest', 'Client', 'Employee', 'Manager'],
-      'Sports Season':   ['General', 'Guest', 'Client', 'Athlete', 'Coach'],
-      'School Portrait': ['General', 'Guest', 'Client', 'Student', 'Staff'],
+      'Matthews':                    ['General', 'Guest', 'Client', 'Student', 'Parent'],
+      'Smith Family':                ['General', 'Guest', 'Client', 'Immediate Family', 'Extended Family'],
+      'Corporate':                   ['General', 'Guest', 'Client', 'Employee', 'Manager'],
+      'Sports Season':               ['General', 'Guest', 'Client', 'Athlete', 'Coach'],
+      'School Portrait':             ['General', 'Guest', 'Client', 'Student', 'Staff'],
+      'Mystic Falls School Portraits': ['General', 'Client', 'Student', 'Parent / Guardian'],
     };
 
     const VolumeWizardModal = ({ onClose, savedRoles = [], viewMode = 'basic' }) => {
@@ -5689,6 +5690,11 @@
       const [bulkRole, setBulkRole] = useState('Client');
       const fileInputRef = React.useRef(null);
       const SYSTEM_ROLE_NAMES = ['General', 'Guest', 'Client'];
+
+      // ── "During the Shoot" bulk gallery state
+      const [bulkCount, setBulkCount] = useState(100);
+      const [bulkNamingConvention, setBulkNamingConvention] = useState('ATC');
+      const [bulkPreset, setBulkPreset] = useState('Mystic Falls School Portraits');
 
       // ── "Before the Shoot" form builder state
       const [regFormTitle, setRegFormTitle] = useState('');
@@ -5718,6 +5724,7 @@
 
       const headerTitle = wizardStep === 0 ? 'Volume Wizard'
         : workflowOption === 'before' ? 'Volume Wizard — Collect Registration Before the Shoot'
+        : workflowOption === 'during' ? 'Volume Wizard — Collect Registration During the Shoot'
         : 'Volume Wizard — Import Subject List';
 
       // Radio dot helper (inline, no RadioDot dependency)
@@ -6183,8 +6190,105 @@
               </div>
             )}
 
+            {/* ── Step 2: Gallery Bulk Setup (during workflow) ── */}
+            {wizardStep === 2 && workflowOption === 'during' && (() => {
+              const previewCount = Math.min(bulkCount || 0, 10);
+              const paddedRows = Array.from({ length: previewCount }, (_, i) => {
+                const num = String(i + 1).padStart(3, '0');
+                return `${bulkNamingConvention || 'Gallery'} ${num}`;
+              });
+              return (
+                <div className="px-6 py-8" style={{ maxWidth: 960, margin: '0 auto' }}>
+                  {/* Step indicator */}
+                  <div className="rounded-xl bg-white border mb-6 px-6 py-5" style={{ borderColor: 'var(--card-border)' }}>
+                    <p className="text-[14px] font-semibold text-center mb-2" style={{ color: 'var(--text-primary)' }}>Set-Up Step 2 of 3</p>
+                    <p className="text-[13px] text-center leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                      Configure bulk gallery creation settings and preview the result.{' '}
+                      <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Click here</a> for more info.
+                    </p>
+                  </div>
+
+                  <div className="flex gap-6">
+                    {/* Left panel: form */}
+                    <div className="rounded-xl bg-white border px-6 py-6 flex-1" style={{ borderColor: 'var(--card-border)', minWidth: 0 }}>
+                      <h2 className="text-[18px] font-bold mb-6" style={{ color: 'var(--text-primary)' }}>Gallery Bulk Setup</h2>
+
+                      <div className="mb-5">
+                        <label className="block text-[14px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>How many Galleries?</label>
+                        <input
+                          type="number" min={1} max={5000}
+                          value={bulkCount}
+                          onChange={e => setBulkCount(Math.min(5000, Math.max(1, parseInt(e.target.value) || 1)))}
+                          className="w-full text-[13px] px-4 py-2.5 rounded-lg border outline-none"
+                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+                        <p className="text-[11px] mt-1" style={{ color: 'var(--text-tertiary)' }}>Maximum 5,000</p>
+                      </div>
+
+                      <div className="mb-5">
+                        <label className="block text-[14px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Gallery Naming Convention</label>
+                        <input
+                          type="text"
+                          value={bulkNamingConvention}
+                          onChange={e => setBulkNamingConvention(e.target.value)}
+                          placeholder="e.g. ATC"
+                          className="w-full text-[13px] px-4 py-2.5 rounded-lg border outline-none"
+                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }} />
+                      </div>
+
+                      <div className="mb-6">
+                        <label className="block text-[14px] font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>Select a Gallery Preset</label>
+                        <select
+                          value={bulkPreset}
+                          onChange={e => setBulkPreset(e.target.value)}
+                          className="w-full text-[13px] px-3 py-2.5 rounded-md border bg-white outline-none"
+                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
+                          {Object.keys(VOLUME_PRESET_ROLES).map(p => <option key={p}>{p}</option>)}
+                        </select>
+                      </div>
+
+                      <button className="text-[13px] font-semibold px-5 py-2.5 rounded-full border"
+                        style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}
+                        onClick={e => e.preventDefault()}>
+                        Preview
+                      </button>
+                    </div>
+
+                    {/* Right panel: preview table */}
+                    <div className="rounded-xl bg-white border px-6 py-6 flex-1" style={{ borderColor: 'var(--card-border)', minWidth: 0 }}>
+                      <h2 className="text-[18px] font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+                        Creating {bulkCount} {bulkCount === 1 ? 'Gallery' : 'Galleries'}
+                      </h2>
+                      <p className="text-[12px] mb-4" style={{ color: 'var(--text-tertiary)' }}>Showing first {previewCount} of {bulkCount}</p>
+
+                      {/* Table */}
+                      <div className="rounded-lg border overflow-hidden" style={{ borderColor: 'var(--card-border)' }}>
+                        <table className="w-full text-[13px]" style={{ borderCollapse: 'collapse' }}>
+                          <thead>
+                            <tr style={{ background: '#f5f5f5', borderBottom: '1px solid var(--card-border)' }}>
+                              <th className="text-left px-4 py-2.5 font-semibold" style={{ color: 'var(--text-secondary)', width: 56 }}>No.</th>
+                              <th className="text-left px-4 py-2.5 font-semibold" style={{ color: 'var(--text-secondary)' }}>Gallery Name</th>
+                              <th className="text-left px-4 py-2.5 font-semibold" style={{ color: 'var(--text-secondary)' }}>Access</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {paddedRows.map((name, i) => (
+                              <tr key={i} style={{ borderBottom: i < paddedRows.length - 1 ? '1px solid var(--card-border)' : 'none', background: '#fff' }}>
+                                <td className="px-4 py-2.5" style={{ color: 'var(--text-secondary)' }}>{i + 1}</td>
+                                <td className="px-4 py-2.5 font-medium" style={{ color: 'var(--text-primary)' }}>{name}</td>
+                                <td className="px-4 py-2.5" style={{ color: 'var(--text-secondary)' }}>Password Protected</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })()}
+
             {/* ── Step 2: CSV upload (import workflow only) ── */}
-            {wizardStep === 2 && workflowOption !== 'before' && (
+            {wizardStep === 2 && workflowOption === 'import' && (
               <div className="px-6 py-8" style={{ maxWidth: 720, margin: '0 auto' }}>
                 {/* Step indicator */}
                 <div className="rounded-xl bg-white border mb-6 px-6 py-5" style={{ borderColor: 'var(--card-border)' }}>
