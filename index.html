@@ -4418,7 +4418,6 @@
       showRegistration, onToggleRegistration,
       accessFeeEnabled, onToggleAccessFee,
       accessFeeAmount, onChangeAccessFeeAmount,
-      accessFeeRole, onChangeAccessFeeRole,
       feeBypassRoles = [], onChangeFeeBypassRoles,
       roles, savedRoles, viewMode,
       collectEmailEnabled, onToggleCollectEmail,
@@ -4447,6 +4446,7 @@
       const [expirationDate, setExpirationDate] = useState('');
       const isMobile = useIsMobile();
 
+      const [collectEmailRole, setCollectEmailRole] = useState('everyone');
       const [feeDetailsOpen, setFeeDetailsOpen] = useState(false);
       const [feeTitle, setFeeTitle] = useState('Access Fee');
       const [feeDesc, setFeeDesc] = useState("By filling out the form and clicking 'Continue, you will be prompted to pay a one time Access Fee.");
@@ -4683,19 +4683,6 @@
                         style={{ borderColor: 'var(--brand)', color: 'var(--brand)', background: '#fff' }}>
                         Edit Details
                       </button>
-                      <div className="mt-4">
-                        <div className="text-[13px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Registration / Access Fee Role</div>
-                        <p className="text-[12px] mb-2" style={{ color: 'var(--text-secondary)' }}>When someone pays the access fee, what role should they be added to the gallery as?</p>
-                        <MobileRoleSelect
-                          value={accessFeeRole || 'everyone'}
-                          onChange={v => onChangeAccessFeeRole && onChangeAccessFeeRole(v)}
-                          allRoles={[...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
-                          label="Registration / Access Fee Role"
-                          className="w-full border rounded px-3 py-2 text-[13px] outline-none"
-                          style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', maxWidth: 320 }}
-                        />
-                      </div>
-
                       {/* Fee Bypass */}
                       <div className="mt-4">
                         <div className="text-[13px] font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>Fee Bypass</div>
@@ -4777,8 +4764,19 @@
                 optionalLabel={accessFeeEnabled ? 'Optional (not available with Access Fee)' : 'Optional (allow visitors to skip)'}
                 optionalChecked={collectEmailOptional}
                 onToggleOptional={onToggleCollectEmailOptional}
-                optionalDisabled={accessFeeEnabled}
-              />
+                optionalDisabled={accessFeeEnabled}>
+                <div className="mt-3">
+                  <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Registrant Role</label>
+                  <MobileRoleSelect
+                    value={collectEmailRole}
+                    onChange={setCollectEmailRole}
+                    allRoles={[...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
+                    label="Registrant Role"
+                    className="border rounded px-3 py-2 text-[13px] outline-none"
+                    style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', maxWidth: 280, cursor: 'pointer' }}
+                  />
+                </div>
+              </RegRow>
 
               {/* Custom Form */}
               <RegRow
@@ -5692,8 +5690,8 @@
       const [regSubmitMessage, setRegSubmitMessage] = useState('Thank you for registering.');
       const [regAssignmentOption, setRegAssignmentOption] = useState('new_gallery');
       const [regGalleryTitleOption, setRegGalleryTitleOption] = useState('name');
-      const [existingGalleryRole, setExistingGalleryRole] = useState('Client');
-      const [newGalleryRole, setNewGalleryRole] = useState('Client');
+      const [existingGalleryRole, setExistingGalleryRole] = useState('General');
+      const [newGalleryRole, setNewGalleryRole] = useState('General');
       const [existingSelectionType, setExistingSelectionType] = useState('folder'); // 'folder' | 'gallery'
       const [existingSelectedName, setExistingSelectedName] = useState('test');
       const [existingPickerOpen, setExistingPickerOpen] = useState(false);
@@ -8056,7 +8054,7 @@
       { id: 'phone_number', label: 'Phone Number', canDisable: true,  canMakeOptional: true  },
     ];
 
-    const EditCustomFormView = ({ onBack, accessFeeEnabled, accessFeeRole = 'everyone', roles = [], savedRoles = [], viewMode = 'basic' }) => {
+    const EditCustomFormView = ({ onBack, accessFeeEnabled, roles = [], savedRoles = [], viewMode = 'basic' }) => {
       const [useCustomTitle, setUseCustomTitle] = useState(false);
       const [customTitle, setCustomTitle] = useState('');
       const [description, setDescription] = useState('Please fill out the form below to complete registration.');
@@ -8549,29 +8547,20 @@
                       </div>
                     );
                     if (f.id !== 'email') return row;
-                    const blockActiveRole = accessFeeEnabled ? accessFeeRole : block.emailRole;
                     return (
                       <React.Fragment key={f.id}>
                         {row}
                         {fEnabled && (
                           <div className="px-4 py-2.5" style={{ borderTop: '1px solid var(--card-border)', background: '#fafafa' }}>
-                            {accessFeeEnabled ? (
-                              <div className="flex items-center gap-2 mb-2">
-                                <span className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Role</span>
-                                <span className="text-[11px] px-1.5 py-0.5 rounded" style={{ background: 'var(--soft-bg)', color: 'var(--text-tertiary)', border: '1px solid var(--card-border)' }}>Set by Access Fee</span>
-                              </div>
-                            ) : (
-                              <div className="mb-2">
-                                <span className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Role — </span>
-                                <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>What role should they be added to the gallery as?</span>
-                              </div>
-                            )}
+                            <div className="mb-2">
+                              <span className="text-[12px] font-semibold" style={{ color: 'var(--text-primary)' }}>Role — </span>
+                              <span className="text-[12px]" style={{ color: 'var(--text-secondary)' }}>What role should they be added to the gallery as?</span>
+                            </div>
                             <select
-                              value={blockActiveRole}
-                              onChange={accessFeeEnabled ? undefined : e => setAdditionalBlocks(prev => prev.map(b => b.id !== block.id ? b : { ...b, emailRole: e.target.value }))}
-                              disabled={accessFeeEnabled}
+                              value={block.emailRole}
+                              onChange={e => setAdditionalBlocks(prev => prev.map(b => b.id !== block.id ? b : { ...b, emailRole: e.target.value }))}
                               className="border rounded px-3 py-1.5 text-[13px] outline-none"
-                              style={{ borderColor: 'var(--card-border)', color: accessFeeEnabled ? 'var(--text-tertiary)' : 'var(--text-primary)', background: accessFeeEnabled ? 'var(--soft-bg)' : '#fff', maxWidth: 280, cursor: accessFeeEnabled ? 'not-allowed' : 'pointer' }}>
+                              style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', maxWidth: 280, cursor: 'pointer' }}>
                               {!isElevated ? (
                                 systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
                               ) : (
@@ -8720,19 +8709,16 @@
               {/* Registrant Role Assignment */}
               <div className="mt-6">
                 <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Registrant Role Assignment</label>
-                <p className="text-[13px] mb-3" style={{ color: accessFeeEnabled ? 'var(--text-tertiary)' : 'var(--text-secondary)' }}>
-                  {accessFeeEnabled
-                    ? 'Role controlled by Access Fee.'
-                    : 'What role should anyone who registers be added to the gallery as?'}
+                <p className="text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
+                  What role should anyone who registers be added to the gallery as?
                 </p>
                 <MobileRoleSelect
-                  value={accessFeeEnabled ? accessFeeRole : emailRole}
-                  onChange={v => !accessFeeEnabled && setEmailRole(v)}
+                  value={emailRole}
+                  onChange={setEmailRole}
                   allRoles={[...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
-                  disabled={accessFeeEnabled}
                   label="Registrant Role Assignment"
                   className="border rounded px-3 py-2 text-[13px] outline-none w-full"
-                  style={{ borderColor: 'var(--card-border)', color: accessFeeEnabled ? 'var(--text-tertiary)' : 'var(--text-primary)', background: accessFeeEnabled ? 'var(--soft-bg)' : '#fff', cursor: accessFeeEnabled ? 'not-allowed' : 'pointer', maxWidth: 320 }}
+                  style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', cursor: 'pointer', maxWidth: 320 }}
                 />
               </div>
 
@@ -10125,7 +10111,6 @@
       const [showGalleryRegistration, setShowGalleryRegistration] = useState(false);
       const [accessFeeEnabled, setAccessFeeEnabled] = useState(false);
       const [accessFeeAmount, setAccessFeeAmount] = useState('0.00');
-      const [accessFeeRole, setAccessFeeRole] = useState('everyone');
       const [feeBypassRoles, setFeeBypassRoles] = useState([]);
       const [collectEmailEnabled, setCollectEmailEnabled] = useState(false);
       const [collectEmailOptional, setCollectEmailOptional] = useState(false);
@@ -10455,7 +10440,7 @@
       const isMultiRole = roles.length > 1;
 
       const _mV = showEditCustomForm ? (
-              <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} accessFeeRole={accessFeeRole} roles={roles} savedRoles={savedRoles} viewMode={viewMode} />
+              <EditCustomFormView onBack={() => setShowEditCustomForm(false)} accessFeeEnabled={accessFeeEnabled} roles={roles} savedRoles={savedRoles} viewMode={viewMode} />
             ) : activeView === 'volume-workflow' ? (
               <VolumeWizardModal onClose={() => setActiveView('gallery')} savedRoles={savedRoles} viewMode={viewMode} />
             ) : activeView === 'qr-code-workflow' ? (
@@ -10529,7 +10514,6 @@
                     showRegistration={showGalleryRegistration} onToggleRegistration={() => { const next = !showGalleryRegistration; setShowGalleryRegistration(next); if (next) setCollectEmailEnabled(true); }}
                     accessFeeEnabled={accessFeeEnabled} onToggleAccessFee={() => setAccessFeeEnabled(v => !v)}
                     accessFeeAmount={accessFeeAmount} onChangeAccessFeeAmount={setAccessFeeAmount}
-                    accessFeeRole={accessFeeRole} onChangeAccessFeeRole={setAccessFeeRole}
                     feeBypassRoles={feeBypassRoles} onChangeFeeBypassRoles={setFeeBypassRoles}
                     roles={roles} savedRoles={savedRoles} viewMode={viewMode}
                     collectEmailEnabled={collectEmailEnabled} onToggleCollectEmail={() => { setCollectEmailEnabled(true); setCustomFormEnabled(false); }}
