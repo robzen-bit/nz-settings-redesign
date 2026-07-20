@@ -1870,11 +1870,28 @@
         return () => unlockBodyScroll();
       }, [isMobile]);
 
-      const toggleCard = (id) => setSelectedCards(prev => {
-        const next = new Set(prev);
-        next.has(id) ? next.delete(id) : next.add(id);
-        return next;
-      });
+      // ── Limit logic ─────────────────────────────────────────────────────────
+      const planCustomRoleLimit = viewMode === 'professional' ? 2 : viewMode === 'advanced' ? 10 : 0;
+      const basicLock           = viewMode === 'basic';
+      const remaining           = basicLock ? 0 : Math.max(0, planCustomRoleLimit - customRoleCount);
+      const selectedCustomCount = [...selectedCards].filter(id => savedRoles.some(r => r.id === id)).length;
+      // atLimit: no more custom role slots available (either gallery already full, or selection fills the allowance)
+      const atLimit             = !basicLock && planCustomRoleLimit > 0 && selectedCustomCount >= remaining;
+      const overallLimitReached = !basicLock && planCustomRoleLimit > 0 && customRoleCount >= planCustomRoleLimit;
+      // ─────────────────────────────────────────────────────────────────────
+
+      const toggleCard = (id) => {
+        const isCustomRole = savedRoles.some(r => r.id === id);
+        setSelectedCards(prev => {
+          if (!prev.has(id) && isCustomRole) {
+            const curCustom = [...prev].filter(sid => savedRoles.some(r => r.id === sid)).length;
+            if (curCustom >= remaining) return prev; // cap at remaining allowance
+          }
+          const next = new Set(prev);
+          next.has(id) ? next.delete(id) : next.add(id);
+          return next;
+        });
+      };
 
       const savedIds = new Set(savedRoles.map(r => r.id));
       // Delete is only enabled when every selected card is a saved custom role
@@ -1888,13 +1905,10 @@
           const saved = savedRoles.find(r => r.id === id);
           if (saved) { selectSaved(saved); return; }
         }
-        const basicLock     = viewMode === 'basic';
-        const proLimit      = viewMode === 'professional' && customRoleCount >= 2;
-        const advancedLimit = viewMode === 'advanced'     && customRoleCount >= 10;
         const selections = [];
         if (selectedCards.has('guest'))  selections.push({ presetId: 'guest' });
         if (selectedCards.has('client')) selections.push({ presetId: 'client' });
-        if (!basicLock && !proLimit && !advancedLimit) {
+        if (!basicLock) {
           savedRoles.filter(r => selectedCards.has(r.id))
             .forEach(r => selections.push({ presetId: 'custom', customName: r.name, perRoleState: r.perRoleState || null }));
         }
@@ -1954,166 +1968,155 @@
                 {step === 'choose' && (
                   <>
                     <div className="px-6 pt-6 pb-0">
-                    {(() => {
-                      const basicLock     = viewMode === 'basic';
-                      const proLimit      = viewMode === 'professional' && customRoleCount >= 2;
-                      const advancedLimit = viewMode === 'advanced'     && customRoleCount >= 10;
-                      const isLocked      = basicLock || proLimit || advancedLimit;
-                      return (
+                      <div className="flex flex-col gap-3">
+                        <RoleCard icon={UserIcon} title="GUEST" desc={PRESETS.guest.desc}
+                          disabled={existingNames.includes('guest')} onClick={() => toggleCard('guest')}
+                          selectable={!existingNames.includes('guest')} selected={selectedCards.has('guest')}
+                          onToggleSelect={() => toggleCard('guest')} horizontal={true} />
+                        <RoleCard icon={StarIcon} title="CLIENT" desc={PRESETS.client.desc}
+                          disabled={existingNames.includes('client')} onClick={() => toggleCard('client')}
+                          selectable={!existingNames.includes('client')} selected={selectedCards.has('client')}
+                          onToggleSelect={() => toggleCard('client')} horizontal={true} />
+                        <RoleCard icon={SlidersIcon} title="CREATE YOUR OWN" desc={PRESETS.custom.desc}
+                          disabled={basicLock || atLimit} planLock={basicLock || atLimit}
+                          onClick={(basicLock || atLimit) ? undefined : () => setStep('name')} horizontal={true} />
+                      </div>
+                      {(basicLock || atLimit) && (
                         <>
-                          <div className="flex flex-col gap-3">
-                            <RoleCard icon={UserIcon} title="GUEST" desc={PRESETS.guest.desc}
-                              disabled={existingNames.includes('guest')} onClick={() => toggleCard('guest')}
-                              selectable={!existingNames.includes('guest')} selected={selectedCards.has('guest')}
-                              onToggleSelect={() => toggleCard('guest')} horizontal={true} />
-                            <RoleCard icon={StarIcon} title="CLIENT" desc={PRESETS.client.desc}
-                              disabled={existingNames.includes('client')} onClick={() => toggleCard('client')}
-                              selectable={!existingNames.includes('client')} selected={selectedCards.has('client')}
-                              onToggleSelect={() => toggleCard('client')} horizontal={true} />
-                            <RoleCard icon={SlidersIcon} title="CREATE YOUR OWN" desc={PRESETS.custom.desc}
-                              disabled={isLocked} planLock={isLocked}
-                              onClick={isLocked ? undefined : () => setStep('name')} horizontal={true} />
+                          <div className="flex justify-center" style={{ height: 20 }}>
+                            <div style={{ width: 0, height: '100%', borderLeft: '2px dashed rgba(242,107,58,0.45)' }} />
                           </div>
-                          {isLocked && (
-                            <>
-                              <div className="flex justify-center" style={{ height: 20 }}>
-                                <div style={{ width: 0, height: '100%', borderLeft: '2px dashed rgba(242,107,58,0.45)' }} />
-                              </div>
-                              {advancedLimit ? (
-                                <div className="rounded-2xl border px-4 py-3"
-                                  style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
-                                  <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
-                                    <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                                    This gallery is limited to 10 custom roles.{' '}
-                                    <span style={{ color: 'var(--text-tertiary)' }}>(pending 5-vs-10 confirmation)</span>
-                                  </p>
-                                </div>
-                              ) : (
-                                <div className="rounded-2xl border px-4 py-3 flex items-center justify-between gap-4"
-                                  style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
-                                  <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
-                                    {basicLock ? (
-                                      <><strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
-                                      Custom roles require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
-                                      <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a></>
-                                    ) : (
-                                      <><strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                                      Professional allows up to 2 Custom Roles per gallery.<br/>
-                                      Upgrade to <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> for up to 10 Custom Roles per gallery.{' '}
-                                      <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a></>
-                                    )}
-                                  </p>
-                                  <button onClick={() => onOpenPlans && onOpenPlans()}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap shrink-0 transition-opacity hover:opacity-80"
-                                    style={{ background: '#D4EDDA', color: '#1A7F37', border: '1px solid #A8D5B5' }}>
-                                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                      strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                      <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/>
-                                    </svg>
-                                    UPGRADE
-                                  </button>
-                                </div>
-                              )}
-                            </>
+                          {(atLimit && !basicLock && overallLimitReached && viewMode === 'professional') ? (
+                            <div className="rounded-2xl border px-4 py-3 flex items-center justify-between gap-4"
+                              style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
+                              <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                                <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
+                                Professional allows up to 2 Custom Roles per gallery.<br/>
+                                Upgrade to <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> for up to 10 Custom Roles per gallery.{' '}
+                                <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
+                              </p>
+                              <button onClick={() => onOpenPlans && onOpenPlans()}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap shrink-0 transition-opacity hover:opacity-80"
+                                style={{ background: '#D4EDDA', color: '#1A7F37', border: '1px solid #A8D5B5' }}>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/>
+                                </svg>
+                                UPGRADE
+                              </button>
+                            </div>
+                          ) : basicLock ? (
+                            <div className="rounded-2xl border px-4 py-3 flex items-center justify-between gap-4"
+                              style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
+                              <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                                <strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
+                                Custom roles require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
+                                <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
+                              </p>
+                              <button onClick={() => onOpenPlans && onOpenPlans()}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap shrink-0 transition-opacity hover:opacity-80"
+                                style={{ background: '#D4EDDA', color: '#1A7F37', border: '1px solid #A8D5B5' }}>
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/>
+                                </svg>
+                                UPGRADE
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="rounded-2xl border px-4 py-3"
+                              style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
+                              <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                                <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
+                                This gallery is limited to {planCustomRoleLimit} custom roles.
+                              </p>
+                            </div>
                           )}
                         </>
-                      );
-                    })()}
+                      )}
                     </div>
                     <div className="px-6 pb-6">
-                    {savedRoles.length > 0 && (() => {
-                      const basicLock     = viewMode === 'basic';
-                      const proLimit      = viewMode === 'professional' && customRoleCount >= 2;
-                      const advancedLimit = viewMode === 'advanced'     && customRoleCount >= 10;
-                      const sectionBlocked = basicLock || proLimit || advancedLimit;
-                      return (
-                        <div className="mt-5 pt-4 border-t" style={{ borderColor: 'var(--line-2)' }}>
-                          <p className="text-[10px] font-bold tracking-[0.14em] mb-3" style={{ color: 'var(--text-3)' }}>
-                            SAVED CUSTOM ROLES
-                          </p>
-                          <div className="flex flex-col gap-3">
-                            {savedRoles.map(saved => {
-                              const alreadyInGallery = existingNames.includes(saved.name.toLowerCase());
-                              const isVisuallyDisabled = sectionBlocked || alreadyInGallery;
-                              const badge = basicLock                     ? 'PRO+'
-                                          : (proLimit || advancedLimit)       ? 'LIMIT REACHED'
-                                          : alreadyInGallery                  ? 'ALREADY ADDED'
-                                          : null;
-                              const isSavedSelected = selectedCards.has(saved.id);
-                              return (
-                                <button key={saved.id}
-                                  onClick={isVisuallyDisabled ? undefined : () => toggleCard(saved.id)}
-                                  className={`role-card-hover ${isVisuallyDisabled ? 'is-disabled' : ''} flex items-stretch text-left rounded-xl border transition-colors`}
-                                  style={{
-                                    borderColor: isSavedSelected ? 'var(--orange)' : 'var(--card-border)',
-                                    background: isSavedSelected ? 'var(--orange-soft)' : '#fff',
-                                    boxShadow: isSavedSelected ? '0 0 0 1.5px var(--orange)' : 'none',
-                                    cursor: alreadyInGallery ? 'default' : 'pointer',
-                                  }}>
-                                  {/* Left column — full-height selection zone */}
-                                  <span
-                                    onClick={e => { e.stopPropagation(); toggleCard(saved.id); }}
-                                    style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <span className="flex items-center justify-center rounded-full border-2 transition-all"
-                                      style={{ width: 17, height: 17, borderColor: isSavedSelected ? 'var(--orange)' : 'var(--line)', background: isSavedSelected ? 'var(--orange)' : '#fff' }}>
-                                      {isSavedSelected && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
-                                    </span>
+                    {savedRoles.length > 0 && (
+                      <div className="mt-5 pt-4 border-t" style={{ borderColor: 'var(--line-2)' }}>
+                        <p className="text-[10px] font-bold tracking-[0.14em] mb-3" style={{ color: 'var(--text-3)' }}>
+                          SAVED CUSTOM ROLES
+                        </p>
+                        <div className="flex flex-col gap-3">
+                          {savedRoles.map(saved => {
+                            const alreadyInGallery = existingNames.includes(saved.name.toLowerCase());
+                            const isSavedSelected = selectedCards.has(saved.id);
+                            const isVisuallyDisabled = basicLock || alreadyInGallery || (!isSavedSelected && atLimit);
+                            const badge = basicLock          ? 'PRO+'
+                                        : alreadyInGallery   ? 'ALREADY ADDED'
+                                        : (!isSavedSelected && atLimit) ? 'LIMIT REACHED'
+                                        : null;
+                            return (
+                              <button key={saved.id}
+                                onClick={isVisuallyDisabled ? undefined : () => toggleCard(saved.id)}
+                                className={`role-card-hover ${isVisuallyDisabled ? 'is-disabled' : ''} flex items-stretch text-left rounded-xl border transition-colors`}
+                                style={{
+                                  borderColor: isSavedSelected ? 'var(--orange)' : 'var(--card-border)',
+                                  background: isSavedSelected ? 'var(--orange-soft)' : '#fff',
+                                  boxShadow: isSavedSelected ? '0 0 0 1.5px var(--orange)' : 'none',
+                                  cursor: isVisuallyDisabled ? 'default' : 'pointer',
+                                }}>
+                                {/* Left column — full-height selection zone */}
+                                <span
+                                  onClick={e => { e.stopPropagation(); toggleCard(saved.id); }}
+                                  style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  <span className="flex items-center justify-center rounded-full border-2 transition-all"
+                                    style={{ width: 17, height: 17, borderColor: isSavedSelected ? 'var(--orange)' : 'var(--line)', background: isSavedSelected ? 'var(--orange)' : '#fff' }}>
+                                    {isSavedSelected && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
                                   </span>
-                                  {/* Right content */}
-                                  <div className="flex-1 min-w-0 py-3 pr-3">
-                                    <div className="flex items-start justify-between gap-2 mb-1">
-                                      <div className="text-[12px] font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>
-                                        {saved.name.toUpperCase()}
-                                      </div>
-                                      <div className="flex items-center gap-1.5 shrink-0">
-                                        {badge && (
-                                          <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
-                                            style={{ background: '#E8E8ED', color: '#86868B' }}>
-                                            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                              <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                            </svg>
-                                            {badge}
-                                          </span>
-                                        )}
-                                        <span
-                                          onClick={e => { e.stopPropagation(); setPendingDelete([saved.id]); }}
-                                          title="Delete saved role"
-                                          className="flex items-center justify-center rounded-md transition-colors"
-                                          style={{ width: 22, height: 22, color: 'var(--text-tertiary)', cursor: 'pointer' }}
-                                          onMouseEnter={e => e.currentTarget.style.color = '#e53935'}
-                                          onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
-                                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/><path d="M9,6V4a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/>
-                                          </svg>
-                                        </span>
-                                      </div>
+                                </span>
+                                {/* Right content */}
+                                <div className="flex-1 min-w-0 py-3 pr-3">
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <div className="text-[12px] font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>
+                                      {saved.name.toUpperCase()}
                                     </div>
-                                    {saved.enabledFeatures && saved.enabledFeatures.length > 0 ? (
-                                      <div>
-                                        {saved.enabledFeatures.map(f => (
-                                          <div key={f} className="text-[11px] leading-snug" style={{ color: 'var(--text-secondary)' }}>{f}</div>
-                                        ))}
-                                      </div>
-                                    ) : (
-                                      <div className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>No features enabled</div>
-                                    )}
+                                    <div className="flex items-center gap-1.5 shrink-0">
+                                      {badge && (
+                                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
+                                          style={{ background: '#E8E8ED', color: '#86868B' }}>
+                                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                          </svg>
+                                          {badge}
+                                        </span>
+                                      )}
+                                      <span
+                                        onClick={e => { e.stopPropagation(); setPendingDelete([saved.id]); }}
+                                        title="Delete saved role"
+                                        className="flex items-center justify-center rounded-md transition-colors"
+                                        style={{ width: 22, height: 22, color: 'var(--text-tertiary)', cursor: 'pointer' }}
+                                        onMouseEnter={e => e.currentTarget.style.color = '#e53935'}
+                                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                          <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/><path d="M9,6V4a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/>
+                                        </svg>
+                                      </span>
+                                    </div>
                                   </div>
-                                </button>
-                              );
-                            })}
-                          </div>
-                          {sectionBlocked && (
-                            <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
-                              {basicLock
-                                ? 'Upgrade to Professional or Advanced to add custom roles.'
-                                : advancedLimit
-                                  ? 'This gallery has reached the limit of 10 custom roles.'
-                                  : null}
-                            </p>
-                          )}
+                                  {saved.enabledFeatures && saved.enabledFeatures.length > 0 ? (
+                                    <div>
+                                      {saved.enabledFeatures.map(f => (
+                                        <div key={f} className="text-[11px] leading-snug" style={{ color: 'var(--text-secondary)' }}>{f}</div>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <div className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>No features enabled</div>
+                                  )}
+                                </div>
+                              </button>
+                            );
+                          })}
                         </div>
-                      );
-                    })()}
+                        {basicLock && (
+                          <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
+                            Upgrade to Professional or Advanced to add custom roles.
+                          </p>
+                        )}
+                      </div>
+                    )}
                     </div>
                   </>
                 )}
@@ -2184,182 +2187,163 @@
                 <>
                   <div className="px-6 pt-6 pb-0">
                   <h3 className="text-[13px] font-bold tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>ADD A ROLE</h3>
-                  {(() => {
-                    const basicLock     = viewMode === 'basic';
-                    const proLimit      = viewMode === 'professional' && customRoleCount >= 2;
-                    const advancedLimit = viewMode === 'advanced'     && customRoleCount >= 10;
-                    const isLocked      = basicLock || proLimit || advancedLimit;
-                    return (
+                    {/* ── cards grid ── */}
+                    <div className="grid grid-cols-3 gap-3">
+                      <RoleCard icon={UserIcon} title="GUEST" desc={PRESETS.guest.desc}
+                        disabled={existingNames.includes('guest')} onClick={() => toggleCard('guest')}
+                        selectable={!existingNames.includes('guest')} selected={selectedCards.has('guest')}
+                        onToggleSelect={() => toggleCard('guest')} />
+                      <RoleCard icon={StarIcon} title="CLIENT" desc={PRESETS.client.desc}
+                        disabled={existingNames.includes('client')} onClick={() => toggleCard('client')}
+                        selectable={!existingNames.includes('client')} selected={selectedCards.has('client')}
+                        onToggleSelect={() => toggleCard('client')} />
+                      <RoleCard icon={SlidersIcon} title="CREATE YOUR OWN" desc={PRESETS.custom.desc}
+                        disabled={basicLock || atLimit} planLock={basicLock || atLimit}
+                        onClick={(basicLock || atLimit) ? undefined : () => setStep('name')} />
+                    </div>
+
+                    {(basicLock || atLimit) && (
                       <>
-                        {/* ── cards grid / stack ── */}
-                        <div className={isMobile ? 'flex flex-col gap-3' : 'grid grid-cols-3 gap-3'}>
-                          <RoleCard icon={UserIcon} title="GUEST" desc={PRESETS.guest.desc}
-                            disabled={existingNames.includes('guest')} onClick={() => toggleCard('guest')}
-                            selectable={!existingNames.includes('guest')} selected={selectedCards.has('guest')}
-                            onToggleSelect={() => toggleCard('guest')} horizontal={isMobile} />
-                          <RoleCard icon={StarIcon} title="CLIENT" desc={PRESETS.client.desc}
-                            disabled={existingNames.includes('client')} onClick={() => toggleCard('client')}
-                            selectable={!existingNames.includes('client')} selected={selectedCards.has('client')}
-                            onToggleSelect={() => toggleCard('client')} horizontal={isMobile} />
-                          <RoleCard icon={SlidersIcon} title="CREATE YOUR OWN" desc={PRESETS.custom.desc}
-                            disabled={isLocked} planLock={isLocked}
-                            onClick={isLocked ? undefined : () => setStep('name')} horizontal={isMobile} />
+                        {/* ── Dashed connector under Create Your Own (3rd column) ── */}
+                        <div className="grid grid-cols-3 gap-3" style={{ height: 28 }}>
+                          <div /><div />
+                          <div className="flex justify-center">
+                            <div style={{ width: 0, height: '100%', borderLeft: '2px dashed rgba(242,107,58,0.45)' }} />
+                          </div>
                         </div>
 
-                        {isLocked && (
-                          <>
-                            {/* ── Dashed connector ── */}
-                            {isMobile ? (
-                              <div className="flex justify-center" style={{ height: 20 }}>
-                                <div style={{ width: 0, height: '100%', borderLeft: '2px dashed rgba(242,107,58,0.45)' }} />
-                              </div>
-                            ) : (
-                              <div className="grid grid-cols-3 gap-3" style={{ height: 28 }}>
-                                <div /><div />
-                                <div className="flex justify-center">
-                                  <div style={{ width: 0, height: '100%', borderLeft: '2px dashed rgba(242,107,58,0.45)' }} />
-                                </div>
-                              </div>
-                            )}
-
-                            {/* ── Callout — upgrade pill for Basic/Pro; plain info message for Advanced limit ── */}
-                            {advancedLimit ? (
-                              <div className="rounded-2xl border px-4 py-3"
-                                style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
-                                <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
-                                  <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                                  This gallery is limited to 10 custom roles.{' '}
-                                  <span style={{ color: 'var(--text-tertiary)' }}>(pending 5-vs-10 confirmation)</span>
-                                </p>
-                              </div>
-                            ) : (
-                              <div className="rounded-2xl border px-4 py-3 flex items-center justify-between gap-4"
-                                style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
-                                <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
-                                  {basicLock ? (
-                                    <><strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
-                                    Custom roles require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
-                                    <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a></>
-                                  ) : (
-                                    <><strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                                    Professional allows up to 2 Custom Roles per gallery.<br/>
-                                    Upgrade to <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> for up to 10 Custom Roles per gallery.{' '}
-                                    <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a></>
-                                  )}
-                                </p>
-                                <button onClick={() => onOpenPlans && onOpenPlans()}
-                                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap shrink-0 transition-opacity hover:opacity-80"
-                                  style={{ background: '#D4EDDA', color: '#1A7F37', border: '1px solid #A8D5B5' }}>
-                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/>
-                                  </svg>
-                                  UPGRADE
-                                </button>
-                              </div>
-                            )}
-                          </>
+                        {/* ── Callout ── */}
+                        {(atLimit && !basicLock && overallLimitReached && viewMode === 'professional') ? (
+                          <div className="rounded-2xl border px-4 py-3 flex items-center justify-between gap-4"
+                            style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
+                            <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                              <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
+                              Professional allows up to 2 Custom Roles per gallery.<br/>
+                              Upgrade to <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> for up to 10 Custom Roles per gallery.{' '}
+                              <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
+                            </p>
+                            <button onClick={() => onOpenPlans && onOpenPlans()}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap shrink-0 transition-opacity hover:opacity-80"
+                              style={{ background: '#D4EDDA', color: '#1A7F37', border: '1px solid #A8D5B5' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/>
+                              </svg>
+                              UPGRADE
+                            </button>
+                          </div>
+                        ) : basicLock ? (
+                          <div className="rounded-2xl border px-4 py-3 flex items-center justify-between gap-4"
+                            style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
+                            <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                              <strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
+                              Custom roles require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
+                              <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
+                            </p>
+                            <button onClick={() => onOpenPlans && onOpenPlans()}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wider whitespace-nowrap shrink-0 transition-opacity hover:opacity-80"
+                              style={{ background: '#D4EDDA', color: '#1A7F37', border: '1px solid #A8D5B5' }}>
+                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="7" y1="17" x2="17" y2="7"/><polyline points="7,7 17,7 17,17"/>
+                              </svg>
+                              UPGRADE
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="rounded-2xl border px-4 py-3"
+                            style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
+                            <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
+                              <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
+                              This gallery is limited to {planCustomRoleLimit} custom roles.
+                            </p>
+                          </div>
                         )}
                       </>
-                    );
-                  })()}
+                    )}
 
                   </div>{/* end header */}
                   <div className="px-6">
                   {/* ── Saved custom roles ── */}
-                  {savedRoles.length > 0 && (() => {
-                    const basicLock     = viewMode === 'basic';
-                    const proLimit      = viewMode === 'professional' && customRoleCount >= 2;
-                    const advancedLimit = viewMode === 'advanced'     && customRoleCount >= 10;
-                    const sectionBlocked = basicLock || proLimit || advancedLimit;
-                    return (
-                      <div className="mt-5 pt-4 border-t" style={{ borderColor: 'var(--line-2)' }}>
-                        <p className="text-[10px] font-bold tracking-[0.14em] mb-3" style={{ color: 'var(--text-3)' }}>
-                          SAVED CUSTOM ROLES
-                        </p>
-                        <div className={isMobile ? 'flex flex-col gap-3' : 'grid grid-cols-3 gap-3'}>
-                          {savedRoles.map(saved => {
-                            const alreadyInGallery = existingNames.includes(saved.name.toLowerCase());
-                            // Visually muted when plan-blocked OR already in gallery
-                            const isVisuallyDisabled = sectionBlocked || alreadyInGallery;
-                            // Truly disabled (no interaction at all) only when already in gallery
-                            const badge = basicLock                     ? 'PRO+'
-                                        : (proLimit || advancedLimit)       ? 'LIMIT REACHED'
-                                        : alreadyInGallery                  ? 'ALREADY ADDED'
-                                        : null;
-                            const isSavedSelected = selectedCards.has(saved.id);
-                            return (
-                              <button key={saved.id}
-                                onClick={isVisuallyDisabled ? undefined : () => toggleCard(saved.id)}
-                                className={`role-card-hover ${isVisuallyDisabled ? 'is-disabled' : ''} flex items-stretch text-left rounded-xl border transition-colors`}
-                                style={{
-                                  borderColor: isSavedSelected ? 'var(--orange)' : 'var(--card-border)',
-                                  background: isSavedSelected ? 'var(--orange-soft)' : '#fff',
-                                  boxShadow: isSavedSelected ? '0 0 0 1.5px var(--orange)' : 'none',
-                                  cursor: alreadyInGallery ? 'default' : 'pointer',
-                                }}>
-                                <span
-                                  onClick={e => { e.stopPropagation(); toggleCard(saved.id); }}
-                                  style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                  <span className="flex items-center justify-center rounded-full border-2 transition-all"
-                                    style={{ width: 17, height: 17, borderColor: isSavedSelected ? 'var(--orange)' : 'var(--line)', background: isSavedSelected ? 'var(--orange)' : '#fff' }}>
-                                    {isSavedSelected && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
-                                  </span>
+                  {savedRoles.length > 0 && (
+                    <div className="mt-5 pt-4 border-t" style={{ borderColor: 'var(--line-2)' }}>
+                      <p className="text-[10px] font-bold tracking-[0.14em] mb-3" style={{ color: 'var(--text-3)' }}>
+                        SAVED CUSTOM ROLES
+                      </p>
+                      <div className="grid grid-cols-3 gap-3">
+                        {savedRoles.map(saved => {
+                          const alreadyInGallery = existingNames.includes(saved.name.toLowerCase());
+                          const isSavedSelected = selectedCards.has(saved.id);
+                          const isVisuallyDisabled = basicLock || alreadyInGallery || (!isSavedSelected && atLimit);
+                          const badge = basicLock         ? 'PRO+'
+                                      : alreadyInGallery  ? 'ALREADY ADDED'
+                                      : (!isSavedSelected && atLimit) ? 'LIMIT REACHED'
+                                      : null;
+                          return (
+                            <button key={saved.id}
+                              onClick={isVisuallyDisabled ? undefined : () => toggleCard(saved.id)}
+                              className={`role-card-hover ${isVisuallyDisabled ? 'is-disabled' : ''} flex items-stretch text-left rounded-xl border transition-colors`}
+                              style={{
+                                borderColor: isSavedSelected ? 'var(--orange)' : 'var(--card-border)',
+                                background: isSavedSelected ? 'var(--orange-soft)' : '#fff',
+                                boxShadow: isSavedSelected ? '0 0 0 1.5px var(--orange)' : 'none',
+                                cursor: isVisuallyDisabled ? 'default' : 'pointer',
+                              }}>
+                              <span
+                                onClick={e => { e.stopPropagation(); toggleCard(saved.id); }}
+                                style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <span className="flex items-center justify-center rounded-full border-2 transition-all"
+                                  style={{ width: 17, height: 17, borderColor: isSavedSelected ? 'var(--orange)' : 'var(--line)', background: isSavedSelected ? 'var(--orange)' : '#fff' }}>
+                                  {isSavedSelected && <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20,6 9,17 4,12"/></svg>}
                                 </span>
-                                <div className="flex-1 min-w-0 py-3 pr-3">
-                                  <div className="flex items-start justify-between gap-2 mb-1">
-                                    <div className="text-[12px] font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>
-                                      {saved.name.toUpperCase()}
-                                    </div>
-                                    <div className="flex items-center gap-1.5 shrink-0">
-                                      {badge && (
-                                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
-                                          style={{ background: '#E8E8ED', color: '#86868B' }}>
-                                          <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                                            <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                          </svg>
-                                          {badge}
-                                        </span>
-                                      )}
-                                      <span
-                                        onClick={e => { e.stopPropagation(); setPendingDelete([saved.id]); }}
-                                        title="Delete saved role"
-                                        className="flex items-center justify-center rounded-md transition-colors"
-                                        style={{ width: 22, height: 22, color: 'var(--text-tertiary)', cursor: 'pointer' }}
-                                        onMouseEnter={e => e.currentTarget.style.color = '#e53935'}
-                                        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                          <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/><path d="M9,6V4a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/>
-                                        </svg>
-                                      </span>
-                                    </div>
+                              </span>
+                              <div className="flex-1 min-w-0 py-3 pr-3">
+                                <div className="flex items-start justify-between gap-2 mb-1">
+                                  <div className="text-[12px] font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>
+                                    {saved.name.toUpperCase()}
                                   </div>
-                                  {saved.enabledFeatures && saved.enabledFeatures.length > 0 ? (
-                                    <div>
-                                      {saved.enabledFeatures.map(f => (
-                                        <div key={f} className="text-[11px] leading-snug" style={{ color: 'var(--text-secondary)' }}>{f}</div>
-                                      ))}
-                                    </div>
-                                  ) : (
-                                    <div className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>No features enabled</div>
-                                  )}
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    {badge && (
+                                      <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider"
+                                        style={{ background: '#E8E8ED', color: '#86868B' }}>
+                                        <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                                          <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                        </svg>
+                                        {badge}
+                                      </span>
+                                    )}
+                                    <span
+                                      onClick={e => { e.stopPropagation(); setPendingDelete([saved.id]); }}
+                                      title="Delete saved role"
+                                      className="flex items-center justify-center rounded-md transition-colors"
+                                      style={{ width: 22, height: 22, color: 'var(--text-tertiary)', cursor: 'pointer' }}
+                                      onMouseEnter={e => e.currentTarget.style.color = '#e53935'}
+                                      onMouseLeave={e => e.currentTarget.style.color = 'var(--text-tertiary)'}>
+                                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <polyline points="3,6 5,6 21,6"/><path d="M19,6l-1,14a2,2,0,0,1-2,2H8a2,2,0,0,1-2-2L5,6"/><path d="M10,11v6"/><path d="M14,11v6"/><path d="M9,6V4a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v2"/>
+                                      </svg>
+                                    </span>
+                                  </div>
                                 </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {sectionBlocked && (
-                          <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
-                            {basicLock
-                              ? 'Upgrade to Professional or Advanced to add custom roles.'
-                              : advancedLimit
-                                ? 'This gallery has reached the limit of 10 custom roles.'
-                                : null}
-                          </p>
-                        )}
+                                {saved.enabledFeatures && saved.enabledFeatures.length > 0 ? (
+                                  <div>
+                                    {saved.enabledFeatures.map(f => (
+                                      <div key={f} className="text-[11px] leading-snug" style={{ color: 'var(--text-secondary)' }}>{f}</div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <div className="text-[11px]" style={{ color: 'var(--text-tertiary)' }}>No features enabled</div>
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
-                    );
-                  })()}
+                      {basicLock && (
+                        <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
+                          Upgrade to Professional or Advanced to add custom roles.
+                        </p>
+                      )}
+                    </div>
+                  )}
 
                   </div>{/* end scroll area */}
                   {isMobile ? (
