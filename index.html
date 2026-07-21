@@ -4765,15 +4765,15 @@
                 optionalChecked={collectEmailOptional}
                 onToggleOptional={onToggleCollectEmailOptional}
                 optionalDisabled={accessFeeEnabled}>
-                <div className="mt-3">
+                <div className="mt-3" style={{ width: '100%', maxWidth: 320 }}>
                   <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Registrant Role</label>
                   <MobileRoleSelect
                     value={collectEmailRole}
                     onChange={setCollectEmailRole}
                     allRoles={[...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
                     label="Registrant Role"
-                    className="border rounded px-3 py-2 text-[13px] outline-none"
-                    style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', maxWidth: 280, cursor: 'pointer' }}
+                    className="w-full border rounded px-3 py-2 text-[13px] outline-none"
+                    style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', cursor: 'pointer' }}
                   />
                 </div>
               </RegRow>
