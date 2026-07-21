@@ -1107,39 +1107,45 @@
             background: '#fff',
             borderTop: '1px solid var(--card-border)',
             borderRadius: '20px 20px 0 0',
-            padding: '0 16px 32px',
             maxHeight: '80vh',
-            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
             boxShadow: '0 -4px 24px rgba(0,0,0,0.10)',
           }}>
-            {/* drag handle */}
-            <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px' }}>
-              <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--card-border)' }} />
-            </div>
-            {title && (
-              <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', padding: '8px 0 12px', borderBottom: '1px solid var(--card-border)', marginBottom: 12 }}>
-                {title}
+            {/* Sticky header — drag handle + label/title */}
+            <div style={{ flexShrink: 0, padding: '0 16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 4px' }}>
+                <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--card-border)' }} />
               </div>
-            )}
-            {!title && label && (
-              <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', padding: '8px 0 12px' }}>
-                {label}
-              </div>
-            )}
-            <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid var(--card-border)', background: '#fff', marginBottom: 10 }}>
-              {options.map((o, i) => (
-                <div key={o} onClick={() => { onChange(o); onClose(); }}
-                  style={{ padding: '16px 20px', textAlign: 'center', fontSize: 16, color: 'var(--brand)',
-                    fontWeight: o === value ? 700 : 400,
-                    borderTop: i > 0 ? '1px solid var(--card-border)' : 'none',
-                    background: '#fff', cursor: 'pointer' }}>
-                  {o}
+              {title && (
+                <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', padding: '8px 0 12px', borderBottom: '1px solid var(--card-border)', marginBottom: 4 }}>
+                  {title}
                 </div>
-              ))}
+              )}
+              {!title && label && (
+                <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', padding: '8px 0 12px' }}>
+                  {label}
+                </div>
+              )}
             </div>
-            <div style={{ display: 'flex', padding: '6px 0 8px' }}>
+            {/* Scrollable options */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px' }}>
+              <div style={{ borderRadius: 14, overflow: 'hidden', border: '1px solid var(--card-border)', background: '#fff', marginBottom: 10 }}>
+                {options.map((o, i) => (
+                  <div key={o} onClick={() => { onChange(o); onClose(); }}
+                    style={{ padding: '16px 20px', textAlign: 'center', fontSize: 16, color: 'var(--brand)',
+                      fontWeight: o === value ? 700 : 400,
+                      borderTop: i > 0 ? '1px solid var(--card-border)' : 'none',
+                      background: '#fff', cursor: 'pointer' }}>
+                    {o}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Pinned Cancel button */}
+            <div style={{ flexShrink: 0, padding: '6px 16px 32px' }}>
               <button onClick={onClose}
-                style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
+                style={{ width: '100%', padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
                 Cancel
               </button>
             </div>
