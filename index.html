@@ -2029,7 +2029,7 @@
                               style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
                               <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                                 <strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
-                                Custom Access Groups require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
+                                {`Custom ${roleLabel}s require`} a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
                                 <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
                               </p>
                               <button onClick={() => onOpenPlans && onOpenPlans()}
@@ -2046,7 +2046,7 @@
                               style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
                               <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                                 <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                                This gallery is limited to {planCustomRoleLimit} Custom Access Groups.
+                                This gallery is limited to {planCustomRoleLimit} Custom {roleLabel}s.
                               </p>
                             </div>
                           )}
@@ -2132,7 +2132,7 @@
                         </div>
                         {basicLock && (
                           <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
-                            Upgrade to Professional or Advanced to add Custom Access Groups.
+                            Upgrade to Professional or Advanced to add Custom {roleLabel}s.
                           </p>
                         )}
                       </div>
@@ -2256,7 +2256,7 @@
                             style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
                             <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                               <strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
-                              Custom Access Groups require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
+                              {`Custom ${roleLabel}s require`} a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
                               <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
                             </p>
                             <button onClick={() => onOpenPlans && onOpenPlans()}
@@ -2273,7 +2273,7 @@
                             style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
                             <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                               <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                              This gallery is limited to {planCustomRoleLimit} Custom Access Groups.
+                              This gallery is limited to {planCustomRoleLimit} Custom {roleLabel}s.
                             </p>
                           </div>
                         )}
@@ -2359,7 +2359,7 @@
                       </div>
                       {basicLock && (
                         <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
-                          Upgrade to Professional or Advanced to add Custom Access Groups.
+                          Upgrade to Professional or Advanced to add Custom {roleLabel}s.
                         </p>
                       )}
                     </div>
@@ -2491,8 +2491,8 @@
                 </div>
                 <p className="text-[13px] leading-relaxed mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1
-                    ? 'This will permanently remove this access group from your saved Custom Access Groups.'
-                    : 'This will permanently remove these access groups from your saved Custom Access Groups.'}
+                    ? `This will permanently remove this access group from your saved Custom ${roleLabel}s.`
+                    : `This will permanently remove these access groups from your saved Custom ${roleLabel}s.`}
                 </p>
                 <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1 ? 'This role' : 'These roles'} will <strong>not</strong> be removed from any galleries where {count === 1 ? 'it has' : 'they have'} already been added.
@@ -2505,7 +2505,7 @@
                 </button>
                 <button onClick={confirmDelete}
                   style={{ flex: 1, padding: '12px', borderRadius: 9999, border: 'none', background: '#e53935', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
-                  Delete {count === 1 ? 'Role' : `${count} Roles`}
+                  Delete {count === 1 ? roleLabel : `${count} ${roleLabel}s`}
                 </button>
               </div>
             </MobileSheetModal>
@@ -2539,8 +2539,8 @@
                 {/* Explanation */}
                 <p className="text-[13px] leading-relaxed mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1
-                    ? 'This will permanently remove this access group from your saved Custom Access Groups.'
-                    : 'This will permanently remove these access groups from your saved Custom Access Groups.'}
+                    ? `This will permanently remove this access group from your saved Custom ${roleLabel}s.`
+                    : `This will permanently remove these access groups from your saved Custom ${roleLabel}s.`}
                 </p>
                 <p className="text-[13px] leading-relaxed mb-5" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1 ? 'This role' : 'These roles'} will <strong>not</strong> be removed from any galleries where {count === 1 ? 'it has' : 'they have'} already been added. To remove {count === 1 ? 'it' : 'them'} from a gallery, you'll need to do that manually in the gallery's features table.
@@ -4450,7 +4450,7 @@
       allowSearch, onToggleSearch,
       activeSection, onSelectSection, contactsCount,
     }) => {
-      const { defaultRoleLabel } = useTerms();
+      const { defaultRoleLabel, roleLabel } = useTerms();
       const isElevated = viewMode === 'professional' || viewMode === 'advanced';
       const systemRoles = [
         { id: 'everyone', name: defaultRoleLabel },
@@ -4789,12 +4789,12 @@
                 onToggleOptional={onToggleCollectEmailOptional}
                 optionalDisabled={accessFeeEnabled}>
                 <div className="mt-3" style={{ width: '100%', maxWidth: 320 }}>
-                  <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Registrant Role</label>
+                  <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>{`Registrant ${roleLabel}`}</label>
                   <MobileRoleSelect
                     value={collectEmailRole}
                     onChange={setCollectEmailRole}
                     allRoles={[...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
-                    label="Registrant Role"
+                    label={`Registrant ${roleLabel}`}
                     className="w-full border rounded px-3 py-2 text-[13px] outline-none"
                     style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', cursor: 'pointer' }}
                   />
@@ -5727,6 +5727,7 @@
         { id: 'hands', name: 'All Hands', meta: '3 Folders, 2 Galleries' },
       ];
 
+      const { roleLabel } = useTerms();
       const headerTitle = wizardStep === 0 ? 'Volume Wizard'
         : workflowOption === 'before' ? 'Volume Wizard — Collect Registration Before the Shoot'
         : workflowOption === 'during' ? 'Volume Wizard — Collect Registration During the Shoot'
@@ -5944,7 +5945,7 @@
                             {/* Role dropdown only for gallery; note for folder */}
                             {existingSelectionType === 'gallery' ? (
                               <div className="flex items-center gap-2">
-                                <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>Role</span>
+                                <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>{roleLabel}</span>
                                 <RoleSelect value={existingGalleryRole} onChange={setExistingGalleryRole} />
                               </div>
                             ) : (
@@ -5981,7 +5982,7 @@
                               </label>
                               {regGalleryTitleOption === 'email' && (
                                 <div className="ml-7 mt-1.5 flex items-center gap-2">
-                                  <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>Role</span>
+                                  <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>{roleLabel}</span>
                                   <RoleSelect value={newGalleryRole} onChange={setNewGalleryRole} />
                                 </div>
                               )}
@@ -5997,7 +5998,7 @@
                               </label>
                               {regGalleryTitleOption === 'name' && (
                                 <div className="ml-7 mt-1.5 flex items-center gap-2">
-                                  <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>Role</span>
+                                  <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>{roleLabel}</span>
                                   <RoleSelect value={newGalleryRole} onChange={setNewGalleryRole} />
                                 </div>
                               )}
@@ -6237,7 +6238,7 @@
                               </div>
                               {existingSelectionType === 'gallery' ? (
                                 <div className="flex items-center gap-2">
-                                  <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>Role</span>
+                                  <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>{roleLabel}</span>
                                   <RoleSelect value={existingGalleryRole} onChange={setExistingGalleryRole} />
                                 </div>
                               ) : (
@@ -6272,7 +6273,7 @@
                                 </label>
                                 {regGalleryTitleOption === 'email' && (
                                   <div className="ml-7 mt-1.5 flex items-center gap-2">
-                                    <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>Role</span>
+                                    <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>{roleLabel}</span>
                                     <RoleSelect value={newGalleryRole} onChange={setNewGalleryRole} />
                                   </div>
                                 )}
@@ -6287,7 +6288,7 @@
                                 </label>
                                 {regGalleryTitleOption === 'name' && (
                                   <div className="ml-7 mt-1.5 flex items-center gap-2">
-                                    <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>Role</span>
+                                    <span className="text-[13px] font-medium shrink-0" style={{ color: 'var(--text-primary)' }}>{roleLabel}</span>
                                     <RoleSelect value={newGalleryRole} onChange={setNewGalleryRole} />
                                   </div>
                                 )}
@@ -6738,7 +6739,7 @@
     };
 
     const ImportCSVModal = ({ roles, viewMode, savedRoles = [], onEnsureRoles, onClose, onAdd }) => {
-      const { defaultRoleLabel } = useTerms();
+      const { defaultRoleLabel, roleLabel } = useTerms();
       const [step, setStep] = useState('upload'); // 'upload' | 'matching'
       const [csvRawRows, setCsvRawRows] = useState(null);
       const [csvFilename, setCsvFilename] = useState('');
@@ -7011,7 +7012,7 @@
                   </p>
                   {viewMode !== 'basic' && (
                     <p className="text-[12px] mb-5 leading-relaxed" style={{ color: '#86868B' }}>
-                      You can use our system roles — Default, Guest, and Client — as well as any Custom Access Groups you have added to this gallery or saved for later use.{' '}
+                      You can use our system roles — Default, Guest, and Client — as well as any Custom {roleLabel}s you have added to this gallery or saved for later use.{' '}
                       <a href="#" onClick={e => e.preventDefault()} style={{ color: '#F26B3A', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
                     </p>
                   )}
@@ -7204,7 +7205,7 @@
                           <div className="grid mt-2" style={{ gridTemplateColumns: '28px 180px 1fr 220px 56px', alignItems: 'center' }}>
                             <div /><div /><div />
                             <div className="pr-3 flex items-center gap-2">
-                              <span className="text-[11px] font-semibold shrink-0" style={{ color: 'var(--text-primary)' }}>Role</span>
+                              <span className="text-[11px] font-semibold shrink-0" style={{ color: 'var(--text-primary)' }}>{roleLabel}</span>
                               <select value={colRoleId}
                                 onChange={e => setEmailRoleId(row.header, e.target.value)}
                                 className="flex-1 text-[12px] px-2 py-1 rounded border bg-white outline-none"
@@ -7831,7 +7832,7 @@
                   <span>Last Name</span>
                   <span>Email</span>
                   <span>Mobile</span>
-                  <span>Role</span>
+                  <span>{roleLabel}</span>
                   <span>Reg Info</span>
                   <span style={{ color: 'var(--text-tertiary)' }}><GearIcon /></span>
                 </div>
@@ -8115,7 +8116,7 @@
         if (scroller) scroller.scrollTop = 0;
       }, [showPreview]);
 
-      const { defaultRoleLabel } = useTerms();
+      const { defaultRoleLabel, roleLabel } = useTerms();
       const isElevated = viewMode === 'professional' || viewMode === 'advanced';
       const systemRoles = [
         { id: 'everyone', name: defaultRoleLabel },
@@ -8734,7 +8735,7 @@
 
               {/* Registrant Role Assignment */}
               <div className="mt-6">
-                <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>Registrant Role Assignment</label>
+                <label className="block text-[12px] font-semibold mb-1.5" style={{ color: 'var(--text-primary)' }}>{`Registrant ${roleLabel} Assignment`}</label>
                 <p className="text-[13px] mb-3" style={{ color: 'var(--text-secondary)' }}>
                   What role should anyone who registers be added to the gallery as?
                 </p>
@@ -8742,7 +8743,7 @@
                   value={emailRole}
                   onChange={setEmailRole}
                   allRoles={[...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
-                  label="Registrant Role Assignment"
+                  label={`Registrant ${roleLabel} Assignment`}
                   className="border rounded px-3 py-2 text-[13px] outline-none w-full"
                   style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', cursor: 'pointer', maxWidth: 320 }}
                 />
@@ -10710,7 +10711,7 @@
                       <div className="grid items-center" style={{ gridTemplateColumns: gridCols, padding: '14px 0',
                         background: 'var(--soft-bg)', borderTopLeftRadius: 12, borderTopRightRadius: 12,
                         position: 'sticky', top: 0, zIndex: 10 }}>
-                        <div className="pl-6 text-[13px]" style={{ color: 'var(--text-secondary)' }}>Controls by Access Group</div>
+                        <div className="pl-6 text-[13px]" style={{ color: 'var(--text-secondary)' }}>{terms.featuresLabel.replace(/^Gallery\s+/i, '')} by {terms.roleLabel}</div>
                         {roles.map(r => (
                           <ColumnHeader key={r.id} role={r}
                             contactCount={contacts.filter(c => c.roleId === r.id).length}
@@ -10740,7 +10741,7 @@
                               style={{ background: 'var(--soft-bg)', borderTop: '1px solid var(--card-border)' }}>
                               <span className="text-[11px] font-bold tracking-widest uppercase"
                                 style={{ color: 'var(--text-tertiary)' }}>
-                                {feature.sectionStart}
+                                {`Full ${terms.featuresLabel}`}
                               </span>
                             </div>
                           )}
