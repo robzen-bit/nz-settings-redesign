@@ -10171,8 +10171,11 @@
       };
       // true only on a real mobile device (not the desktop simulator toggle)
       const realMobile = isMobile && !simulateMobile;
-      const [roles, setRoles] = useState([{ id: 'everyone', name: 'Default', removable: false }]);
+      const [roles, setRoles] = useState([{ id: 'everyone', name: terms.defaultRoleLabel, removable: false }]);
       const [perRole, setPerRole] = useState({ everyone: buildEveryoneState() });
+      useEffect(() => {
+        setRoles(prev => prev.map(r => r.id === 'everyone' ? { ...r, name: terms.defaultRoleLabel } : r));
+      }, [terms.defaultRoleLabel]);
       const [features, setFeatures] = useState(initialFeatures);
       const [openFeatures, setOpenFeatures] = useState(new Set());
       const [showModal, setShowModal] = useState(false);
