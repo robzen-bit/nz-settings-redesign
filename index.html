@@ -1613,7 +1613,7 @@
             <div className="flex items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2" style={{ color: isAccess ? 'var(--brand)' : 'var(--text-primary)' }}>
                 <LockIcon size={15} stroke={2} />
-                <span className="text-[14px] font-semibold">Gallery Access</span>
+                <span className="text-[14px] font-semibold">Access</span>
               </div>
               <span className="text-[10px] font-bold tracking-wider uppercase rounded px-2 py-1 whitespace-nowrap"
                 style={{ background: access.danger ? 'var(--danger)' : 'var(--brand)', color: '#fff', letterSpacing: '0.05em' }}>
@@ -1629,7 +1629,7 @@
             style={{ background: isFeatures ? 'var(--brand-cream)' : '#fff',
                      border: '1px solid', borderColor: isFeatures ? 'transparent' : 'var(--card-border)' }}>
             <div className="flex items-center gap-2 mb-2" style={{ color: isFeatures ? 'var(--brand)' : 'var(--text-primary)' }}>
-              <FeaturesIcon size={15} /><span className="text-[13px] font-semibold">Gallery Controls</span>
+              <FeaturesIcon size={15} /><span className="text-[13px] font-semibold">Controls</span>
             </div>
             <ul className="pl-1 space-y-1">
               {features.map(f => (
@@ -4342,8 +4342,8 @@
     const MobileSectionNav = ({ activeSection, onSelectSection, contactsCount }) => {
       const [sheetOpen, setSheetOpen] = React.useState(false);
       const items = [
-        { id: 'access', label: 'Gallery Access' },
-        { id: 'features', label: 'Gallery Controls' },
+        { id: 'access', label: 'Access' },
+        { id: 'features', label: 'Controls' },
         { id: 'contacts', label: `Contacts (${contactsCount})` },
         { id: 'store', label: 'Store' },
         { id: 'presets', label: 'Setting Presets' },
@@ -7397,7 +7397,7 @@
       return (
         <main className="main-pane flex-1 px-6 pt-6 pb-12" style={{ maxWidth: 900 }}>
           <MobileSectionNav activeSection={activeSection} onSelectSection={onSelectSection} contactsCount={contactsCount} />
-          <h1 className="text-[18px] font-extrabold tracking-tight uppercase mb-1" style={{ color: 'var(--brand)', letterSpacing: '0.02em' }}>Gallery Preset</h1>
+          <h1 className="text-[18px] font-extrabold tracking-tight uppercase mb-1" style={{ color: 'var(--brand)', letterSpacing: '0.02em' }}>Gallery Setting Presets</h1>
           <p className="text-[13px] mb-6" style={{ color: 'var(--text-secondary)' }}>
             Applying a preset will update your gallery settings.{' '}
             <a href="#" onClick={e => e.preventDefault()} style={{ color: 'var(--brand)' }}>Learn more</a> about presets.
@@ -7667,7 +7667,7 @@
         <main className="main-pane flex-1 px-6 pt-6 pb-12" style={{ maxWidth: 920 }}>
           <MobileSectionNav activeSection={activeSection}
             onSelectSection={onSelectSection} contactsCount={contacts.length} />
-          <h1 className="features-header-h1 text-[18px] font-extrabold tracking-tight uppercase mb-4" style={{ color: 'var(--text-primary)', letterSpacing: '0.02em' }}>Contacts</h1>
+          <h1 className="features-header-h1 text-[18px] font-extrabold tracking-tight uppercase mb-4" style={{ color: 'var(--text-primary)', letterSpacing: '0.02em' }}>Gallery Contacts</h1>
 
           {/* Sub-tabs */}
           <div className="flex items-center gap-6 border-b mb-5" style={{ borderColor: 'var(--card-border)' }}>
@@ -10503,7 +10503,7 @@
                   <main className="main-pane flex-1 px-6 pt-6 pb-12" style={{ maxWidth: 920 }}>
                     <MobileSectionNav activeSection={activeSection} onSelectSection={setActiveSection} contactsCount={contacts.length} />
                     <header className="gallery-features-header mb-5">
-                      <h1 className="features-header-h1 text-[18px] font-extrabold tracking-tight uppercase" style={{ color: 'var(--brand)', letterSpacing: '0.02em' }}>Store</h1>
+                      <h1 className="features-header-h1 text-[18px] font-extrabold tracking-tight uppercase" style={{ color: 'var(--brand)', letterSpacing: '0.02em' }}>Gallery Store</h1>
                       <p className="text-[13px] mt-1" style={{ color: 'var(--text-secondary)' }}>Manage your gallery store settings.</p>
                     </header>
                     <div className="flex flex-col gap-3">
