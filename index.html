@@ -2015,7 +2015,7 @@
                               style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
                               <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                                 <strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
-                                Custom access groups require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
+                                Custom Access Groups require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
                                 <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
                               </p>
                               <button onClick={() => onOpenPlans && onOpenPlans()}
@@ -2032,7 +2032,7 @@
                               style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
                               <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                                 <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                                This gallery is limited to {planCustomRoleLimit} custom access groups.
+                                This gallery is limited to {planCustomRoleLimit} Custom Access Groups.
                               </p>
                             </div>
                           )}
@@ -2118,7 +2118,7 @@
                         </div>
                         {basicLock && (
                           <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
-                            Upgrade to Professional or Advanced to add custom access groups.
+                            Upgrade to Professional or Advanced to add Custom Access Groups.
                           </p>
                         )}
                       </div>
@@ -2167,7 +2167,7 @@
                     )}
                     {selectedCards.size > 0 && (
                       <button onClick={handleAddRoles} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'var(--brand)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer' }}>
-                        {selectedCards.size === 1 ? 'Add Access Group' : `Add ${selectedCards.size} Access Groups`}
+                        {selectedCards.size === 1 ? 'Add an Access Group' : `Add ${selectedCards.size} Access Groups`}
                       </button>
                     )}
                   </>
@@ -2181,7 +2181,7 @@
                 {step === 'detail' && (
                   <>
                     <button onClick={onClose} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'#1B1C1F', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer' }}>Cancel</button>
-                    <button onClick={submit} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'var(--brand)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer' }}>{presetId === 'custom' ? 'Create Access Group' : 'Add Access Group'}</button>
+                    <button onClick={submit} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'var(--brand)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer' }}>{presetId === 'custom' ? 'Create Access Group' : 'Add an Access Group'}</button>
                   </>
                 )}
               </div>
@@ -2192,7 +2192,7 @@
               {step === 'choose' && (
                 <>
                   <div className="px-6 pt-6 pb-0">
-                  <h3 className="text-[13px] font-bold tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>ADD A ROLE</h3>
+                  <h3 className="text-[13px] font-bold tracking-wider mb-4" style={{ color: 'var(--text-primary)' }}>ADD AN ACCESS GROUP</h3>
                     {/* ── cards grid ── */}
                     <div className="grid grid-cols-3 gap-3">
                       <RoleCard icon={UserIcon} title="GUEST" desc={PRESETS.guest.desc}
@@ -2242,7 +2242,7 @@
                             style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
                             <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                               <strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
-                              Custom access groups require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
+                              Custom Access Groups require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
                               <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
                             </p>
                             <button onClick={() => onOpenPlans && onOpenPlans()}
@@ -2259,7 +2259,7 @@
                             style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
                             <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                               <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                              This gallery is limited to {planCustomRoleLimit} custom access groups.
+                              This gallery is limited to {planCustomRoleLimit} Custom Access Groups.
                             </p>
                           </div>
                         )}
@@ -2345,7 +2345,7 @@
                       </div>
                       {basicLock && (
                         <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
-                          Upgrade to Professional or Advanced to add custom access groups.
+                          Upgrade to Professional or Advanced to add Custom Access Groups.
                         </p>
                       )}
                     </div>
@@ -2360,7 +2360,7 @@
                       )}
                       {selectedCards.size > 0 && (
                         <button onClick={handleAddRoles} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-                          {selectedCards.size === 1 ? 'Add Access Group' : `Add ${selectedCards.size} Access Groups`}
+                          {selectedCards.size === 1 ? 'Add an Access Group' : `Add ${selectedCards.size} Access Groups`}
                         </button>
                       )}
                     </div>
@@ -2383,7 +2383,7 @@
                           <button onClick={handleAddRoles}
                             className="text-[12px] font-bold tracking-wider px-4 py-2 rounded-full text-white transition-all"
                             style={{ background: 'var(--brand)', boxShadow: 'var(--shadow-sm)' }}>
-                            {selectedCards.size === 1 ? 'ADD ACCESS GROUP' : `ADD ${selectedCards.size} ACCESS GROUPS`}
+                            {selectedCards.size === 1 ? 'ADD AN ACCESS GROUP' : `ADD ${selectedCards.size} ACCESS GROUPS`}
                           </button>
                         </div>
                       )}
@@ -2444,7 +2444,7 @@
                   {isMobile ? (
                     <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
                       <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
-                      <button onClick={submit} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>{presetId === 'custom' ? 'Create Access Group' : 'Add Access Group'}</button>
+                      <button onClick={submit} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>{presetId === 'custom' ? 'Create Access Group' : 'Add an Access Group'}</button>
                     </div>
                   ) : (
                     <div className="flex justify-end gap-2 mt-5 flex-wrap">
@@ -2454,7 +2454,7 @@
                       <button onClick={submit}
                         className="text-[12px] font-bold tracking-wider px-4 py-2 rounded-full text-white transition-all whitespace-nowrap"
                         style={{ background: 'var(--brand)', boxShadow: 'var(--shadow-sm)' }}>
-                        {presetId === 'custom' ? 'CREATE ACCESS GROUP' : 'ADD ACCESS GROUP'}
+                        {presetId === 'custom' ? 'CREATE ACCESS GROUP' : 'ADD AN ACCESS GROUP'}
                       </button>
                     </div>
                   )}
@@ -2477,8 +2477,8 @@
                 </div>
                 <p className="text-[13px] leading-relaxed mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1
-                    ? 'This will permanently remove this access group from your saved custom access groups.'
-                    : 'This will permanently remove these access groups from your saved custom access groups.'}
+                    ? 'This will permanently remove this access group from your saved Custom Access Groups.'
+                    : 'This will permanently remove these access groups from your saved Custom Access Groups.'}
                 </p>
                 <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1 ? 'This role' : 'These roles'} will <strong>not</strong> be removed from any galleries where {count === 1 ? 'it has' : 'they have'} already been added.
@@ -2525,8 +2525,8 @@
                 {/* Explanation */}
                 <p className="text-[13px] leading-relaxed mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1
-                    ? 'This will permanently remove this access group from your saved custom access groups.'
-                    : 'This will permanently remove these access groups from your saved custom access groups.'}
+                    ? 'This will permanently remove this access group from your saved Custom Access Groups.'
+                    : 'This will permanently remove these access groups from your saved Custom Access Groups.'}
                 </p>
                 <p className="text-[13px] leading-relaxed mb-5" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1 ? 'This role' : 'These roles'} will <strong>not</strong> be removed from any galleries where {count === 1 ? 'it has' : 'they have'} already been added. To remove {count === 1 ? 'it' : 'them'} from a gallery, you'll need to do that manually in the gallery's features table.
@@ -3949,7 +3949,7 @@
                 {onAddRole && (
                   <button onClick={onAddRole}
                     className="add-role-btn flex items-center gap-2 text-[11px] font-bold tracking-wider px-4 py-2 rounded-full text-white whitespace-nowrap">
-                    <UserIcon size={13} stroke={2} /> ADD ACCESS GROUP
+                    <UserIcon size={13} stroke={2} /> ADD AN ACCESS GROUP
                   </button>
                 )}
                 <button onClick={onClose} className="p-2 rounded-md hover:bg-black/5"
@@ -6993,7 +6993,7 @@
                   </p>
                   {viewMode !== 'basic' && (
                     <p className="text-[12px] mb-5 leading-relaxed" style={{ color: '#86868B' }}>
-                      You can use our system roles — Default, Guest, and Client — as well as any custom access groups you have added to this gallery or saved for later use.{' '}
+                      You can use our system roles — Default, Guest, and Client — as well as any Custom Access Groups you have added to this gallery or saved for later use.{' '}
                       <a href="#" onClick={e => e.preventDefault()} style={{ color: '#F26B3A', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
                     </p>
                   )}
@@ -7735,7 +7735,7 @@
                 {!isMobile && (
                   <button onClick={() => onAddRole && onAddRole()} type="button"
                     className="ml-auto add-role-btn flex items-center gap-2 text-[11px] font-bold tracking-wider px-4 py-2 rounded-full text-white whitespace-nowrap">
-                    <UserIcon size={13} stroke={2} /> ADD ACCESS GROUP
+                    <UserIcon size={13} stroke={2} /> ADD AN ACCESS GROUP
                   </button>
                 )}
                 {overflowRoles.length > 0 && (
@@ -10549,7 +10549,7 @@
                       )}
                       <button onClick={() => setShowModal(true)}
                         className="add-role-btn flex items-center gap-2 text-[11px] font-bold tracking-wider px-4 py-2 rounded-full text-white whitespace-nowrap">
-                        <UserIcon size={13} stroke={2} /> ADD ACCESS GROUP
+                        <UserIcon size={13} stroke={2} /> ADD AN ACCESS GROUP
                       </button>
                     </div>
                   </header>
