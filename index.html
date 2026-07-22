@@ -1968,7 +1968,7 @@
                 <div style={{ width:36, height:4, borderRadius:2, background:'var(--card-border)' }} />
               </div>
               <div style={{ textAlign:'center', fontSize:15, fontWeight:700, color:'var(--text-primary)', padding:'8px 20px 12px', borderBottom:'1px solid var(--card-border)', flexShrink:0 }}>
-                {step === 'choose' ? 'Add a Role' : step === 'name' ? 'Name Your Role' : `Add a ${roleDisplayName} Role`}
+                {step === 'choose' ? 'Add an Access Group' : step === 'name' ? 'Name Your Access Group' : `Add a ${roleDisplayName} Access Group`}
               </div>
               <div className={`flex-1 ${step === 'choose' ? 'overflow-y-auto' : 'overflow-hidden'}`} style={{ minHeight:0 }}>
                 {step === 'choose' && (
@@ -2015,7 +2015,7 @@
                               style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
                               <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                                 <strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
-                                Custom roles require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
+                                Custom access groups require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
                                 <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
                               </p>
                               <button onClick={() => onOpenPlans && onOpenPlans()}
@@ -2032,7 +2032,7 @@
                               style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
                               <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                                 <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                                This gallery is limited to {planCustomRoleLimit} custom roles.
+                                This gallery is limited to {planCustomRoleLimit} custom access groups.
                               </p>
                             </div>
                           )}
@@ -2118,7 +2118,7 @@
                         </div>
                         {basicLock && (
                           <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
-                            Upgrade to Professional or Advanced to add custom roles.
+                            Upgrade to Professional or Advanced to add custom access groups.
                           </p>
                         )}
                       </div>
@@ -2167,7 +2167,7 @@
                     )}
                     {selectedCards.size > 0 && (
                       <button onClick={handleAddRoles} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'var(--brand)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer' }}>
-                        {selectedCards.size === 1 ? 'Add Role' : `Add ${selectedCards.size} Roles`}
+                        {selectedCards.size === 1 ? 'Add Access Group' : `Add ${selectedCards.size} Access Groups`}
                       </button>
                     )}
                   </>
@@ -2181,7 +2181,7 @@
                 {step === 'detail' && (
                   <>
                     <button onClick={onClose} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'#1B1C1F', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer' }}>Cancel</button>
-                    <button onClick={submit} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'var(--brand)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer' }}>{presetId === 'custom' ? 'Create Role' : 'Add Role'}</button>
+                    <button onClick={submit} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'var(--brand)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer' }}>{presetId === 'custom' ? 'Create Access Group' : 'Add Access Group'}</button>
                   </>
                 )}
               </div>
@@ -2242,7 +2242,7 @@
                             style={{ borderColor: 'rgba(242,107,58,0.28)', background: 'var(--orange-soft)' }}>
                             <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                               <strong style={{ color: 'var(--text-primary)' }}>Premium Feature:</strong>{' '}
-                              Custom roles require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
+                              Custom access groups require a <strong style={{ color: 'var(--text-primary)' }}>Professional</strong> or <strong style={{ color: 'var(--text-primary)' }}>Advanced</strong> plan.{' '}
                               <a href="#" onClick={e => { e.preventDefault(); onOpenPlans && onOpenPlans(); }} style={{ color: 'var(--brand)', fontWeight: 700, textDecoration: 'underline', textUnderlineOffset: '2px' }}>View Plans</a>
                             </p>
                             <button onClick={() => onOpenPlans && onOpenPlans()}
@@ -2259,7 +2259,7 @@
                             style={{ borderColor: 'var(--line)', background: 'var(--soft-bg)' }}>
                             <p className="text-[12px] leading-snug" style={{ color: 'var(--text-secondary)' }}>
                               <strong style={{ color: 'var(--text-primary)' }}>Gallery limit reached.</strong>{' '}
-                              This gallery is limited to {planCustomRoleLimit} custom roles.
+                              This gallery is limited to {planCustomRoleLimit} custom access groups.
                             </p>
                           </div>
                         )}
@@ -2345,7 +2345,7 @@
                       </div>
                       {basicLock && (
                         <p className="text-[11px] mt-3 text-center" style={{ color: 'var(--text-tertiary)' }}>
-                          Upgrade to Professional or Advanced to add custom roles.
+                          Upgrade to Professional or Advanced to add custom access groups.
                         </p>
                       )}
                     </div>
@@ -2360,7 +2360,7 @@
                       )}
                       {selectedCards.size > 0 && (
                         <button onClick={handleAddRoles} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>
-                          {selectedCards.size === 1 ? 'Add Role' : `Add ${selectedCards.size} Roles`}
+                          {selectedCards.size === 1 ? 'Add Access Group' : `Add ${selectedCards.size} Access Groups`}
                         </button>
                       )}
                     </div>
@@ -2383,7 +2383,7 @@
                           <button onClick={handleAddRoles}
                             className="text-[12px] font-bold tracking-wider px-4 py-2 rounded-full text-white transition-all"
                             style={{ background: 'var(--brand)', boxShadow: 'var(--shadow-sm)' }}>
-                            {selectedCards.size === 1 ? 'ADD ROLE' : `ADD ${selectedCards.size} ROLES`}
+                            {selectedCards.size === 1 ? 'ADD ACCESS GROUP' : `ADD ${selectedCards.size} ACCESS GROUPS`}
                           </button>
                         </div>
                       )}
@@ -2444,7 +2444,7 @@
                   {isMobile ? (
                     <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
                       <button onClick={onClose} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Cancel</button>
-                      <button onClick={submit} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>{presetId === 'custom' ? 'Create Role' : 'Add Role'}</button>
+                      <button onClick={submit} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>{presetId === 'custom' ? 'Create Access Group' : 'Add Access Group'}</button>
                     </div>
                   ) : (
                     <div className="flex justify-end gap-2 mt-5 flex-wrap">
@@ -2454,7 +2454,7 @@
                       <button onClick={submit}
                         className="text-[12px] font-bold tracking-wider px-4 py-2 rounded-full text-white transition-all whitespace-nowrap"
                         style={{ background: 'var(--brand)', boxShadow: 'var(--shadow-sm)' }}>
-                        {presetId === 'custom' ? 'CREATE ROLE' : 'ADD ROLE'}
+                        {presetId === 'custom' ? 'CREATE ACCESS GROUP' : 'ADD ACCESS GROUP'}
                       </button>
                     </div>
                   )}
@@ -2477,8 +2477,8 @@
                 </div>
                 <p className="text-[13px] leading-relaxed mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1
-                    ? 'This will permanently remove this role from your saved custom roles.'
-                    : 'This will permanently remove these roles from your saved custom roles.'}
+                    ? 'This will permanently remove this access group from your saved custom access groups.'
+                    : 'This will permanently remove these access groups from your saved custom access groups.'}
                 </p>
                 <p className="text-[13px] leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1 ? 'This role' : 'These roles'} will <strong>not</strong> be removed from any galleries where {count === 1 ? 'it has' : 'they have'} already been added.
@@ -2525,8 +2525,8 @@
                 {/* Explanation */}
                 <p className="text-[13px] leading-relaxed mb-2" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1
-                    ? 'This will permanently remove this role from your saved custom roles.'
-                    : 'This will permanently remove these roles from your saved custom roles.'}
+                    ? 'This will permanently remove this access group from your saved custom access groups.'
+                    : 'This will permanently remove these access groups from your saved custom access groups.'}
                 </p>
                 <p className="text-[13px] leading-relaxed mb-5" style={{ color: 'var(--text-secondary)' }}>
                   {count === 1 ? 'This role' : 'These roles'} will <strong>not</strong> be removed from any galleries where {count === 1 ? 'it has' : 'they have'} already been added. To remove {count === 1 ? 'it' : 'them'} from a gallery, you'll need to do that manually in the gallery's features table.
@@ -3949,7 +3949,7 @@
                 {onAddRole && (
                   <button onClick={onAddRole}
                     className="add-role-btn flex items-center gap-2 text-[11px] font-bold tracking-wider px-4 py-2 rounded-full text-white whitespace-nowrap">
-                    <UserIcon size={13} stroke={2} /> ADD ROLE
+                    <UserIcon size={13} stroke={2} /> ADD ACCESS GROUP
                   </button>
                 )}
                 <button onClick={onClose} className="p-2 rounded-md hover:bg-black/5"
@@ -4436,7 +4436,7 @@
     }) => {
       const isElevated = viewMode === 'professional' || viewMode === 'advanced';
       const systemRoles = [
-        { id: 'everyone', name: 'General' },
+        { id: 'everyone', name: 'Default' },
         { id: '__guest__', name: 'Guest' },
         { id: '__client__', name: 'Client' },
       ];
@@ -5528,13 +5528,13 @@
       const [roleConfigOption, setRoleConfigOption] = useState('same');
       const [bulkRole, setBulkRole] = useState('Client');
       const fileInputRef = React.useRef(null);
-      const SYSTEM_ROLE_NAMES = ['General', 'Guest', 'Client'];
+      const SYSTEM_ROLE_NAMES = ['Default', 'Guest', 'Client'];
       const QR_PRESET_ROLES = {
-        'Matthews':        ['General', 'Guest', 'Client', 'Student', 'Parent'],
-        'Smith Family':    ['General', 'Guest', 'Client', 'Immediate Family', 'Extended Family'],
-        'Corporate':       ['General', 'Guest', 'Client', 'Employee', 'Manager'],
-        'Sports Season':   ['General', 'Guest', 'Client', 'Athlete', 'Coach'],
-        'School Portrait': ['General', 'Guest', 'Client', 'Student', 'Staff'],
+        'Matthews':        ['Default', 'Guest', 'Client', 'Student', 'Parent'],
+        'Smith Family':    ['Default', 'Guest', 'Client', 'Immediate Family', 'Extended Family'],
+        'Corporate':       ['Default', 'Guest', 'Client', 'Employee', 'Manager'],
+        'Sports Season':   ['Default', 'Guest', 'Client', 'Athlete', 'Coach'],
+        'School Portrait': ['Default', 'Guest', 'Client', 'Student', 'Staff'],
       };
       // AC 6b: show only roles from the selected preset; AC 6d: basic = system roles only
       const presetRoles = viewMode === 'basic' ? [] : (QR_PRESET_ROLES[preset] || []).filter(r => !SYSTEM_ROLE_NAMES.includes(r));
@@ -5658,12 +5658,12 @@
     };
 
     const VOLUME_PRESET_ROLES = {
-      'Matthews':                    ['General', 'Guest', 'Client', 'Student', 'Parent'],
-      'Smith Family':                ['General', 'Guest', 'Client', 'Immediate Family', 'Extended Family'],
-      'Corporate':                   ['General', 'Guest', 'Client', 'Employee', 'Manager'],
-      'Sports Season':               ['General', 'Guest', 'Client', 'Athlete', 'Coach'],
-      'School Portrait':             ['General', 'Guest', 'Client', 'Student', 'Staff'],
-      'Mystic Falls School Portraits': ['General', 'Client', 'Student', 'Parent / Guardian'],
+      'Matthews':                    ['Default', 'Guest', 'Client', 'Student', 'Parent'],
+      'Smith Family':                ['Default', 'Guest', 'Client', 'Immediate Family', 'Extended Family'],
+      'Corporate':                   ['Default', 'Guest', 'Client', 'Employee', 'Manager'],
+      'Sports Season':               ['Default', 'Guest', 'Client', 'Athlete', 'Coach'],
+      'School Portrait':             ['Default', 'Guest', 'Client', 'Student', 'Staff'],
+      'Mystic Falls School Portraits': ['Default', 'Client', 'Student', 'Parent / Guardian'],
     };
 
     const VolumeWizardModal = ({ onClose, savedRoles = [], viewMode = 'basic' }) => {
@@ -5677,7 +5677,7 @@
       const [roleConfigOption, setRoleConfigOption] = useState('same');
       const [bulkRole, setBulkRole] = useState('Client');
       const fileInputRef = React.useRef(null);
-      const SYSTEM_ROLE_NAMES = ['General', 'Guest', 'Client'];
+      const SYSTEM_ROLE_NAMES = ['Default', 'Guest', 'Client'];
 
       // ── "During the Shoot" bulk gallery state
       const [bulkCount, setBulkCount] = useState(100);
@@ -5696,8 +5696,8 @@
       const [regSubmitMessage, setRegSubmitMessage] = useState('Thank you for registering.');
       const [regAssignmentOption, setRegAssignmentOption] = useState('new_gallery');
       const [regGalleryTitleOption, setRegGalleryTitleOption] = useState('name');
-      const [existingGalleryRole, setExistingGalleryRole] = useState('General');
-      const [newGalleryRole, setNewGalleryRole] = useState('General');
+      const [existingGalleryRole, setExistingGalleryRole] = useState('Default');
+      const [newGalleryRole, setNewGalleryRole] = useState('Default');
       const [existingSelectionType, setExistingSelectionType] = useState('folder'); // 'folder' | 'gallery'
       const [existingSelectedName, setExistingSelectedName] = useState('test');
       const [existingPickerOpen, setExistingPickerOpen] = useState(false);
@@ -6759,7 +6759,7 @@
         }
       }, [csvRawRows, hasHeaders]);
 
-      const BUILTIN_NAMES = new Set(['General', 'Guest', 'Client']);
+      const BUILTIN_NAMES = new Set(['Default', 'Guest', 'Client']);
       const everyone = roles.find(r => r.id === 'everyone');
       const otherRoles = roles.filter(r => r.id !== 'everyone');
       // Custom roles = roles not named General/Guest/Client
@@ -6769,7 +6769,7 @@
 
       // Build the unified list of role options for import dropdowns
       const systemRoleOptions = [
-        { id: 'everyone',   name: 'General' },
+        { id: 'everyone',   name: 'Default' },
         { id: '__guest__',  name: 'Guest'   },
         { id: '__client__', name: 'Client'  },
       ];
@@ -6993,7 +6993,7 @@
                   </p>
                   {viewMode !== 'basic' && (
                     <p className="text-[12px] mb-5 leading-relaxed" style={{ color: '#86868B' }}>
-                      You can use our system roles — General, Guest, and Client — as well as any custom roles you have added to this gallery or saved for later use.{' '}
+                      You can use our system roles — Default, Guest, and Client — as well as any custom access groups you have added to this gallery or saved for later use.{' '}
                       <a href="#" onClick={e => e.preventDefault()} style={{ color: '#F26B3A', textDecoration: 'underline', textUnderlineOffset: '2px' }}>Learn more</a>
                     </p>
                   )}
@@ -7304,19 +7304,19 @@
 
     const PRESET_ROLE_STATES = {
       Sports: {
-        advanced:     { General: _sportsGeneral, Parent: _sportsParent, Player: _sportsPlayer, Coach: _sportsCoach, 'League Admin': _sportsLeagueAdmin },
-        professional: { General: _sportsGeneral, Parent: _sportsParent, Player: _sportsPlayer },
-        basic:        { General: _sportsGeneral },
+        advanced:     { Default: _sportsGeneral, Parent: _sportsParent, Player: _sportsPlayer, Coach: _sportsCoach, 'League Admin': _sportsLeagueAdmin },
+        professional: { Default: _sportsGeneral, Parent: _sportsParent, Player: _sportsPlayer },
+        basic:        { Default: _sportsGeneral },
       },
       Wedding: {
-        advanced:     { General: _weddingGeneral, Bride: _weddingBrideGroom, Groom: _weddingBrideGroom, "Bride's Mother": _weddingBridesMother, 'Wedding Planner': _weddingPlannerFlorist, Florist: _weddingPlannerFlorist },
-        professional: { General: _weddingGeneral, Bride: _weddingBrideGroom, Groom: _weddingBrideGroom },
-        basic:        { General: _weddingGeneral },
+        advanced:     { Default: _weddingGeneral, Bride: _weddingBrideGroom, Groom: _weddingBrideGroom, "Bride's Mother": _weddingBridesMother, 'Wedding Planner': _weddingPlannerFlorist, Florist: _weddingPlannerFlorist },
+        professional: { Default: _weddingGeneral, Bride: _weddingBrideGroom, Groom: _weddingBrideGroom },
+        basic:        { Default: _weddingGeneral },
       },
       Portrait: {
-        advanced:     { General: _portraitGeneral, Client: _portraitClient, 'Best Friend': _portraitBestFriend, Mom: _portraitMom },
-        professional: { General: _portraitGeneral, Client: _portraitClient, 'Best Friend': _portraitBestFriend },
-        basic:        { General: _portraitGeneral, Client: _portraitClient },
+        advanced:     { Default: _portraitGeneral, Client: _portraitClient, 'Best Friend': _portraitBestFriend, Mom: _portraitMom },
+        professional: { Default: _portraitGeneral, Client: _portraitClient, 'Best Friend': _portraitBestFriend },
+        basic:        { Default: _portraitGeneral, Client: _portraitClient },
       },
     };
 
@@ -7735,7 +7735,7 @@
                 {!isMobile && (
                   <button onClick={() => onAddRole && onAddRole()} type="button"
                     className="ml-auto add-role-btn flex items-center gap-2 text-[11px] font-bold tracking-wider px-4 py-2 rounded-full text-white whitespace-nowrap">
-                    <UserIcon size={13} stroke={2} /> ADD ROLE
+                    <UserIcon size={13} stroke={2} /> ADD ACCESS GROUP
                   </button>
                 )}
                 {overflowRoles.length > 0 && (
@@ -8098,7 +8098,7 @@
 
       const isElevated = viewMode === 'professional' || viewMode === 'advanced';
       const systemRoles = [
-        { id: 'everyone', name: 'General' },
+        { id: 'everyone', name: 'Default' },
         { id: '__guest__', name: 'Guest' },
         { id: '__client__', name: 'Client' },
       ];
@@ -8115,7 +8115,7 @@
         if (custom) return custom.name;
         const saved = savedRoles.find(s => s.id === id);
         if (saved) return saved.name;
-        return 'General';
+        return 'Default';
       };
 
       const galleryName = 'Sample Gallery';
@@ -9045,13 +9045,13 @@
       const [reservationsEnabled, setReservationsEnabled] = useState(false);
       const [folderPreset, setFolderPreset] = useState('Mystic Falls School Portraits');
       const PRESET_ROLES = {
-        'Mystic Falls School Portraits': ['General', 'Client', 'Student', 'Parent / Guardian'],
-        'Spring Sports Preset':          ['General', 'Client', 'Guest', 'Team Member', 'Coach'],
-        'Wedding Default':               ['General', 'Client', 'Guest', 'VIP', 'Bridal Party'],
-        'Custom':                        ['General', 'Client', 'Guest'],
+        'Mystic Falls School Portraits': ['Default', 'Client', 'Student', 'Parent / Guardian'],
+        'Spring Sports Preset':          ['Default', 'Client', 'Guest', 'Team Member', 'Coach'],
+        'Wedding Default':               ['Default', 'Client', 'Guest', 'VIP', 'Bridal Party'],
+        'Custom':                        ['Default', 'Client', 'Guest'],
       };
       const [bookingRole, setBookingRole] = useState('Client');
-      const BASIC_ROLES = ['General', 'Guest', 'Client'];
+      const BASIC_ROLES = ['Default', 'Guest', 'Client'];
       const effectiveBookingRole = (viewMode === 'basic' && !BASIC_ROLES.includes(bookingRole)) ? 'Client' : bookingRole;
       const [showAdditionalRules, setShowAdditionalRules] = useState(false);
       const [saved, setSaved] = useState(false);
@@ -9314,7 +9314,7 @@
                   <select value={effectiveBookingRole} onChange={e => setBookingRole(e.target.value)}
                     className="w-full border rounded px-3 py-2 text-[12px]" style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>
                     {(() => {
-                      const base = ['General', 'Guest', 'Client'];
+                      const base = ['Default', 'Guest', 'Client'];
                       if (viewMode === 'basic') return base.map(r => <option key={r}>{r}</option>);
                       const presetCustom = (PRESET_ROLES[folderPreset] || PRESET_ROLES['Custom']).filter(r => !base.includes(r));
                       const savedNotInPreset = savedRoles.filter(s =>
@@ -9371,7 +9371,7 @@
 
     const COUPON_SAMPLE_ROLES = [
       'Best Friend', 'Bride', "Bride's Mother", 'Client', 'Coach',
-      'Florist', 'General', 'Guest', 'League Admin', 'Mom',
+      'Florist', 'Default', 'Guest', 'League Admin', 'Mom',
       'Parent', 'Player', 'Wedding Planner',
     ];
 
@@ -9383,16 +9383,16 @@
 
     // Roles available per gallery — union of all = full COUPON_SAMPLE_ROLES
     const GALLERY_ROLES = {
-      'Client Gallery Testing': ['Client', 'Guest', 'General', 'Mom', 'Parent'],
+      'Client Gallery Testing': ['Client', 'Guest', 'Default', 'Mom', 'Parent'],
       'Client Test':            ['Client', 'Best Friend', 'Guest'],
-      'Erwrwrwr':               ['Guest', 'General'],
+      'Erwrwrwr':               ['Guest', 'Default'],
       'Gallery A':              ['Bride', "Bride's Mother", 'Florist', 'Wedding Planner', 'Guest', 'Client'],
-      'Gallery B':              ['Coach', 'Player', 'League Admin', 'Parent', 'General'],
-      'Role Test':              ['Client', 'Guest', 'General', 'Mom'],
+      'Gallery B':              ['Coach', 'Player', 'League Admin', 'Parent', 'Default'],
+      'Role Test':              ['Client', 'Guest', 'Default', 'Mom'],
       'User Keywords':          ['Client', 'Guest'],
       'fsad 01':                ['Mom', 'Parent', 'Guest', 'Client'],
       'fsad 03':                ['Coach', 'Player', 'Parent', 'Best Friend'],
-      'tim':                    ['Guest', 'General', 'Client'],
+      'tim':                    ['Guest', 'Default', 'Client'],
       'x':                      ['Guest'],
     };
 
@@ -10070,7 +10070,7 @@
       const isMobile = useIsMobile() || simulateMobile;
       // true only on a real mobile device (not the desktop simulator toggle)
       const realMobile = isMobile && !simulateMobile;
-      const [roles, setRoles] = useState([{ id: 'everyone', name: 'General', removable: false }]);
+      const [roles, setRoles] = useState([{ id: 'everyone', name: 'Default', removable: false }]);
       const [perRole, setPerRole] = useState({ everyone: buildEveryoneState() });
       const [features, setFeatures] = useState(initialFeatures);
       const [openFeatures, setOpenFeatures] = useState(new Set());
@@ -10290,7 +10290,7 @@
       const applyPreset = (roleNames, presetName) => {
         const generalRole = roles.find(r => r.id === 'everyone');
         const presetStates = PRESET_ROLE_STATES[presetName]?.[viewMode] || {};
-        const generalState = presetStates['General'] ? presetStates['General'] : perRole['everyone'];
+        const generalState = presetStates['Default'] ?? perRole['everyone'];
         const newRoles = [generalRole];
         const newPerRole = { everyone: generalState };
         roleNames.forEach((name, i) => {
@@ -10549,7 +10549,7 @@
                       )}
                       <button onClick={() => setShowModal(true)}
                         className="add-role-btn flex items-center gap-2 text-[11px] font-bold tracking-wider px-4 py-2 rounded-full text-white whitespace-nowrap">
-                        <UserIcon size={13} stroke={2} /> ADD ROLE
+                        <UserIcon size={13} stroke={2} /> ADD ACCESS GROUP
                       </button>
                     </div>
                   </header>
@@ -10847,7 +10847,7 @@
                     {rolesToRemove.length > 0 && (
                       <p>
                         The following {rw(rolesToRemove.length)} will be removed: {fmtList(rolesToRemove)}.{' '}
-                        {affectedContacts} {cw(affectedContacts)} will be moved to the General role.
+                        {affectedContacts} {cw(affectedContacts)} will be moved to the Default access group.
                       </p>
                     )}
                   </div>
@@ -10896,7 +10896,7 @@
                       {rolesToRemove.length > 0 && (
                         <p>
                           The following {rw(rolesToRemove.length)} will be removed: {fmtList(rolesToRemove)}.{' '}
-                          {affectedContacts} {cw(affectedContacts)} assigned to removed {rw(rolesToRemove.length)} will be moved to the General role.
+                          {affectedContacts} {cw(affectedContacts)} assigned to removed {rw(rolesToRemove.length)} will be moved to the Default access group.
                         </p>
                       )}
                     </div>
