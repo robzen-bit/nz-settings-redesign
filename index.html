@@ -9434,6 +9434,7 @@
     );
 
     const RolesPickerModal = ({ onClose, onSelect, currentRoles = [], roles = COUPON_SAMPLE_ROLES }) => {
+      const { roleLabel } = useTerms();
       const [checked, setChecked] = useState(new Set(currentRoles));
       const allChecked = roles.length > 0 && roles.every(r => checked.has(r));
       const toggleAll = () => allChecked ? setChecked(new Set()) : setChecked(new Set(roles));
@@ -9443,7 +9444,7 @@
           <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 20px', borderBottom: '1px solid var(--card-border)', flexShrink: 0 }}>
               <div style={{ width: 24 }} />
-              <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-primary)' }}>SELECT ROLES</span>
+              <span style={{ fontSize: 13, fontWeight: 700, letterSpacing: '0.08em', color: 'var(--text-primary)' }}>{`SELECT ${roleLabel.toUpperCase()}S`}</span>
               <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-secondary)', lineHeight: 1, width: 24 }}>×</button>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
@@ -9519,6 +9520,7 @@
 
     const CouponAppliesToModal = ({ onClose, onApply }) => {
       const isMobile = useIsMobile();
+      const { roleLabel } = useTerms();
       // Galleries first (Options section)
       const [galleriesMode, setGalleriesMode] = useState('all');
       const [selectedGalleries, setSelectedGalleries] = useState([]);
@@ -9608,154 +9610,117 @@
 
       const removeRole = r => setSelectedRoles(p => p.filter(x => x !== r));
 
-      const hasRightCol = !isMobile && (galleriesMode === 'selected' || appliesToMode === 'selected-roles');
-
-      const listBox = { border: '1px solid var(--card-border)', borderRadius: 6, overflow: 'hidden', maxHeight: 205, overflowY: 'auto', minHeight: 38 };
-      const addBtn = { display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, padding: '6px 14px', borderRadius: 9999, background: 'var(--brand)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 600 };
       const removeCircle = { background: 'none', border: '1.5px solid var(--line)', borderRadius: '50%', width: 20, height: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: 14, lineHeight: 1, padding: 0 };
       const listRow = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 12px', borderBottom: '1px solid var(--card-border)' };
+      const colBox = { border: '1px solid var(--card-border)', borderRadius: 6, minHeight: 120, maxHeight: 180, overflowY: 'auto' };
+      const placeholderBox = { display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 120, fontSize: 13, color: 'var(--text-tertiary)', textAlign: 'center', padding: '12px 16px', lineHeight: 1.5 };
 
-      const GalleriesList = () => (
-        <div style={listBox}>
-          {selectedGalleries.length === 0
-            ? <div style={{ fontSize: 13, color: 'var(--text-tertiary)', padding: '10px 12px' }}>No galleries selected</div>
-            : selectedGalleries.map(g => (
-              <div key={g} style={listRow}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M1 8l3-5h16l3 5"/></svg>
-                  <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{g}</span>
-                </div>
-                <button onClick={() => handleRemoveGallery(g)} style={removeCircle}>−</button>
-              </div>
-            ))
-          }
-        </div>
-      );
-
-      const RolesList = () => (
-        <div style={listBox}>
-          {selectedRoles.length === 0
-            ? <div style={{ fontSize: 13, color: 'var(--text-tertiary)', padding: '10px 12px' }}>No roles selected</div>
-            : selectedRoles.map(r => (
-              <div key={r} style={listRow}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-                  <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{r}</span>
-                </div>
-                <button onClick={() => removeRole(r)} style={removeCircle}>−</button>
-              </div>
-            ))
-          }
-        </div>
-      );
+      const disabled =
+        (galleriesMode === 'selected' && selectedGalleries.length === 0) ||
+        (appliesToMode === 'selected-roles' && selectedRoles.length === 0);
 
       return (
         <>
           <MobileSheetModal onClose={onClose} zIndex={160} maxWidth={680}>
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+
+              {/* Header */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderBottom: '1px solid var(--card-border)', flexShrink: 0 }}>
                 <div style={{ width: 24 }} />
-                <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '0.06em', color: 'var(--text-primary)' }}>APPLIES TO</span>
+                <span style={{ fontSize: 15, fontWeight: 700, letterSpacing: '0.06em', color: 'var(--text-primary)' }}>COUPON AVAILABILITY</span>
                 <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, color: 'var(--text-secondary)', lineHeight: 1, width: 24 }}>×</button>
               </div>
-              <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, padding: '20px 24px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: hasRightCol ? '1fr 1fr' : '1fr', columnGap: 24, alignItems: 'start' }}>
 
-                  {/* ── Row 1 Col A: Options (galleries) ── */}
-                  <div style={{ paddingBottom: 16 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10 }}>Options</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 6 }}>
+              {/* Body */}
+              <div style={{ flex: 1, overflowY: 'auto', minHeight: 0, padding: '20px 24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 32, alignItems: 'start' }}>
+
+                  {/* ── Galleries column ── */}
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>Galleries</div>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.5 }}>Apply to all galleries, or restrict to specific galleries only.</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
                       <RadioBtn checked={galleriesMode === 'all'} onChange={() => handleGalleriesModeChange('all')} label="All Galleries" />
                       <RadioBtn checked={galleriesMode === 'selected'} onChange={() => handleGalleriesModeChange('selected')} label="Selected Galleries Only" />
                     </div>
-                    {isMobile && galleriesMode === 'selected' && (
-                      <div style={{ marginTop: 12, marginBottom: 4 }}>
-                        <button onClick={() => setShowGalleriesPicker(true)} style={addBtn}>
-                          <span style={{ fontSize: 17, lineHeight: 1, fontWeight: 300 }}>+</span> Galleries
-                        </button>
-                        <GalleriesList />
-                      </div>
-                    )}
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>Apply coupon to all galleries, or restrict to specific galleries only.</p>
-                  </div>
-
-                  {/* ── Row 1 Col B: Selected Galleries ── */}
-                  {hasRightCol && (
-                    <div style={{ paddingBottom: 16 }}>
-                      {galleriesMode === 'selected' && (
-                        <>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>Selected Galleries</div>
-                          <button onClick={() => setShowGalleriesPicker(true)} style={addBtn}>
-                            <span style={{ fontSize: 17, lineHeight: 1, fontWeight: 300 }}>+</span> Galleries
-                          </button>
-                          <GalleriesList />
-                        </>
-                      )}
-                    </div>
-                  )}
-
-                  {/* ── Divider spanning both columns ── */}
-                  <div style={{ gridColumn: '1 / -1', borderTop: '1px solid var(--card-border)', marginBottom: 16 }} />
-
-                  {/* ── Row 2 Col A: Applies to (roles) ── */}
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 10 }}>Applies to</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 6 }}>
-                      <RadioBtn checked={appliesToMode === 'all'} onChange={() => setAppliesToMode('all')} label="All Contacts and Roles" />
-                      <RadioBtn checked={appliesToMode === 'selected-roles'} onChange={() => setAppliesToMode('selected-roles')} label="Selected Roles Only" />
-                    </div>
-                    {isMobile && appliesToMode === 'selected-roles' && (
-                      <div style={{ marginTop: 12, marginBottom: 4 }}>
-                        <button onClick={() => setShowRolesPicker(true)} style={addBtn}>
-                          <span style={{ fontSize: 17, lineHeight: 1, fontWeight: 300 }}>+</span> Roles
-                        </button>
-                        <RolesList />
-                      </div>
-                    )}
-                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 8, lineHeight: 1.5 }}>
-                      {appliesToMode === 'all'
-                        ? 'Coupon applies to all contacts and roles regardless of gallery assignment.'
-                        : 'Only contacts with the selected roles can use this coupon.'}
-                    </p>
-                  </div>
-
-                  {/* ── Row 2 Col B: Selected Roles ── */}
-                  {hasRightCol && (
-                    <div>
-                      {appliesToMode === 'selected-roles' && (
-                        <>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
-                            Selected Roles
-                            {galleriesMode === 'selected' && availableRoles.length < COUPON_SAMPLE_ROLES.length && (
-                              <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--text-secondary)', marginLeft: 6 }}>({availableRoles.length} available from selected galleries)</span>
-                            )}
+                    <div style={colBox}>
+                      {galleriesMode === 'all' ? (
+                        <div style={placeholderBox}>This coupon applies to<br />all Galleries.</div>
+                      ) : selectedGalleries.length === 0 ? (
+                        <div style={placeholderBox}>Add galleries to get started.</div>
+                      ) : (
+                        selectedGalleries.map(g => (
+                          <div key={g} style={listRow}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M1 8l3-5h16l3 5"/></svg>
+                              <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{g}</span>
+                            </div>
+                            <button onClick={() => handleRemoveGallery(g)} style={removeCircle}>−</button>
                           </div>
-                          <button onClick={() => setShowRolesPicker(true)} style={addBtn}>
-                            <span style={{ fontSize: 17, lineHeight: 1, fontWeight: 300 }}>+</span> Roles
-                          </button>
-                          <RolesList />
+                        ))
+                      )}
+                    </div>
+                    <button
+                      disabled={galleriesMode === 'all'}
+                      onClick={() => galleriesMode === 'selected' && setShowGalleriesPicker(true)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '6px 14px', borderRadius: 9999, background: galleriesMode === 'selected' ? 'var(--brand)' : 'var(--line)', border: 'none', cursor: galleriesMode === 'selected' ? 'pointer' : 'default', color: '#fff', fontSize: 13, fontWeight: 600, opacity: galleriesMode === 'all' ? 0.5 : 1 }}>
+                      <span style={{ fontSize: 17, lineHeight: 1, fontWeight: 300 }}>+</span> Add Galleries
+                    </button>
+                  </div>
+
+                  {/* ── Roles column ── */}
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 4 }}>{`${roleLabel}s`}</div>
+                    <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 12, lineHeight: 1.5 }}>{`Make this coupon available to everyone, or to specific ${roleLabel}s.`}</p>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 12 }}>
+                      <RadioBtn checked={appliesToMode === 'all'} onChange={() => setAppliesToMode('all')} label="Everyone" />
+                      <RadioBtn checked={appliesToMode === 'selected-roles'} onChange={() => setAppliesToMode('selected-roles')} label={`Selected ${roleLabel}s Only`} />
+                    </div>
+                    <div style={colBox}>
+                      {appliesToMode === 'all' ? (
+                        <div style={placeholderBox}>{`This coupon applies to\nall ${roleLabel}s.`}</div>
+                      ) : selectedRoles.length === 0 ? (
+                        <div style={placeholderBox}>{`Add ${roleLabel}s to get started.`}</div>
+                      ) : (
+                        <>
+                          {galleriesMode === 'selected' && availableRoles.length < COUPON_SAMPLE_ROLES.length && (
+                            <div style={{ fontSize: 11, color: 'var(--text-secondary)', padding: '6px 12px', borderBottom: '1px solid var(--card-border)' }}>
+                              {availableRoles.length} available from selected galleries
+                            </div>
+                          )}
+                          {selectedRoles.map(r => (
+                            <div key={r} style={listRow}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                                <span style={{ fontSize: 13, color: 'var(--text-primary)' }}>{r}</span>
+                              </div>
+                              <button onClick={() => removeRole(r)} style={removeCircle}>−</button>
+                            </div>
+                          ))}
                         </>
                       )}
                     </div>
-                  )}
+                    <button
+                      disabled={appliesToMode === 'all'}
+                      onClick={() => appliesToMode === 'selected-roles' && setShowRolesPicker(true)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 10, padding: '6px 14px', borderRadius: 9999, background: appliesToMode === 'selected-roles' ? 'var(--brand)' : 'var(--line)', border: 'none', cursor: appliesToMode === 'selected-roles' ? 'pointer' : 'default', color: '#fff', fontSize: 13, fontWeight: 600, opacity: appliesToMode === 'all' ? 0.5 : 1 }}>
+                      <span style={{ fontSize: 17, lineHeight: 1, fontWeight: 300 }}>+</span> {`Add ${roleLabel}`}
+                    </button>
+                  </div>
 
                 </div>
               </div>
+
+              {/* Footer */}
               <div style={{ padding: '12px 24px', borderTop: '1px solid var(--card-border)', background: '#fff', flexShrink: 0 }}>
-                {(() => {
-                  const disabled =
-                    (galleriesMode === 'selected' && selectedGalleries.length === 0) ||
-                    (appliesToMode === 'selected-roles' && selectedRoles.length === 0);
-                  return (
-                    <button
-                      disabled={disabled}
-                      onClick={() => !disabled && onApply({ appliesToMode, selectedRoles, galleriesMode, selectedGalleries })}
-                      style={{ width: '100%', padding: '11px 0', borderRadius: 9999, background: disabled ? 'var(--line)' : 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1 }}>
-                      Apply
-                    </button>
-                  );
-                })()}
+                <button
+                  disabled={disabled}
+                  onClick={() => !disabled && onApply({ appliesToMode, selectedRoles, galleriesMode, selectedGalleries })}
+                  style={{ width: '100%', padding: '11px 0', borderRadius: 9999, background: disabled ? 'var(--line)' : 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.6 : 1 }}>
+                  Apply
+                </button>
               </div>
+
             </div>
           </MobileSheetModal>
 
