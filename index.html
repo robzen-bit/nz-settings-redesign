@@ -4452,6 +4452,7 @@
     }) => {
       const { defaultRoleLabel, roleLabel } = useTerms();
       const isElevated = viewMode === 'professional' || viewMode === 'advanced';
+      const visitorRole = { id: '__visitor__', name: `Visitor / ${defaultRoleLabel}` };
       const systemRoles = [
         { id: 'everyone', name: defaultRoleLabel },
         { id: '__guest__', name: 'Guest' },
@@ -4794,7 +4795,7 @@
                   <MobileRoleSelect
                     value={collectEmailRole}
                     onChange={setCollectEmailRole}
-                    allRoles={[...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
+                    allRoles={[visitorRole, ...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
                     label={`Registrant ${roleLabel}`}
                     className="w-full border rounded px-3 py-2 text-[13px] outline-none"
                     style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', cursor: 'pointer' }}
@@ -5728,7 +5729,7 @@
         { id: 'hands', name: 'All Hands', meta: '3 Folders, 2 Galleries' },
       ];
 
-      const { roleLabel } = useTerms();
+      const { roleLabel, defaultRoleLabel } = useTerms();
       const headerTitle = wizardStep === 0 ? 'Volume Wizard'
         : workflowOption === 'before' ? 'Volume Wizard — Collect Registration Before the Shoot'
         : workflowOption === 'during' ? 'Volume Wizard — Collect Registration During the Shoot'
@@ -5763,6 +5764,7 @@
                 <select value={value} onChange={e => onChange(e.target.value)}
                   className="border rounded px-3 py-2 text-[13px] outline-none"
                   style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', maxWidth: 220, width: '100%' }}>
+                  <option key="__visitor__" value="__visitor__">{`Visitor / ${defaultRoleLabel}`}</option>
                   {SYSTEM_ROLE_NAMES.map(r => <option key={r}>{r}</option>)}
                   {savedRoles.length > 0 && savedRoles.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                 </select>
@@ -6061,6 +6063,7 @@
                 <select value={value} onChange={e => onChange(e.target.value)}
                   className="border rounded px-3 py-2 text-[13px] outline-none"
                   style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', maxWidth: 220, width: '100%' }}>
+                  <option key="__visitor__" value="__visitor__">{`Visitor / ${defaultRoleLabel}`}</option>
                   {SYSTEM_ROLE_NAMES.map(r => <option key={r}>{r}</option>)}
                   {savedRoles.length > 0 && savedRoles.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}
                 </select>
@@ -8119,6 +8122,7 @@
 
       const { defaultRoleLabel, roleLabel } = useTerms();
       const isElevated = viewMode === 'professional' || viewMode === 'advanced';
+      const visitorRole = { id: '__visitor__', name: `Visitor / ${defaultRoleLabel}` };
       const systemRoles = [
         { id: 'everyone', name: defaultRoleLabel },
         { id: '__guest__', name: 'Guest' },
@@ -8590,10 +8594,11 @@
                               className="border rounded px-3 py-1.5 text-[13px] outline-none"
                               style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', maxWidth: 280, cursor: 'pointer' }}>
                               {!isElevated ? (
-                                systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)
+                                [visitorRole, ...systemRoles].map(r => <option key={r.id} value={r.id}>{r.name}</option>)
                               ) : (
                                 <>
                                   <optgroup label="System Roles">
+                                    <option key={visitorRole.id} value={visitorRole.id}>{visitorRole.name}</option>
                                     {systemRoles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}
                                   </optgroup>
                                   {galleryCustomRoles.length > 0 && (
@@ -8743,7 +8748,7 @@
                 <MobileRoleSelect
                   value={emailRole}
                   onChange={setEmailRole}
-                  allRoles={[...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
+                  allRoles={[visitorRole, ...systemRoles, ...galleryCustomRoles, ...savedNotInGallery]}
                   label={`Registrant ${roleLabel} Assignment`}
                   className="border rounded px-3 py-2 text-[13px] outline-none w-full"
                   style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)', background: '#fff', cursor: 'pointer', maxWidth: 320 }}
