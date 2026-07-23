@@ -10677,7 +10677,16 @@
                       <div className="grid items-center" style={{ gridTemplateColumns: gridCols, padding: '14px 0',
                         background: 'var(--soft-bg)', borderTopLeftRadius: 12, borderTopRightRadius: 12,
                         position: 'sticky', top: 0, zIndex: 10 }}>
-                        <div className="pl-6 text-[13px]" style={{ color: 'var(--text-secondary)' }}>{terms.featuresLabel.replace(/^Gallery\s+/i, '')} by {terms.roleLabel}</div>
+                        <div className="pl-6 text-[13px]" style={{ color: 'var(--text-secondary)' }}>{(() => {
+                          const featuresTerm = terms.featuresLabel.replace(/^Gallery\s+/i, '');
+                          const featuresLower = featuresTerm.toLowerCase();
+                          const deduped = terms.roleLabel.split(/\s+/).filter(w => {
+                            const wl = w.toLowerCase();
+                            return !featuresLower.includes(wl) && !wl.includes(featuresLower);
+                          });
+                          const roleDisplay = deduped.length > 0 ? deduped.join(' ') : terms.roleLabel;
+                          return `${featuresTerm} by ${roleDisplay}`;
+                        })()}</div>
                         {roles.map(r => (
                           <ColumnHeader key={r.id} role={r}
                             contactCount={contacts.filter(c => c.roleId === r.id).length}
