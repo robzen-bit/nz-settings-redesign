@@ -1883,6 +1883,7 @@
       const [pendingDelete, setPendingDelete] = useState(null); // array of ids to delete
       const trimmed = customName.trim();
       const nameTaken = existingNames.includes(trimmed.toLowerCase());
+      const isReserved = ['guest', 'client', 'visitor'].includes(trimmed.toLowerCase());
 
       React.useEffect(() => {
         if (!isMobile) return;
@@ -2146,11 +2147,12 @@
                     <input
                       autoFocus={!isMobile} value={customName}
                       onChange={e => setCustomName(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter' && trimmed && !nameTaken) goDetail('custom'); }}
+                      onKeyDown={e => { if (e.key === 'Enter' && trimmed && !nameTaken && !isReserved) goDetail('custom'); }}
                       placeholder="e.g. Family, VIP, Player" maxLength={32}
                       className="w-full text-[14px] px-3 py-2.5 rounded-[10px] border bg-white outline-none"
-                      style={{ borderColor: nameTaken ? 'var(--brand)' : 'var(--card-border)', color: 'var(--text-primary)' }} />
-                    {nameTaken && <p className="text-[12px] mt-2" style={{ color: 'var(--brand-deep)' }}>A role named "{trimmed}" already exists.</p>}
+                      style={{ borderColor: (nameTaken || isReserved) ? 'var(--brand)' : 'var(--card-border)', color: 'var(--text-primary)' }} />
+                    {nameTaken && <p className="text-[12px] mt-2" style={{ color: 'var(--brand-deep)' }}>A {roleLabel.toLowerCase()} named "{trimmed}" already exists.</p>}
+                    {isReserved && <p className="text-[12px] mt-2" style={{ color: 'var(--brand-deep)' }}>"{trimmed}" is a system role and cannot be used to create a custom {roleLabel.toLowerCase()}.</p>}
                   </div>
                 )}
                 {step === 'detail' && (
@@ -2189,7 +2191,7 @@
                 {step === 'name' && (
                   <>
                     <button onClick={() => setStep('choose')} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'#1B1C1F', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer' }}>Back</button>
-                    <button disabled={!trimmed || nameTaken} onClick={() => goDetail('custom')} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'var(--brand)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer', opacity:(!trimmed || nameTaken) ? 0.4 : 1 }}>Next</button>
+                    <button disabled={!trimmed || nameTaken || isReserved} onClick={() => goDetail('custom')} style={{ flex:1, padding:'12px 0', borderRadius:9999, background:'var(--brand)', color:'#fff', fontSize:14, fontWeight:700, border:'none', cursor:'pointer', opacity:(!trimmed || nameTaken || isReserved) ? 0.4 : 1 }}>Next</button>
                   </>
                 )}
                 {step === 'detail' && (
@@ -2413,22 +2415,23 @@
                   <input
                     autoFocus value={customName}
                     onChange={e => setCustomName(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter' && trimmed && !nameTaken) goDetail('custom'); }}
+                    onKeyDown={e => { if (e.key === 'Enter' && trimmed && !nameTaken && !isReserved) goDetail('custom'); }}
                     placeholder="e.g. Family, VIP, Player" maxLength={32}
                     className="w-full text-[14px] px-3 py-2.5 rounded-[10px] border bg-white outline-none"
-                    style={{ borderColor: nameTaken ? 'var(--brand)' : 'var(--card-border)', color: 'var(--text-primary)' }} />
-                  {nameTaken && <p className="text-[12px] mt-2" style={{ color: 'var(--brand-deep)' }}>A role named "{trimmed}" already exists.</p>}
+                    style={{ borderColor: (nameTaken || isReserved) ? 'var(--brand)' : 'var(--card-border)', color: 'var(--text-primary)' }} />
+                  {nameTaken && <p className="text-[12px] mt-2" style={{ color: 'var(--brand-deep)' }}>A {roleLabel.toLowerCase()} named "{trimmed}" already exists.</p>}
+                  {isReserved && <p className="text-[12px] mt-2" style={{ color: 'var(--brand-deep)' }}>"{trimmed}" is a system role and cannot be used to create a custom {roleLabel.toLowerCase()}.</p>}
                   {isMobile ? (
                     <div style={{ display: 'flex', gap: 12, marginTop: 20 }}>
                       <button onClick={() => setStep('choose')} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: '#1B1C1F', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer' }}>Back</button>
-                      <button disabled={!trimmed || nameTaken} onClick={() => goDetail('custom')} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', opacity: (!trimmed || nameTaken) ? 0.4 : 1 }}>Next</button>
+                      <button disabled={!trimmed || nameTaken || isReserved} onClick={() => goDetail('custom')} style={{ flex: 1, padding: '12px 0', borderRadius: 9999, background: 'var(--brand)', color: '#fff', fontSize: 14, fontWeight: 700, border: 'none', cursor: 'pointer', opacity: (!trimmed || nameTaken || isReserved) ? 0.4 : 1 }}>Next</button>
                     </div>
                   ) : (
                     <div className="flex justify-end gap-2 mt-5">
                       <button onClick={() => setStep('choose')}
                         className="text-[12px] font-bold tracking-wider px-4 py-2 rounded-full border bg-white transition-all hover:bg-[var(--bg)]"
                         style={{ borderColor: 'var(--card-border)', color: 'var(--text-primary)' }}>BACK</button>
-                      <button disabled={!trimmed || nameTaken}
+                      <button disabled={!trimmed || nameTaken || isReserved}
                         onClick={() => goDetail('custom')}
                         className="text-[12px] font-bold tracking-wider px-4 py-2 rounded-full text-white disabled:opacity-40 transition-all"
                         style={{ background: 'var(--brand)', boxShadow: 'var(--shadow-sm)' }}>NEXT</button>
