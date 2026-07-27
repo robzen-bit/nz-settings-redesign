@@ -644,6 +644,82 @@
     }
     .plan-trigger:hover { background: var(--bg-hover); border-color: var(--text-4); }
     .mode-chevron { transition: transform 0.2s cubic-bezier(0.4,0,0.2,1); display: block; }
+
+    /* ===== Design Tab ===== */
+    .design-view { flex: 1; overflow-y: auto; background: #F5F5F7; }
+    .ds-carousel { position: relative; margin-bottom: 6px; }
+    .ds-carousel-viewport { overflow: hidden; padding: 18px 58px 6px; }
+    .ds-carousel-track { display: flex; gap: 20px; transition: transform .38s cubic-bezier(.2,.8,.2,1); }
+    .ds-carousel-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; background: #fff; border: 1px solid var(--card-border); color: var(--text-secondary); cursor: pointer; z-index: 5; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,.08); transition: all .15s; }
+    .ds-carousel-arrow:hover { background: var(--soft-bg); }
+    .ds-carousel-arrow.is-left { left: 6px; }
+    .ds-carousel-arrow.is-right { right: 6px; }
+    .ds-style-card { flex: 0 0 220px; width: 220px; background: transparent; border: 0; padding: 12px 0 0; cursor: pointer; text-align: left; position: relative; font-family: inherit; }
+    .ds-style-badge { position: absolute; top: 0; right: 10px; z-index: 2; width: 28px; height: 28px; border-radius: 50%; background: #C7C7CC; color: #fff; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,.15); transition: background .15s; }
+    .ds-style-card.is-active .ds-style-badge { background: var(--brand); }
+    .ds-style-thumb { border-radius: 14px; overflow: hidden; border: 3px solid transparent; box-shadow: 0 1px 4px rgba(0,0,0,.10); aspect-ratio: 4/4.4; display: flex; flex-direction: column; transition: all .2s; }
+    .ds-style-card.is-active .ds-style-thumb { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(242,107,58,.18), 0 4px 12px rgba(0,0,0,.10); }
+    .ds-style-card:hover:not(.is-active) .ds-style-thumb { box-shadow: 0 4px 14px rgba(0,0,0,.12); transform: translateY(-2px); }
+    .ds-style-label { margin-top: 10px; font-size: 12px; font-weight: 600; text-align: center; color: var(--text-secondary); }
+    .ds-th-header { position: relative; flex-shrink: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; overflow: hidden; padding: 0 6px; }
+    .ds-th-cover { height: 36%; background-size: cover; background-position: center; }
+    .ds-th-cover::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg,rgba(0,0,0,.10),rgba(0,0,0,.55)); }
+    .ds-th-title { height: 26%; }
+    .ds-th-cover .ds-th-brand, .ds-th-cover .ds-th-name, .ds-th-cover .ds-th-date { color: #fff; position: relative; z-index: 1; }
+    .ds-th-brand { font-size: 6px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; position: relative; z-index: 1; }
+    .ds-th-name { font-size: 11px; font-weight: 700; margin: 2px 0; font-family: Georgia,serif; position: relative; z-index: 1; }
+    .ds-th-date { font-size: 6px; position: relative; z-index: 1; }
+    .ds-th-body { flex: 1; background-size: cover; background-position: center; }
+    .ds-th-body.grid-t { background-image: repeating-linear-gradient(0deg,transparent 0 30.5%,var(--ds-bg,#fff) 30.5% 33%), repeating-linear-gradient(90deg,transparent 0 30.5%,var(--ds-bg,#fff) 30.5% 33%), var(--ds-photo); }
+    .ds-th-body.stacked-t { display: grid; grid-template-rows: 1.5fr 1fr; gap: 2px; }
+    .ds-th-body.stacked-t .stk-main { background-image: var(--ds-photo); background-size: cover; background-position: center; }
+    .ds-th-body.stacked-t .stk-row { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+    .ds-th-body.stacked-t .stk-row div { background-image: var(--ds-photo2,var(--ds-photo)); background-size: cover; background-position: center; }
+    .ds-th-mono { filter: grayscale(1) contrast(1.05); }
+    .ds-customize-panel { background: #fff; border: 1px solid var(--card-border); border-radius: 20px; padding: 28px; }
+    .ds-choice-grid { display: grid; gap: 12px; justify-content: start; }
+    .ds-choice-grid.c2 { grid-template-columns: repeat(2,minmax(0,220px)); }
+    .ds-choice-grid.c3 { grid-template-columns: repeat(3,minmax(0,220px)); }
+    .ds-choice-grid.c4 { grid-template-columns: repeat(4,minmax(0,180px)); }
+    .ds-cc { position: relative; background: var(--soft-bg,#fafafa); border: 1.5px solid var(--card-border); border-radius: 14px; padding: 18px 12px 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; transition: all .15s; text-align: center; font-family: inherit; color: var(--text-primary); }
+    .ds-cc:hover { border-color: #86868B; }
+    .ds-cc.sel { border-color: var(--brand); background: var(--brand-cream); }
+    .ds-cc .ds-check { position: absolute; top: 8px; right: 8px; width: 22px; height: 22px; border-radius: 50%; background: var(--brand); color: #fff; display: none; align-items: center; justify-content: center; }
+    .ds-cc.sel .ds-check { display: inline-flex; }
+    .ds-cc-icon { width: 44px; height: 44px; border-radius: 12px; background: #fff; border: 1px solid var(--card-border); display: inline-flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: all .15s; }
+    .ds-cc.sel .ds-cc-icon { color: var(--brand); border-color: rgba(242,107,58,.30); }
+    .ds-cc-lbl { font-size: 12.5px; font-weight: 600; }
+    .ds-swatch { width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--card-border); display: inline-flex; align-items: center; justify-content: center; }
+    .ds-cc.sel .ds-swatch { box-shadow: 0 0 0 2px #fff,0 0 0 4px var(--brand); }
+    .ds-glyph { font-size: 26px; font-weight: 500; line-height: 1; height: 44px; display: flex; align-items: center; }
+    .ds-ld-svg { width: 100%; height: 68px; background: #f0f0f0; border-radius: 8px; padding: 6px; }
+    .ds-ld-svg svg { width: 100%; height: 100%; display: block; }
+    .ds-ld-svg svg path,.ds-ld-svg svg rect { fill: #86868B; }
+    .ds-cc.sel .ds-ld-svg { background: rgba(242,107,58,.10); }
+    .ds-cc.sel .ds-ld-svg svg path,.ds-cc.sel .ds-ld-svg svg rect { fill: var(--brand); opacity: .65; }
+    .ds-phone { width: 46px; height: 68px; border: 2px solid #86868B; border-radius: 8px; padding: 4px; display: grid; gap: 2px; margin: 0 auto; }
+    .ds-phone span { background: #86868B; border-radius: 1px; }
+    .ds-cc.sel .ds-phone { border-color: var(--brand); }
+    .ds-cc.sel .ds-phone span { background: var(--brand); opacity: .65; }
+    .ds-seg { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--soft-bg); padding: 3px; border-radius: 10px; border: 1px solid var(--card-border); max-width: 300px; }
+    .ds-seg-opt { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-radius: 7px; border: 0; background: transparent; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all .15s; }
+    .ds-seg-opt.sel { background: #fff; color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .ds-seg-opt:hover:not(.sel) { color: var(--text-primary); }
+    .ds-toggle-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(0,0,0,.06); }
+    .ds-toggle-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .ds-toggle-row:first-child { padding-top: 0; }
+    .ds-cover-preview { display: flex; gap: 16px; align-items: center; background: var(--soft-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 14px; }
+    .ds-cp-photo { position: relative; width: 128px; height: 96px; border-radius: 10px; background-size: cover; background-position: center; flex-shrink: 0; overflow: hidden; }
+    .ds-cp-dot { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.35),0 1px 3px rgba(0,0,0,.15); cursor: grab; transform: translate(-50%,-50%); }
+    .ds-pills { display: inline-flex; gap: 4px; background: rgba(0,0,0,.04); padding: 4px; border-radius: 999px; }
+    .ds-pill { border: 0; background: transparent; padding: 7px 14px; border-radius: 999px; font-family: inherit; font-size: 12.5px; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all .2s; }
+    .ds-pill:hover:not(.sel) { color: var(--text-primary); }
+    .ds-pill.sel { background: #fff; color: var(--text-primary); box-shadow: 0 1px 3px rgba(0,0,0,.08); font-weight: 600; }
+    .ds-setting-block { background: var(--soft-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px 18px; margin: 14px 0; }
+    .ds-sel-wrap { position: relative; flex: 1; }
+    .ds-native-sel { width: 100%; background: #fff; border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 36px 10px 14px; font-family: inherit; font-size: 13.5px; color: var(--text-primary); cursor: pointer; appearance: none; outline: none; }
+    .ds-native-sel:focus { border-color: var(--brand); box-shadow: 0 0 0 3px rgba(242,107,58,.12); }
+    .ds-sel-chev { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--text-secondary); }
   </style>
 </head>
 <body>
@@ -10059,6 +10135,388 @@
       );
     };
 
+    // ===== Design Tab =====
+    const DesignView = () => {
+      const STYLES = [
+        { label: 'Cover + Grid + White',      bg: '#FFFFFF', hType: 'cover',  bType: 'grid',    name: 'Reception',    photo: 'https://picsum.photos/seed/wed1/400/500',  photo2: null,                                     ink: '#1D1D1F', mono: false },
+        { label: 'Title Only + Grid + Gray',  bg: '#C7C7CC', hType: 'title', bType: 'grid',    name: 'Gallery',      photo: 'https://picsum.photos/seed/wed2/400/500',  photo2: null,                                     ink: '#1D1D1F', mono: false },
+        { label: 'Cover + Stacked + White',   bg: '#FFFFFF', hType: 'cover',  bType: 'stacked', name: 'Our Day',      photo: 'https://picsum.photos/seed/wed3/400/500',  photo2: 'https://picsum.photos/seed/wed4/400/300', ink: '#1D1D1F', mono: false },
+        { label: 'Cover + Grid + Cream',      bg: '#F6EFE4', hType: 'cover',  bType: 'grid',    name: 'First Look',   photo: 'https://picsum.photos/seed/wed5/400/500',  photo2: null,                                     ink: '#1D1D1F', mono: false },
+        { label: 'Cover + Grid + Gray',       bg: '#C7C7CC', hType: 'cover',  bType: 'grid',    name: 'Portraits',    photo: 'https://picsum.photos/seed/wed6/400/500',  photo2: null,                                     ink: '#1D1D1F', mono: false },
+        { label: 'Title Only + Grid + Black', bg: '#0E0E10', hType: 'title', bType: 'grid',    name: 'Black & White',photo: 'https://picsum.photos/seed/bw1/400/500',   photo2: null,                                     ink: '#FFFFFF', mono: true  },
+        { label: 'Cover + Stacked + Black',   bg: '#0E0E10', hType: 'cover',  bType: 'stacked', name: 'Family Beach', photo: 'https://picsum.photos/seed/fam1/400/500',  photo2: 'https://picsum.photos/seed/fam2/400/300',ink: '#1D1D1F', mono: false },
+        { label: 'Title Only + Stacked + Black',bg:'#0E0E10',hType: 'title', bType: 'stacked', name: 'Beach Day',    photo: 'https://picsum.photos/seed/fam3/400/500',  photo2: 'https://picsum.photos/seed/fam4/400/300',ink: '#FFFFFF', mono: false },
+        { label: 'Cover + Grid + Black',      bg: '#0E0E10', hType: 'cover',  bType: 'grid',    name: 'Sunset',       photo: 'https://picsum.photos/seed/fam5/400/500',  photo2: null,                                     ink: '#1D1D1F', mono: false },
+      ];
+      const [selStyle, setSelStyle] = React.useState(5);
+      const [cTab, setCTab] = React.useState('cover');
+      const [coverStyle, setCoverStyle] = React.useState('photo');
+      const [fontStyle, setFontStyle] = React.useState('serif');
+      const [bgColor, setBgColor] = React.useState('black');
+      const [lbMode, setLbMode] = React.useState('light');
+      const [deskLayout, setDeskLayout] = React.useState('portrait-small');
+      const [mobLayout, setMobLayout] = React.useState('1col');
+      const [showTitle, setShowTitle] = React.useState(true);
+      const [showDate, setShowDate] = React.useState(true);
+      const [showNav, setShowNav] = React.useState(false);
+      const [showDN, setShowDN] = React.useState(true);
+      const [dnShow, setDnShow] = React.useState('names');
+      const [dnWhen, setDnWhen] = React.useState('hover');
+      const [showCap, setShowCap] = React.useState(false);
+      const [sortBy, setSortBy] = React.useState('Alphabetical');
+      const [sortDir, setSortDir] = React.useState('Ascending');
+      const trackRef = React.useRef(null);
+      const vpRef = React.useRef(null);
+      const cardRefs = React.useRef([]);
+
+      const scrollTo = (idx) => {
+        const card = cardRefs.current[idx];
+        const vp = vpRef.current;
+        const tr = trackRef.current;
+        if (!card || !vp || !tr) return;
+        const offset = card.offsetLeft - vp.clientWidth / 2 + card.offsetWidth / 2;
+        tr.style.transform = `translateX(${-Math.max(0, offset)}px)`;
+      };
+      const pick = (idx) => { setSelStyle(idx); scrollTo(idx); };
+      React.useEffect(() => { setTimeout(() => scrollTo(selStyle), 60); }, []);
+
+      const CheckSvg = () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12l4 4 10-10"/></svg>;
+      const ChevSvg = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>;
+
+      const CC = ({ group, id, sel, onSel, children, label }) => (
+        <button className={`ds-cc${sel === id ? ' sel' : ''}`} onClick={() => onSel(id)}>
+          <span className="ds-check"><CheckSvg /></span>
+          {children}
+          <span className="ds-cc-lbl">{label}</span>
+        </button>
+      );
+
+      return (
+        <div className="design-view">
+          <div style={{ padding: '28px 32px 60px' }}>
+
+            {/* Carousel */}
+            <h2 style={{ fontSize: 18, fontWeight: 700, margin: '0 0 4px', color: 'var(--text-primary)' }}>Design Gallery</h2>
+            <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '0 0 18px' }}>Select the layout style for your gallery.</p>
+
+            <div className="ds-carousel">
+              <button className="ds-carousel-arrow is-left" onClick={() => pick(Math.max(0, selStyle - 1))}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+              </button>
+              <div className="ds-carousel-viewport" ref={vpRef}>
+                <div className="ds-carousel-track" ref={trackRef}>
+                  {STYLES.map((s, i) => (
+                    <button
+                      key={i}
+                      ref={el => cardRefs.current[i] = el}
+                      className={`ds-style-card${selStyle === i ? ' is-active' : ''}`}
+                      onClick={() => pick(i)}>
+                      <span className="ds-style-badge">{i + 1}</span>
+                      <div className="ds-style-thumb" style={{ '--ds-bg': s.bg, '--ds-photo': `url(${s.photo})`, '--ds-photo2': s.photo2 ? `url(${s.photo2})` : `url(${s.photo})`, background: s.bg }}>
+                        {s.hType === 'cover' ? (
+                          <div className={`ds-th-header ds-th-cover${s.mono ? ' ds-th-mono' : ''}`}
+                            style={{ backgroundImage: `url(${s.photo})` }}>
+                            <span className="ds-th-brand">Exposure Photography</span>
+                            <span className="ds-th-name">{s.name}</span>
+                            <span className="ds-th-date">August 20, 2024</span>
+                          </div>
+                        ) : (
+                          <div className="ds-th-header ds-th-title" style={{ background: s.bg }}>
+                            <span className="ds-th-brand" style={{ color: s.ink, opacity: .6 }}>Exposure Photography</span>
+                            <span className="ds-th-name" style={{ color: s.ink }}>{s.name}</span>
+                            <span className="ds-th-date" style={{ color: s.ink, opacity: .6 }}>August 20, 2024</span>
+                          </div>
+                        )}
+                        {s.bType === 'grid' ? (
+                          <div className={`ds-th-body grid-t${s.mono ? ' ds-th-mono' : ''}`}
+                            style={{ '--ds-bg': s.bg, '--ds-photo': `url(${s.photo})` }} />
+                        ) : (
+                          <div className="ds-th-body stacked-t">
+                            <div className="stk-main" />
+                            <div className="stk-row"><div /><div /></div>
+                          </div>
+                        )}
+                      </div>
+                      <div className="ds-style-label">{s.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <button className="ds-carousel-arrow is-right" onClick={() => pick(Math.min(STYLES.length - 1, selStyle + 1))}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+              </button>
+            </div>
+            <div style={{ textAlign: 'center', fontSize: 13, fontWeight: 600, color: 'var(--text-secondary)', marginBottom: 28 }}>{selStyle + 1} of {STYLES.length}</div>
+
+            {/* Customize panel */}
+            <div className="ds-customize-panel">
+              {/* Sub-tabs */}
+              <div style={{ display: 'flex', gap: 0, borderBottom: '1px solid var(--card-border)', marginBottom: 26 }}>
+                {[['cover','Cover & Title'],['appearance','Appearance'],['layout','Layout & Display']].map(([id, lbl]) => (
+                  <button key={id} onClick={() => setCTab(id)}
+                    style={{ padding: '12px 4px', marginRight: 28, fontSize: 14, fontWeight: cTab === id ? 600 : 500, color: cTab === id ? 'var(--text-primary)' : 'var(--text-secondary)', background: 'none', border: 'none', borderBottom: `2px solid ${cTab === id ? 'var(--brand)' : 'transparent'}`, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .15s' }}>
+                    {lbl}
+                  </button>
+                ))}
+              </div>
+
+              {/* ── Cover & Title ── */}
+              {cTab === 'cover' && (
+                <div>
+                  <div style={{ marginBottom: 28 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px', color: 'var(--text-primary)' }}>Cover Style</h4>
+                    <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', margin: '0 0 14px' }}>Choose what appears at the top of your gallery page.</p>
+                    <div className="ds-choice-grid c3">
+                      {[
+                        ['photo', 'Cover Photo', <div className="ds-cc-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21 15 16 10 5 21"/></svg></div>],
+                        ['title-only', 'Title Only', <div className="ds-cc-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="13" x2="14" y2="13"/><rect x="3" y="5" width="18" height="14" rx="2"/></svg></div>],
+                        ['none', 'None', <div className="ds-cc-icon" style={{ borderStyle: 'dashed', color: 'var(--text-tertiary)' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"><rect x="4.5" y="4.5" width="15" height="15" rx="2" strokeDasharray="3 3"/></svg></div>],
+                      ].map(([id, lbl, icon]) => (
+                        <button key={id} className={`ds-cc${coverStyle === id ? ' sel' : ''}`} onClick={() => setCoverStyle(id)}>
+                          <span className="ds-check"><CheckSvg /></span>
+                          {icon}
+                          <span className="ds-cc-lbl">{lbl}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {coverStyle === 'photo' && (
+                    <div style={{ marginBottom: 28 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px', color: 'var(--text-primary)' }}>Cover Photo</h4>
+                      <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', margin: '0 0 14px' }}>Drag the dot to set the focal point.</p>
+                      <div className="ds-cover-preview">
+                        <div className="ds-cp-photo" style={{ backgroundImage: `url(${STYLES[selStyle].photo})` }}>
+                          <div className="ds-cp-dot" style={{ left: '42%', top: '46%' }} />
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13.5, fontWeight: 600, marginBottom: 3 }}>Cover photo</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>Focal point set · drag to adjust</div>
+                          <button style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12.5, fontWeight: 600, color: 'var(--brand)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontFamily: 'inherit' }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Change photo
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {coverStyle !== 'none' && (
+                    <div style={{ marginBottom: 28 }}>
+                      <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 14px', color: 'var(--text-primary)' }}>Display Options</h4>
+                      {coverStyle === 'photo' && (
+                        <div className="ds-toggle-row">
+                          <div>
+                            <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>Show Title</div>
+                            <div style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>Shows the gallery name on the cover.</div>
+                          </div>
+                          <label className="toggle-switch" style={{ flexShrink: 0 }}>
+                            <input type="checkbox" checked={showTitle} onChange={e => setShowTitle(e.target.checked)} style={{ accentColor: 'var(--brand)' }} />
+                            <span className="toggle-track"></span><span className="toggle-thumb"></span>
+                          </label>
+                        </div>
+                      )}
+                      <div className="ds-toggle-row">
+                        <div>
+                          <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>Show Date</div>
+                          <div style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>Shows the event date below the title.</div>
+                        </div>
+                        <label className="toggle-switch" style={{ flexShrink: 0 }}>
+                          <input type="checkbox" checked={showDate} onChange={e => setShowDate(e.target.checked)} style={{ accentColor: 'var(--brand)' }} />
+                          <span className="toggle-track"></span><span className="toggle-thumb"></span>
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 14px', color: 'var(--text-primary)' }}>Navigation</h4>
+                    <div className="ds-toggle-row" style={{ borderBottom: 0, paddingBottom: 0 }}>
+                      <div>
+                        <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>Show Website Navigation Bar</div>
+                        <div style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>A published website is required to enable this. <span style={{ color: 'var(--brand)', cursor: 'pointer' }}>Learn more.</span></div>
+                      </div>
+                      <label className="toggle-switch" style={{ flexShrink: 0 }}>
+                        <input type="checkbox" checked={showNav} onChange={e => setShowNav(e.target.checked)} style={{ accentColor: 'var(--brand)' }} />
+                        <span className="toggle-track"></span><span className="toggle-thumb"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Appearance ── */}
+              {cTab === 'appearance' && (
+                <div>
+                  <div style={{ marginBottom: 28 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px', color: 'var(--text-primary)' }}>Font Style</h4>
+                    <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', margin: '0 0 14px' }}>Pick a typeface that fits your brand.</p>
+                    <div className="ds-choice-grid c2">
+                      {[['serif','Serif'],['sans','Sans Serif']].map(([id, lbl]) => (
+                        <button key={id} className={`ds-cc${fontStyle === id ? ' sel' : ''}`} onClick={() => setFontStyle(id)}>
+                          <span className="ds-check"><CheckSvg /></span>
+                          <span className={`ds-glyph${id === 'serif' ? '' : ''}`} style={{ fontFamily: id === 'serif' ? 'Georgia, serif' : 'inherit' }}>Aa</span>
+                          <span className="ds-cc-lbl">{lbl}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: 28 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px', color: 'var(--text-primary)' }}>Background Color</h4>
+                    <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', margin: '0 0 14px' }}>Light or dark theme for the gallery page.</p>
+                    <div className="ds-choice-grid c4">
+                      {[['white','#FFFFFF','White'],['cream','#F6EFE4','Cream'],['gray','#3A3A3E','Gray'],['black','#0E0E10','Black']].map(([id, hex, lbl]) => (
+                        <button key={id} className={`ds-cc${bgColor === id ? ' sel' : ''}`} onClick={() => setBgColor(id)}>
+                          <span className="ds-check"><CheckSvg /></span>
+                          <span className="ds-swatch" style={{ background: hex }}></span>
+                          <span className="ds-cc-lbl">{lbl}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px', color: 'var(--text-primary)' }}>Light Box Background Mode</h4>
+                    <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', margin: '0 0 14px' }}>Default mode when viewers open a photo.</p>
+                    <div className="ds-seg">
+                      {[['light','Light'],['dark','Dark']].map(([id, lbl]) => (
+                        <button key={id} className={`ds-seg-opt${lbMode === id ? ' sel' : ''}`} onClick={() => setLbMode(id)}>
+                          {id === 'light'
+                            ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                            : <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                          }
+                          {lbl}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Layout & Display ── */}
+              {cTab === 'layout' && (
+                <div>
+                  <div style={{ marginBottom: 28 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px', color: 'var(--text-primary)' }}>Desktop & Tablet Layout</h4>
+                    <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', margin: '0 0 14px' }}>How thumbnails arrange on larger screens.</p>
+                    <div className="ds-choice-grid c3">
+                      {[
+                        ['portrait-small','Portrait – Small','M12,12 L41.7703349,12 L41.7703349,31.84689 L12,31.84689 Z M75.5406699,12 L105.311005,12 L105.311005,31.84689 L75.5406699,31.84689 Z M43.7703349,58.6555024 L73.5406699,58.6555024 L73.5406699,78.5023923 L43.7703349,78.5023923 Z M107.311005,58.6555024 L137.08134,58.6555024 L137.08134,78.5023923 L107.311005,78.5023923 Z M12,80.5023923 L41.7703349,80.5023923 L41.7703349,98.5023923 L12,98.5023923 Z M75.5406699,80.5023923 L105.311005,80.5023923 L105.311005,98.5023923 L75.5406699,98.5023923 Z M12,33.84689 L41.7703349,33.84689 L41.7703349,78.5023923 L12,78.5023923 Z M75.5406699,33.84689 L105.311005,33.84689 L105.311005,78.5023923 L75.5406699,78.5023923 Z M43.7703349,12 L73.5406699,12 L73.5406699,56.6555024 L43.7703349,56.6555024 Z M107.311005,12 L137.08134,12 L137.08134,56.6555024 L107.311005,56.6555024 Z M43.7703349,80.5023923 L73.5406699,80.5023923 L73.5406699,98.5023923 L43.7703349,98.5023923 Z M107.311005,80.5023923 L137.08134,80.5023923 L137.08134,98.5023923 L107.311005,98.5023923 Z'],
+                        ['portrait-large','Portrait – Large','M54.0191083,12 L94.0382166,12 L94.0382166,38.5609137 L54.0191083,38.5609137 Z M12,73.9323181 L52.0191083,73.9323181 L52.0191083,96.9323181 L12,96.9323181 Z M96.0382166,73.9323181 L136.057325,73.9323181 L136.057325,96.9323181 L96.0382166,96.9323181 Z M54.0191083,40.5609137 L94.0382166,40.5609137 L94.0382166,97.5609137 L54.0191083,97.5609137 Z M12,12 L52.0191083,12 L52.0191083,71.9323181 L12,71.9323181 Z M96.0382166,12 L136.057325,12 L136.057325,71.9323181 L96.0382166,71.9323181 Z'],
+                        ['grid-small','Grid – Small', null],
+                        ['grid-large','Grid – Large', null],
+                        ['landscape-small','Landscape – Small','M106,11.0294373 L134,11.0294373 L134,54.0294373 L106,54.0294373 Z M11,11.0294373 L39,11.0294373 L39,54.0294373 L11,54.0294373 Z M41,11.0294373 L104,11.0294373 L104,54.0294373 L41,54.0294373 Z M11,56 L71.5,56 L71.5,97 L11,97 Z M73.5,56 L134,56 L134,97 L73.5,97 Z'],
+                        ['landscape-large','Landscape – Large','M11,11.0294373 L48.1261981,11.0294373 L48.1261981,66.9722657 L11,66.9722657 Z M11,68.9722657 L71.5127796,68.9722657 L71.5127796,96.9722657 L11,96.9722657 Z M50.1261981,11.0294373 L134.025559,11.0294373 L134.025559,66.9722657 L50.1261981,66.9722657 Z M73.5127796,68.9722657 L134.025559,68.9722657 L134.025559,96.9722657 L73.5127796,96.9722657 Z'],
+                        ['stacked','Stacked','M12.3429,11 L133.0286,11 L133.0286,66 L12.3429,66 Z M12.3429,68 L133.0286,68 L133.0286,97 L12.3429,97 Z'],
+                      ].map(([id, lbl, path]) => (
+                        <button key={id} className={`ds-cc${deskLayout === id ? ' sel' : ''}`} onClick={() => setDeskLayout(id)}>
+                          <span className="ds-check"><CheckSvg /></span>
+                          <div className="ds-ld-svg">
+                            <svg viewBox="0 0 146 96" xmlns="http://www.w3.org/2000/svg">
+                              {id === 'grid-small' ? (
+                                <g transform="translate(12,12)">
+                                  {[0,1,2,3].map(r=>[0,1,2,3].map(c=><rect key={`${r}${c}`} x={c*31} y={r*21} width={29} height={19}/>))}
+                                </g>
+                              ) : id === 'grid-large' ? (
+                                <g transform="translate(12,10)">
+                                  {[0,1,2].map(r=>[0,1,2].map(c=><rect key={`${r}${c}`} x={c*41} y={r*31} width={39} height={29}/>))}
+                                </g>
+                              ) : (
+                                <path d={path}/>
+                              )}
+                            </svg>
+                          </div>
+                          <span className="ds-cc-lbl">{lbl}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: 28 }}>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 4px', color: 'var(--text-primary)' }}>Mobile Layout</h4>
+                    <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', margin: '0 0 14px' }}>How thumbnails arrange on phones.</p>
+                    <div className="ds-choice-grid c2">
+                      {[['1col','1 Column','repeat(1,1fr)','repeat(4,1fr)',4],['2col','2 Columns','repeat(2,1fr)','repeat(4,1fr)',8]].map(([id,lbl,cols,rows,cnt]) => (
+                        <button key={id} className={`ds-cc${mobLayout === id ? ' sel' : ''}`} onClick={() => setMobLayout(id)}>
+                          <span className="ds-check"><CheckSvg /></span>
+                          <div className="ds-phone" style={{ gridTemplateColumns: cols, gridTemplateRows: rows }}>
+                            {Array.from({length: cnt}).map((_,i)=><span key={i}/>)}
+                          </div>
+                          <span className="ds-cc-lbl">{lbl}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 style={{ fontSize: 14, fontWeight: 700, margin: '0 0 14px', color: 'var(--text-primary)' }}>Display Options</h4>
+                    <div style={{ marginBottom: 18 }}>
+                      <div style={{ fontSize: 12.5, fontWeight: 600, marginBottom: 4, color: 'var(--text-primary)' }}>Sort Order</div>
+                      <p style={{ fontSize: 12.5, color: 'var(--text-secondary)', margin: '0 0 10px' }}>Changing the sort order will affect the gallery view for all users.</p>
+                      <div style={{ display: 'flex', gap: 12, maxWidth: 400 }}>
+                        {[
+                          [sortBy, setSortBy, ['Alphabetical','Timestamp','Upload Date','Custom']],
+                          [sortDir, setSortDir, ['Ascending','Descending']],
+                        ].map(([val, setter, opts], si) => (
+                          <div key={si} className="ds-sel-wrap">
+                            <select className="ds-native-sel" value={val} onChange={e => setter(e.target.value)}>
+                              {opts.map(o => <option key={o}>{o}</option>)}
+                            </select>
+                            <span className="ds-sel-chev"><ChevSvg /></span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="ds-setting-block">
+                      <div className="ds-toggle-row" style={{ borderBottom: 0, paddingBottom: 0 }}>
+                        <div>
+                          <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>Show display names & sequence numbers</div>
+                          <div style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>Sequence numbers always appear in the lightbox.</div>
+                        </div>
+                        <label className="toggle-switch" style={{ flexShrink: 0 }}>
+                          <input type="checkbox" checked={showDN} onChange={e => setShowDN(e.target.checked)} style={{ accentColor: 'var(--brand)' }} />
+                          <span className="toggle-track"></span><span className="toggle-thumb"></span>
+                        </label>
+                      </div>
+                      {showDN && (
+                        <div style={{ marginTop: 14 }}>
+                          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: 8 }}>Show</div>
+                          <div className="ds-pills">
+                            {[['names','Display names'],['numbers','Sequence numbers']].map(([id,lbl]) => (
+                              <button key={id} className={`ds-pill${dnShow === id ? ' sel' : ''}`} onClick={() => setDnShow(id)}>{lbl}</button>
+                            ))}
+                          </div>
+                          <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-secondary)', margin: '14px 0 8px' }}>When</div>
+                          <div className="ds-pills">
+                            {[['hover','Only on hover'],['always','Always']].map(([id,lbl]) => (
+                              <button key={id} className={`ds-pill${dnWhen === id ? ' sel' : ''}`} onClick={() => setDnWhen(id)}>{lbl}</button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="ds-toggle-row" style={{ borderBottom: 0 }}>
+                      <div>
+                        <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 3 }}>Show Captions</div>
+                        <div style={{ fontSize: 12.5, color: 'var(--text-secondary)' }}>Caption text appears under each photo.</div>
+                      </div>
+                      <label className="toggle-switch" style={{ flexShrink: 0 }}>
+                        <input type="checkbox" checked={showCap} onChange={e => setShowCap(e.target.checked)} style={{ accentColor: 'var(--brand)' }} />
+                        <span className="toggle-track"></span><span className="toggle-thumb"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     const AdminModal = ({ termsState, setTermsState, onClose }) => {
       const currentFeaturesLabel = termsState.featuresUseDefault ? 'Gallery Features' : (termsState.featuresCustom || 'Gallery Features');
       const featuresPresets = ['Gallery Features', 'Gallery Options', 'Gallery Permissions', 'Gallery Controls'];
@@ -10589,6 +11047,8 @@
                   roles={roles}
                   onOpenPermissions={(photoId) => setPermModalPhotoId(photoId)}
                 />
+              ) : activeMainTab === 'Design' ? (
+                <DesignView />
               ) : (
               <div className="layout-pane flex flex-1" style={{ background: '#fff', paddingBottom: isMobile ? 140 : 0 }}>
                 <InnerSidebar features={features} roles={roles} perRole={perRole}
