@@ -10560,21 +10560,30 @@
       );
     };
 
-    const ChangeAudienceTile = ({ role, onApply }) => (
-      <button onClick={() => onApply(role.id)}
-        className="role-card-hover flex items-stretch text-left rounded-xl border transition-colors"
-        style={{ borderColor: 'var(--card-border)', background: '#fff', cursor: 'pointer' }}>
-        <span style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <UserIcon size={16} style={{ color: 'var(--text-tertiary)' }} />
-        </span>
-        <div className="flex-1 min-w-0 py-3 pr-3">
-          <div className="text-[12px] font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>{role.name.toUpperCase()}</div>
-          <div className="text-[11px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>Custom audience</div>
-        </div>
-      </button>
-    );
+    const ChangeAudienceTile = ({ role, onApply, perRole, features }) => {
+      const rolePerms = perRole?.[role.id] || {};
+      const enabledNames = (features || [])
+        .filter(f => !f.appliesToAll && rolePerms[f.id]?.enabled)
+        .map(f => f.name);
+      const desc = enabledNames.length === 0
+        ? 'No permissions enabled'
+        : enabledNames.join(', ');
+      return (
+        <button onClick={() => onApply(role.id)}
+          className="role-card-hover flex items-stretch text-left rounded-xl border transition-colors"
+          style={{ borderColor: 'var(--card-border)', background: '#fff', cursor: 'pointer' }}>
+          <span style={{ width: 44, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <UserIcon size={16} style={{ color: 'var(--text-tertiary)' }} />
+          </span>
+          <div className="flex-1 min-w-0 py-3 pr-3">
+            <div className="text-[12px] font-bold tracking-wider" style={{ color: 'var(--text-primary)' }}>{role.name.toUpperCase()}</div>
+            <div className="text-[11px] mt-0.5 truncate" style={{ color: 'var(--text-tertiary)' }}>{desc}</div>
+          </div>
+        </button>
+      );
+    };
 
-    const ChangeAudienceModal = ({ contact, roles, onClose, onUpdate, onEnsureSystemRole }) => {
+    const ChangeAudienceModal = ({ contact, roles, perRole, features, onClose, onUpdate, onEnsureSystemRole }) => {
       const isMobile = useIsMobile();
 
       React.useEffect(() => {
@@ -10616,7 +10625,7 @@
                     <div className="mt-5 pt-4 border-t" style={{ borderColor: 'var(--line-2)' }}>
                       <p className="text-[10px] font-bold tracking-[0.14em] mb-3" style={{ color: 'var(--text-3)' }}>GALLERY AUDIENCES</p>
                       <div className="flex flex-col gap-3">
-                        {galleryAudiences.map(r => <ChangeAudienceTile key={r.id} role={r} onApply={apply} />)}
+                        {galleryAudiences.map(r => <ChangeAudienceTile key={r.id} role={r} onApply={apply} perRole={perRole} features={features} />)}
                       </div>
                     </div>
                   </div>
@@ -10648,7 +10657,7 @@
               <div className="mt-5 pt-4 border-t" style={{ borderColor: 'var(--line-2)' }}>
                 <p className="text-[10px] font-bold tracking-[0.14em] mb-3" style={{ color: 'var(--text-3)' }}>GALLERY AUDIENCES</p>
                 <div className="grid grid-cols-3 gap-3">
-                  {galleryAudiences.map(r => <ChangeAudienceTile key={r.id} role={r} onApply={apply} />)}
+                  {galleryAudiences.map(r => <ChangeAudienceTile key={r.id} role={r} onApply={apply} perRole={perRole} features={features} />)}
                 </div>
               </div>
             </div>
@@ -11448,6 +11457,8 @@
             <ChangeAudienceModal
               contact={changeAudienceContact}
               roles={roles}
+              perRole={perRole}
+              features={features}
               onClose={() => setChangeAudienceContact(null)}
               onUpdate={updateContactRole}
               onEnsureSystemRole={ensureSystemRole} />
