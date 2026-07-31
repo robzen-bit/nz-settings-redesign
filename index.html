@@ -7732,6 +7732,7 @@
       const [showImportCSV, setShowImportCSV] = useState(false);
       const [moreOpen, setMoreOpen] = useState(false);
       const [openMenuId, setOpenMenuId] = useState(null);
+      const [menuPos, setMenuPos] = useState({ x: 0, y: 0 });
 
       // Close MORE ROLES dropdown on outside click
       useEffect(() => {
@@ -7748,6 +7749,29 @@
         document.addEventListener('click', handler);
         return () => document.removeEventListener('click', handler);
       }, [openMenuId]);
+
+      const openContactMenu = (e, contactId) => {
+        e.stopPropagation();
+        if (openMenuId === contactId) { setOpenMenuId(null); return; }
+        const rect = e.currentTarget.getBoundingClientRect();
+        setMenuPos({ x: rect.right, y: rect.bottom });
+        setOpenMenuId(contactId);
+      };
+
+      const ContactKebabMenu = ({ c }) => openMenuId === c.id ? ReactDOM.createPortal(
+        <div onClick={e => e.stopPropagation()}
+          className="menu-pop bg-white rounded-md shadow-lg border py-1"
+          style={{ position: 'fixed', right: window.innerWidth - menuPos.x, top: menuPos.y + 4, zIndex: 9999, borderColor: 'var(--card-border)', minWidth: 160 }}>
+          <button onClick={() => { onChangeAudience && onChangeAudience(c); setOpenMenuId(null); }}
+            className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
+            style={{ color: 'var(--text-primary)' }}>Change Audience</button>
+          <div style={{ height: 1, background: 'var(--card-border)', margin: '2px 0' }} />
+          <button onClick={() => { onRemoveContact(c.id); setOpenMenuId(null); }}
+            className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
+            style={{ color: '#e53935' }}>Remove</button>
+        </div>,
+        document.body
+      ) : null;
 
       const everyone = roles.find(r => r.id === 'everyone');
       const otherRoles = roles.filter(r => r.id !== 'everyone');
@@ -7896,25 +7920,13 @@
                         </span>
                         <span className="text-[12px] truncate" style={{ color: 'var(--text-secondary)' }}>{c.email}</span>
                       </div>
-                      <div style={{ position: 'relative' }}>
-                        <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === c.id ? null : c.id); }}
+                      <div>
+                        <button onClick={(e) => openContactMenu(e, c.id)}
                           className="kebab-btn rounded p-1 shrink-0"
                           style={{ color: 'var(--text-tertiary)' }} title="Options">
                           <KebabIcon size={14} />
                         </button>
-                        {openMenuId === c.id && (
-                          <div onClick={e => e.stopPropagation()}
-                            className="menu-pop absolute right-0 top-full mt-1 z-30 bg-white rounded-md shadow-lg border py-1"
-                            style={{ borderColor: 'var(--card-border)', minWidth: 160 }}>
-                            <button onClick={() => { onChangeAudience && onChangeAudience(c); setOpenMenuId(null); }}
-                              className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
-                              style={{ color: 'var(--text-primary)' }}>Change Audience</button>
-                            <div style={{ height: 1, background: 'var(--card-border)', margin: '2px 0' }} />
-                            <button onClick={() => { onRemoveContact(c.id); setOpenMenuId(null); }}
-                              className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
-                              style={{ color: '#e53935' }}>Remove</button>
-                          </div>
-                        )}
+                        <ContactKebabMenu c={c} />
                       </div>
                     </div>
                     <div className="flex items-center gap-3 text-[11px] mt-1.5 flex-wrap">
@@ -7968,25 +7980,13 @@
                         <span className="truncate">{r ? r.name : '—'}</span>
                       </span>
                       <span style={{ color: 'var(--text-tertiary)' }}>-</span>
-                      <div style={{ position: 'relative', justifySelf: 'center' }}>
-                        <button onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === c.id ? null : c.id); }}
+                      <div style={{ justifySelf: 'center' }}>
+                        <button onClick={(e) => openContactMenu(e, c.id)}
                           className="kebab-btn rounded p-1"
                           style={{ color: 'var(--text-tertiary)' }} title="Options">
                           <KebabIcon size={14} />
                         </button>
-                        {openMenuId === c.id && (
-                          <div onClick={e => e.stopPropagation()}
-                            className="menu-pop absolute right-0 top-full mt-1 z-30 bg-white rounded-md shadow-lg border py-1"
-                            style={{ borderColor: 'var(--card-border)', minWidth: 160 }}>
-                            <button onClick={() => { onChangeAudience && onChangeAudience(c); setOpenMenuId(null); }}
-                              className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
-                              style={{ color: 'var(--text-primary)' }}>Change Audience</button>
-                            <div style={{ height: 1, background: 'var(--card-border)', margin: '2px 0' }} />
-                            <button onClick={() => { onRemoveContact(c.id); setOpenMenuId(null); }}
-                              className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
-                              style={{ color: '#e53935' }}>Remove</button>
-                          </div>
-                        )}
+                        <ContactKebabMenu c={c} />
                       </div>
                     </div>
                   );
@@ -10558,7 +10558,7 @@
       );
     };
 
-    const ChangeAudienceModal = ({ contact, roles, onClose, onUpdate }) => {
+    const ChangeAudienceModal = ({ contact, roles, onClose, onUpdate, onEnsureSystemRole }) => {
       const isMobile = useIsMobile();
 
       React.useEffect(() => {
@@ -10567,14 +10567,12 @@
         return () => unlockBodyScroll();
       }, [isMobile]);
 
-      // System roles — always shown; disabled only if not yet in the gallery
-      const defaultRole = roles.find(r => r.id === 'everyone'); // always exists
-      const guestRole   = roles.find(r => r.name === 'Guest');
-      const clientRole  = roles.find(r => r.name === 'Client');
+      const defaultRole      = roles.find(r => r.id === 'everyone'); // always exists
       const galleryAudiences = roles.filter(r => r.id !== 'everyone' && r.name !== 'Guest' && r.name !== 'Client');
 
-      // Click a tile → immediately assign and close (no pre-selection indicator)
-      const apply = (roleId) => { onUpdate(contact.id, roleId); onClose(); };
+      // Click tile → resolve or create the role, then assign and close
+      const apply        = (roleId) => { onUpdate(contact.id, roleId); onClose(); };
+      const applySystem  = (presetId) => { apply(onEnsureSystemRole(presetId)); };
 
       // Custom audience tile (matches saved-roles card style from AddRoleModal)
       const AudienceTile = ({ role }) => (
@@ -10608,9 +10606,9 @@
                     <RoleCard icon={UserIcon} title="DEFAULT" desc="Baseline gallery settings for any visitor."
                       onClick={() => apply(defaultRole.id)} />
                     <RoleCard icon={UserIcon} title="GUEST" desc={PRESETS.guest.desc}
-                      disabled={!guestRole} onClick={guestRole ? () => apply(guestRole.id) : undefined} />
+                      onClick={() => applySystem('guest')} />
                     <RoleCard icon={StarIcon} title="CLIENT" desc={PRESETS.client.desc}
-                      disabled={!clientRole} onClick={clientRole ? () => apply(clientRole.id) : undefined} />
+                      onClick={() => applySystem('client')} />
                   </div>
                 </div>
                 {galleryAudiences.length > 0 && (
@@ -10865,6 +10863,16 @@
       const updateContactRole = (contactId, roleId) => setContacts(prev => prev.map(c => c.id === contactId ? { ...c, roleId } : c));
       const clearContacts = () => setContacts([]);
       const [changeAudienceContact, setChangeAudienceContact] = useState(null);
+
+      // Returns the existing role id for a system preset, or creates the role and returns the new id.
+      const ensureSystemRole = (presetId) => {
+        const existing = roles.find(r => r.name === PRESETS[presetId].name);
+        if (existing) return existing.id;
+        const id = `role-${Date.now()}`;
+        setRoles(prev => [...prev, { id, name: PRESETS[presetId].name, removable: true, isCustom: false }]);
+        setPerRole(prev => ({ ...prev, [id]: buildRoleState(presetId) }));
+        return id;
+      };
 
       // Click-outside-to-close for the desktop kebab dropdown only.
       // Mobile uses a bottom-sheet whose backdrop handles closing, and a document-level
@@ -11441,7 +11449,8 @@
               contact={changeAudienceContact}
               roles={roles}
               onClose={() => setChangeAudienceContact(null)}
-              onUpdate={updateContactRole} />
+              onUpdate={updateContactRole}
+              onEnsureSystemRole={ensureSystemRole} />
           )}
 
           {permModalPhotoId && (
