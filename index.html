@@ -7758,21 +7758,6 @@
         setOpenMenuId(contactId);
       };
 
-      const ContactKebabMenu = ({ c }) => openMenuId === c.id ? ReactDOM.createPortal(
-        <div onClick={e => e.stopPropagation()}
-          className="menu-pop bg-white rounded-md shadow-lg border py-1"
-          style={{ position: 'fixed', right: window.innerWidth - menuPos.x, top: menuPos.y + 4, zIndex: 9999, borderColor: 'var(--card-border)', minWidth: 160 }}>
-          <button onClick={() => { onChangeAudience && onChangeAudience(c); setOpenMenuId(null); }}
-            className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
-            style={{ color: 'var(--text-primary)' }}>Change Audience</button>
-          <div style={{ height: 1, background: 'var(--card-border)', margin: '2px 0' }} />
-          <button onClick={() => { onRemoveContact(c.id); setOpenMenuId(null); }}
-            className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
-            style={{ color: '#e53935' }}>Remove</button>
-        </div>,
-        document.body
-      ) : null;
-
       const everyone = roles.find(r => r.id === 'everyone');
       const otherRoles = roles.filter(r => r.id !== 'everyone');
       const inlineRoles = otherRoles.slice(0, 2);
@@ -7926,7 +7911,20 @@
                           style={{ color: 'var(--text-tertiary)' }} title="Options">
                           <KebabIcon size={14} />
                         </button>
-                        <ContactKebabMenu c={c} />
+                        {openMenuId === c.id && ReactDOM.createPortal(
+                          <div onClick={e => e.stopPropagation()}
+                            className="menu-pop bg-white rounded-md shadow-lg border py-1"
+                            style={{ position: 'fixed', right: window.innerWidth - menuPos.x, top: menuPos.y + 4, zIndex: 9999, borderColor: 'var(--card-border)', minWidth: 160 }}>
+                            <button onClick={() => { onChangeAudience && onChangeAudience(c); setOpenMenuId(null); }}
+                              className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
+                              style={{ color: 'var(--text-primary)' }}>Change Audience</button>
+                            <div style={{ height: 1, background: 'var(--card-border)', margin: '2px 0' }} />
+                            <button onClick={() => { onRemoveContact(c.id); setOpenMenuId(null); }}
+                              className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
+                              style={{ color: '#e53935' }}>Remove</button>
+                          </div>,
+                          document.body
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-3 text-[11px] mt-1.5 flex-wrap">
@@ -7986,7 +7984,20 @@
                           style={{ color: 'var(--text-tertiary)' }} title="Options">
                           <KebabIcon size={14} />
                         </button>
-                        <ContactKebabMenu c={c} />
+                        {openMenuId === c.id && ReactDOM.createPortal(
+                          <div onClick={e => e.stopPropagation()}
+                            className="menu-pop bg-white rounded-md shadow-lg border py-1"
+                            style={{ position: 'fixed', right: window.innerWidth - menuPos.x, top: menuPos.y + 4, zIndex: 9999, borderColor: 'var(--card-border)', minWidth: 160 }}>
+                            <button onClick={() => { onChangeAudience && onChangeAudience(c); setOpenMenuId(null); }}
+                              className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
+                              style={{ color: 'var(--text-primary)' }}>Change Audience</button>
+                            <div style={{ height: 1, background: 'var(--card-border)', margin: '2px 0' }} />
+                            <button onClick={() => { onRemoveContact(c.id); setOpenMenuId(null); }}
+                              className="menu-item w-full text-left text-[12px] font-semibold px-4 py-2.5"
+                              style={{ color: '#e53935' }}>Remove</button>
+                          </div>,
+                          document.body
+                        )}
                       </div>
                     </div>
                   );
